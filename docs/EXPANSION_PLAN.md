@@ -24,6 +24,16 @@ with a similar street that was not changed?
   This is the built "safe streets" section and the main before/after event.
 - **Hollywood project Phase 2**: Sunset Bl from Hillhurst Av to Fountain Av, in front of the Vista Theatre
   (line 2). Not yet installed. Use as control now and as baseline for its own before/after later.
+- **Hollywood Phase 1 result (LADOT fact sheet, no numbers found)**: lower average speeds on Hollywood Bl and
+  more cycling and walking. No published before/after study was found, which is the gap this project can fill.
+- **Hollywood Phase 2 timing**: Lyman Pl to Fountain Av along Sunset Bl, centred on the six-way junction of
+  Hollywood, Sunset, Sunset Dr, Virgil and Hillhurst. Draft design, survey open September 2026,
+  implementation anticipated early 2027.
+- **Vermont Transit Corridor BRT (Metro)**: 12.4 miles, 26 stations, dedicated bus lanes. Groundbreaking
+  reported 21 October 2026. $149.9M federal grant September 2026; reported fully funded with state funds and
+  Measure M. Target opening most often cited as 2028; no confirmed opening date found. Consequence: the
+  existing Vermont archive (2016 to October 2026) is the pre-construction baseline for lines 204 and 754, and
+  speeds from now on include construction effects.
 - **Sunset East Phase 1**: Sunset Bl / Cesar Chavez Av, Douglas St to Alameda St (line 4). In design. Proposal:
   one car lane each way, dedicated bus and bike lanes, most street parking removed. LADOT estimates bus
   speeds up 15% and car trips 1 to 3 minutes longer. LADOT cites 126 fatal or serious-injury crashes,

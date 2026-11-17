@@ -18,6 +18,27 @@ Extend the Vermont Av demo into a before/after comparison for street redesigns:
 The question each page answers: did speed, reliability and safety change after the redesign, compared
 with a similar street that was not changed?
 
+## Project status found so far (web search summaries, 2026-11-17; re-check with LADOT)
+
+- **Hollywood Bl Safety and Mobility Project**: Gower St to Hillhurst Av. Construction began August 2024.
+  This is the built "safe streets" section and the main before/after event.
+- **Hollywood project Phase 2**: Sunset Bl from Hillhurst Av to Fountain Av, in front of the Vista Theatre
+  (line 2). Not yet installed. Use as control now and as baseline for its own before/after later.
+- **Sunset East Phase 1**: Sunset Bl / Cesar Chavez Av, Douglas St to Alameda St (line 4). In design. Proposal:
+  one car lane each way, dedicated bus and bike lanes, most street parking removed. LADOT estimates bus
+  speeds up 15% and car trips 1 to 3 minutes longer. LADOT cites 126 fatal or serious-injury crashes,
+  14 deaths, 2014 to 2025 on the Sunset / Cesar Chavez section. About $10M reported secured (older article).
+- **Sunset East Phase 2**: Fountain Av to Douglas St. Outreach launched September 2026.
+- No construction date was found for either Sunset East phase, so that corridor is a **baseline**: every
+  month of measured data collected before construction is the "before".
+- The project page `ladotlivablestreets.org/projects/sunset` is rendered by JavaScript and could not be read
+  by an automated fetch; open it in a browser for the official timeline.
+- Dated events with source links are stored in `corridors/sunset.json` under `events`.
+- Fountain Av road diet: not yet researched.
+
+Scheduled speeds for lines 2, 4 and the former 704 on the Sunset corridor since 2018 are in
+`data/corridors/sunset/` (built by `pipeline/backfill_corridor.py`).
+
 ## 0. Done already: start archiving lines 2 and 4
 
 GPS history cannot be recovered later, so the live Cloudflare collector now records lines 2 and 4 as

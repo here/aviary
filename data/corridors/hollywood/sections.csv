@@ -1,0 +1,6 @@
+corridor_id,section_id,name,start_mi,end_mi,length_mi
+hollywood,S1,Highland Av to Vine St,0.0,0.684,0.684
+hollywood,S2,Vine St to Gower St,0.684,0.924,0.24
+hollywood,S3,Gower St to Western Av,0.924,1.683,0.759
+hollywood,S4,Western Av to Vermont Av,1.683,2.687,1.004
+hollywood,corridor,Highland Av to Vermont Av,0.0,2.687,2.687

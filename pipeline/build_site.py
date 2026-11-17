@@ -18,23 +18,15 @@ from corridor import BREAKPOINTS, CORRIDOR, SECTIONS, TIMEZONE
 
 LIVE_DAYS = 28  # the page compares the timetable with the last four weeks of measured hours
 
-if __name__ == "__main__":
-    ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
-    ap.add_argument("--data", type=pathlib.Path, default=pathlib.Path("data"))
-    ap.add_argument("--template", type=pathlib.Path, default=pathlib.Path("site/template.html"))
-    ap.add_argument("--out", type=pathlib.Path, default=pathlib.Path("_site/index.html"))
-    ap.add_argument("--fragment", type=pathlib.Path, help="also write the page without the <html> wrapper or download links")
-    a = ap.parse_args()
 
-    h = pd.read_parquet(a.data / "hourly")
+def profile(h: pd.DataFrame) -> dict:
+    """Month x hour-of-day speed profiles for one corridor, small enough to embed."""
     local = h.hour_start_utc.dt.tz_convert(TIMEZONE)
-    h["month"] = local.dt.strftime("%Y-%m")
-    h["hour"] = local.dt.hour
-    h["daytype"] = local.dt.weekday.map(lambda d: "weekday" if d < 5 else ("saturday" if d == 5 else "sunday"))
+    h = h.assign(month=local.dt.strftime("%Y-%m"), hour=local.dt.hour,
+                 daytype=local.dt.weekday.map(lambda d: "weekday" if d < 5 else ("saturday" if d == 5 else "sunday")))
     days_per_month = local.dt.date.groupby(h.month).nunique()
     months = [m for m in sorted(h.month.unique()) if days_per_month[m] >= 10]  # drop stub months
     mi = {m: i for i, m in enumerate(months)}
-
     g = h[h.month.isin(months)].groupby(["route", "direction", "section_id", "daytype", "month", "hour"]).agg(
         tt=("travel_time_min", "mean"), length=("length_mi", "first")).reset_index()
     g["v"] = (g.length / (g.tt / 60) * 100).round().astype(int)  # mph x 100
@@ -44,33 +36,84 @@ if __name__ == "__main__":
         for m, hr, v in zip(grp.month, grp.hour, grp.v):
             arr[mi[m] * 24 + hr] = v
         series["|".join(key)] = arr
+    return {"months": months, "series": series,
+            "meta": {"rows": int(len(h)), "first": local.min().strftime("%Y-%m-%d"), "last": local.max().strftime("%Y-%m-%d"),
+                     "feed_versions": int(h.feed_version.nunique())}}
+
+
+def live_rows(files: list) -> list:
+    """Measured section-hours from the last LIVE_DAYS days."""
+    files = files[-2:]
+    if not files:
+        return []
+    obs = pd.concat([pd.read_csv(f, dtype={"route": str}) for f in files])
+    obs["t"] = pd.to_datetime(obs.hour_start_utc, utc=True).dt.tz_convert(TIMEZONE)
+    obs = obs[obs.t >= obs.t.max() - pd.Timedelta(days=LIVE_DAYS)]
+    day = lambda wd: "weekday" if wd < 5 else ("saturday" if wd == 5 else "sunday")
+    return [{"date": r.t.strftime("%Y-%m-%d"), "hour": r.t.hour, "route": r.route, "direction": r.direction,
+             "section": r.section_id, "mph": r.speed_mph, "n": int(r.n_trips), "day": day(r.t.weekday())} for r in obs.itertuples()]
+
+
+def focus_rows(root: pathlib.Path, cid: str) -> list:
+    """Per focus segment and direction: bus passes timed so far, median and spread in seconds."""
+    files = sorted((root / "observed").glob(f"{cid}_focus_traversals_*.csv"))
+    if not files or not (root / "focus_sections.csv").exists():
+        return []
+    tr = pd.concat([pd.read_csv(f) for f in files])
+    names = pd.read_csv(root / "focus_sections.csv").set_index("focus_id")
+    out = []
+    for (fid, direction), g in tr.groupby(["focus_id", "direction"]):
+        out.append({"id": fid, "name": names.loc[fid, "name"], "length_mi": float(names.loc[fid, "length_mi"]), "direction": direction,
+                    "n": int(len(g)), "median_s": round(float(g.seconds.median()), 1), "p20_s": round(float(g.seconds.quantile(.2)), 1),
+                    "p80_s": round(float(g.seconds.quantile(.8)), 1), "first": g.entered_local.min()[:10], "last": g.entered_local.max()[:10]})
+    return out
+
+if __name__ == "__main__":
+    ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
+    ap.add_argument("--data", type=pathlib.Path, default=pathlib.Path("data"))
+    ap.add_argument("--template", type=pathlib.Path, default=pathlib.Path("site/template.html"))
+    ap.add_argument("--out", type=pathlib.Path, default=pathlib.Path("_site/index.html"))
+    ap.add_argument("--fragment", type=pathlib.Path, help="also write the page without the <html> wrapper or download links")
+    a = ap.parse_args()
 
     calitp = pd.read_csv(a.data / "reference" / "calitp_speeds_204.csv")
-    files = sorted((a.data / "observed").glob("vermont_observed_*.csv"))[-2:]  # enough for the last LIVE_DAYS
-    obs = pd.concat([pd.read_csv(f, dtype={"route": str}) for f in files]) if files else pd.DataFrame()
-    live = []
-    if len(obs):
-        obs["t"] = pd.to_datetime(obs.hour_start_utc, utc=True).dt.tz_convert(TIMEZONE)
-        obs = obs[obs.t >= obs.t.max() - pd.Timedelta(days=LIVE_DAYS)]
-        for r in obs.itertuples():
-            wd = r.t.weekday()
-            live.append({"date": r.t.strftime("%Y-%m-%d"), "hour": r.t.hour, "route": r.route, "direction": r.direction,
-                         "section": r.section_id, "mph": r.speed_mph, "n": r.n_trips,
-                         "day": "weekday" if wd < 5 else ("saturday" if wd == 5 else "sunday")})
-
-    payload = {
-        "months": months,
-        "series": series,
+    corridors = {"vermont": {
+        **profile(pd.read_parquet(a.data / "hourly")),
+        "name": "Vermont Av", "street": "Vermont Av", "ends": ["North", "South"],
+        "routes": [["204", "204 Local"], ["754", "754 Rapid"]],
+        "directions": ["northbound", "southbound"],
         "sections": [CORRIDOR] + SECTIONS,
         "breakpoints": [n for n, _ in BREAKPOINTS],
+        "events": [{"date": "2026-10", "short": "BRT construction starts", "label": "Vermont Transit Corridor BRT groundbreaking (Metro)",
+                    "status": "under construction; opening targeted 2028, not confirmed"}],
         "calitp": [{"section": r.section_id, "direction": r.direction, "period": r.time_period, "start": r.start_hour,
-                    "end": r.end_hour, "p20": r.p20_mph, "p50": r.p50_mph, "p80": r.p80_mph}
-                   for r in calitp.itertuples()],
-        "calitp_retrieved": calitp.retrieved.iloc[0],
-        "live": live,
-        "meta": {"rows": int(len(h)), "first": local.min().strftime("%Y-%m-%d"), "last": local.max().strftime("%Y-%m-%d"),
-                 "feed_versions": int(h.feed_version.nunique())},
-    }
+                    "end": r.end_hour, "p20": r.p20_mph, "p50": r.p50_mph, "p80": r.p80_mph} for r in calitp.itertuples()],
+        "live": live_rows(sorted((a.data / "observed").glob("vermont_observed_*.csv"))),
+        "focus": [],
+    }}
+    planned = []
+    for path in sorted(pathlib.Path("corridors").glob("*.json")):
+        cfg = json.loads(path.read_text())
+        root = a.data / "corridors" / cfg["corridor_id"]
+        if not (root / "hourly").exists():  # no bus data (for example Fountain Av): listed in the notes only
+            planned.append({"name": cfg["name"], "events": cfg.get("events", [])})
+            continue
+        sec = pd.read_csv(root / "sections.csv")
+        sections = sec[sec.section_id == "corridor"].to_dict("records") + sec[sec.section_id != "corridor"].to_dict("records")
+        names = [b[0] for b in cfg["breakpoints"]]
+        corridors[cfg["corridor_id"]] = {
+            **profile(pd.read_parquet(root / "hourly")),
+            "name": cfg["name"].split(",")[0], "street": cfg["name"].split(",")[0], "ends": ["West", "East"],
+            "routes": [[r, f"Line {r}"] for r in cfg["routes"]],
+            "directions": [cfg["directions"]["increasing"], cfg["directions"]["decreasing"]],
+            "sections": sections, "breakpoints": names,
+            "events": [{**e, "short": e.get("short") or e["label"].split(" (")[0][:40]} for e in cfg.get("events", [])],
+            "calitp": [],
+            "live": live_rows(sorted((root / "observed").glob(f"{cfg['corridor_id']}_observed_*.csv"))),
+            "focus": focus_rows(root, cfg["corridor_id"]),
+        }
+    payload = {"corridors": corridors, "planned": planned, "calitp_retrieved": calitp.retrieved.iloc[0],
+               "rows": sum(c["meta"]["rows"] for c in corridors.values())}
     page = a.template.read_text().replace("/*DATA*/null", json.dumps(payload, separators=(",", ":")))
     a.out.parent.mkdir(parents=True, exist_ok=True)
     if a.fragment:
@@ -91,4 +134,5 @@ if __name__ == "__main__":
     a.out.write_text('<!doctype html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n'
                      '<meta name="viewport" content="width=device-width, initial-scale=1">\n</head>\n<body>\n'
                      + page + "\n</body>\n</html>\n")
-    print(f"{a.out}: {a.out.stat().st_size / 1e6:.2f} MB, {len(months)} months, {len(series)} series, {len(live)} live rows")
+    print(f"{a.out}: {a.out.stat().st_size / 1e6:.2f} MB, corridors: " + ", ".join(
+        f"{k} ({len(c['months'])} months, {len(c['series'])} series, {len(c['live'])} live rows)" for k, c in corridors.items()))

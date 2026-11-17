@@ -71,7 +71,14 @@ Outcome so far: both research documents are finished and pushed. Findings that c
   53 severe-injury and fatal collisions in the project area, 2010 to 2019.
 - Both documents are built from search-result summaries only; no source page was opened. Verify before quoting.
 - `corridors/fountain.json` has approximate coordinates (latitude held constant) and must be corrected before use.
-- The Hollywood corridor build (JSON plus 2018 backfill) had not reported back when this was written.
+- **Hollywood corridor** (`corridors/hollywood.json`, Highland Av to Vermont Av, four sections): scheduled speeds for
+  lines 180, 217 and 780, 2018-01-01 to 2026-11-16, 1.2M rows in `data/corridors/hollywood/`. The agent building it was
+  cut off by a usage limit after the backfill finished; the output was checked and committed by the main session.
+  Caveats: the corridor stops at Vermont Av, so it does not reach Hillhurst Av (the Phase 1 east end); 780 data ends
+  in 2021; line 217 shows an implausible 19.2 mph on Gower St to Western Av in 2021, worth checking before quoting.
+- **Charts page** now has a Street picker (Vermont, Hollywood, Sunset), project-date markers on the time series, an
+  events list per street, and a "Measured through the next project site" table for the Sunset focus segments.
+  Corridors without bus data (Fountain Av) are listed in the notes.
 
 If any of these is missing or half-done, redo it; nothing else depends on them yet. Owner's reference pages:
 `https://ladotlivablestreets.org/projects/hollywood-blvd` and `/projects/sunset` (JavaScript-rendered; use a

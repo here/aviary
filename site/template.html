@@ -1,4 +1,4 @@
-<title>Vermont Av Bus Speeds</title>
+<title>LA Street Speeds</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600&display=swap">
 <style>
@@ -62,9 +62,13 @@ button:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
 .stretch:last-child i { border-right: 2px solid var(--ink-2); }
 .stretch[aria-pressed="true"] i { background: var(--accent); }
 .stretch[aria-pressed="true"] { color: var(--ink); }
+.stretch:disabled { opacity: .45; cursor: default; }
 .stretch em { font-style: normal; display: block; padding-right: 6px; line-height: 1.25; }
 .stretch em small { display: block; color: var(--ink-3); font-size: 11px; }
 .street-foot { display: flex; justify-content: space-between; gap: 12px; font-size: 12.5px; color: var(--ink-3); flex-wrap: wrap; }
+.events { margin: 0; padding-left: 18px; font-size: 13px; color: var(--ink-2); max-width: 90ch; }
+.events:empty { display: none; }
+.events b { font-weight: 600; color: var(--ink); }
 .linkish { background: none; border: 0; padding: 0; font: 500 12.5px var(--body); color: var(--accent); cursor: pointer; text-decoration: underline; }
 
 .panel { background: var(--surface); border: 1px solid var(--ring); border-radius: 10px; padding: 18px 18px 14px; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
@@ -106,22 +110,24 @@ code { font: 12.5px ui-monospace, SFMono-Regular, Menlo, monospace; background: 
 
 <div class="wrap">
   <header>
-    <div class="eyebrow">Los Angeles · Metro lines 204 and 754</div>
-    <h1>How fast buses move on Vermont Avenue, hour by hour since 2016</h1>
-    <p class="lede">Every hour of every day for more than ten years, rebuilt from the timetables LA Metro has published, and checked against speeds measured from bus GPS. The corridor runs 11.7 miles from Sunset Boulevard to Athens Station.</p>
+    <div class="eyebrow">Los Angeles · streets being redesigned</div>
+    <h1>How fast buses move on streets Los Angeles is redesigning</h1>
+    <p class="lede">Hour by hour, for years before each project, rebuilt from the timetables LA Metro has published and checked against speeds measured from bus GPS. Pick a street to see its record and the project dates on it.</p>
   </header>
 
   <section class="stats" id="stats" aria-live="polite"></section>
 
   <section class="controls" aria-label="Filters">
-    <div class="ctl"><span>Line</span><div class="seg" data-f="route"><button id="f-route-204" data-v="204">204 Local</button><button id="f-route-754" data-v="754">754 Rapid</button></div></div>
-    <div class="ctl"><span>Direction</span><div class="seg" data-f="dir"><button id="f-dir-both" data-v="both">Both</button><button id="f-dir-nb" data-v="northbound">Northbound</button><button id="f-dir-sb" data-v="southbound">Southbound</button></div></div>
+    <div class="ctl"><span>Street</span><div class="seg" data-f="cor" id="seg-cor"></div></div>
+    <div class="ctl"><span>Line</span><div class="seg" data-f="route" id="seg-route"></div></div>
+    <div class="ctl"><span>Direction</span><div class="seg" data-f="dir" id="seg-dir"></div></div>
     <div class="ctl"><span>Days</span><div class="seg" data-f="day"><button id="f-day-wk" data-v="weekday">Weekdays</button><button id="f-day-sa" data-v="saturday">Saturday</button><button id="f-day-su" data-v="sunday">Sunday</button></div></div>
   </section>
 
   <section class="street" aria-label="Choose a stretch of Vermont Avenue">
     <div class="street-row"><div class="street-inner" id="street"></div></div>
     <div class="street-foot"><span id="street-label"></span><button class="linkish" id="whole" type="button">Show the whole corridor</button></div>
+    <ul class="events" id="events"></ul>
   </section>
 
   <section class="panel">
@@ -146,6 +152,12 @@ code { font: 12.5px ui-monospace, SFMono-Regular, Menlo, monospace; background: 
     </section>
   </div>
 
+  <section class="panel" id="focus-panel" hidden>
+    <h2>Measured through the next project site</h2>
+    <p id="focus-sub"></p>
+    <div class="tablewrap"><table id="focus-tbl"></table></div>
+  </section>
+
   <section class="panel">
     <h2 id="tbl-title">Stretch by stretch</h2>
     <p id="tbl-sub"></p>
@@ -154,16 +166,18 @@ code { font: 12.5px ui-monospace, SFMono-Regular, Menlo, monospace; background: 
 
   <section class="notes">
     <div><h3>What the long series is</h3>
-      <p>LA Metro keeps its bus timetable (GTFS) in a public git repository with <span id="n-feeds"></span> versions since 2016. For each date we take the version in force, find every 204 and 754 trip, and time it between cross streets. Metro resets running times at service changes using measured trips, so the timetable follows real conditions with a lag. Stretches where the line stays flat for a year or more are periods when Metro left the running times unchanged; they are not evidence that traffic stood still.</p></div>
+      <p>LA Metro keeps its bus timetable (GTFS) in a public git repository going back to 2016; <span id="n-feeds"></span> versions cover this street. For each date we take the version in force, find every trip on the street, and time it between cross streets. Metro resets running times at service changes using measured trips, so the timetable follows real conditions with a lag. Stretches where the line stays flat for a year or more are periods when Metro left the running times unchanged; they are not evidence that traffic stood still.</p></div>
     <div><h3>What is measured</h3>
       <ul><li>Cal-ITP (Caltrans) publishes stop-to-stop speeds from archived bus GPS: the middle trip and the 20th to 80th percentile range for one recent weekday.</li>
-      <li>A collector in this project records live GPS positions from Metro's public feed around the clock. Live points average the measured hours of the last four weeks.</li></ul></div>
+      <li>A collector in this project records live GPS positions from Metro's public feed around the clock, for lines 204, 754, 2 and 4. Live points average the measured hours of the last four weeks.</li></ul></div>
     <div><h3>The archive</h3>
-      <p><span id="n-rows"></span> hourly records from <span id="n-first"></span> to <span id="n-last"></span>, stored as Parquet (one folder per year) with gzipped CSV copies of the corridor rows and a Frictionless <code>datapackage.json</code> describing every column. Raw GPS pings are also exported as Open Mobility Foundation MDS 2.0 Telemetry objects.<!--DOWNLOADS--></p></div>
+      <p><span id="n-rows"></span> hourly records across all streets (this one: <span id="n-first"></span> to <span id="n-last"></span>), stored as Parquet (one folder per year) with gzipped CSV copies of the corridor rows and a Frictionless <code>datapackage.json</code> describing every column. Raw GPS pings are also exported as Open Mobility Foundation MDS 2.0 Telemetry objects.<!--DOWNLOADS--></p></div>
     <div><h3>Limits to state on stage</h3>
       <ul><li>These are bus speeds including stops, so they sit well below car speeds on the same street.</li>
       <li>MDS has no transit-bus mode and no roadway-speed table. The telemetry export borrows its vehicle-position format; the hourly table is our own schema.</li>
-      <li>A measured hourly history needs an archive of GPS feeds. That starts now with the collector, or sooner with access to Metro's or Cal-ITP's stored feeds.</li></ul></div>
+      <li>A measured hourly history needs an archive of GPS feeds. That starts now with the collector, or sooner with access to Metro's or Cal-ITP's stored feeds.</li>
+      <li>Project dates come from news coverage and agency updates and should be confirmed with LADOT and Metro.</li></ul>
+      <p id="planned" style="margin-top:8px"></p></div>
   </section>
 </div>
 <div id="tip" hidden></div>
@@ -178,20 +192,20 @@ const BANDS = [
   { name: "PM peak", hint: "3 to 8pm", h: [15, 16, 17, 18, 19], c: "--s3" },
   { name: "Evening", hint: "8pm to midnight", h: [20, 21, 22, 23], c: "--s4" },
 ];
-const state = { route: "204", dir: "both", day: "weekday", sec: "corridor" };
-try { Object.assign(state, JSON.parse(localStorage.getItem("aviary-vermont-filters") || "{}")); } catch (e) {}
-const M = D.months.length;
-const secOf = id => D.sections.find(s => s.section_id === id);
+const state = { cor: "vermont", route: "204", dir: "both", day: "weekday", sec: "corridor" };
+try { Object.assign(state, JSON.parse(localStorage.getItem("aviary-filters-2") || "{}")); } catch (e) {}
+let C, M, YEARS;  // the corridor on screen, its month count and its years
+const secOf = id => C.sections.find(s => s.section_id === id);
 const hourName = h => (h % 12 || 12) + (h % 24 < 12 ? "am" : "pm");
 const monthName = m => new Date(m + "-15").toLocaleDateString("en-US", { month: "short", year: "numeric" });
 const f1 = v => v == null ? "–" : v.toFixed(1);
 
 // speed (mph) for month index m, hour h, honouring the direction filter (both = average the two running times)
 function speed(m, h, sec = state.sec, st = state) {
-  const dirs = st.dir === "both" ? ["northbound", "southbound"] : [st.dir];
+  const dirs = st.dir === "both" ? C.directions : [st.dir];
   let inv = 0;
   for (const d of dirs) {
-    const a = D.series[[st.route, d, sec, st.day].join("|")];
+    const a = C.series[[st.route, d, sec, st.day].join("|")];
     const v = a && a[m * 24 + h];
     if (!v) return null;
     inv += 100 / v;
@@ -204,8 +218,22 @@ function avg(ms, hs, sec = state.sec) {
   for (const m of ms) for (const h of hs) { const v = speed(m, h, sec); if (v) { inv += 1 / v; n++; } }
   return n ? n / inv : null;
 }
-const yearMonths = y => D.months.map((m, i) => m.startsWith(y) ? i : -1).filter(i => i >= 0);
-const YEARS = [...new Set(D.months.map(m => m.slice(0, 4)))];
+const yearMonths = y => C.months.map((m, i) => m.startsWith(y) ? i : -1).filter(i => i >= 0);
+const allMonths = () => C.months.map((_, i) => i);
+// first and last year with PM-peak data for a section under the current filters
+function span(sec) {
+  const ys = YEARS.filter(y => avg(yearMonths(y), BANDS[2].h, sec) != null);
+  return ys.length ? [ys[0], ys[ys.length - 1]] : null;
+}
+// make the filters valid for the chosen street, and land on a stretch that has data
+function useCorridor() {
+  if (!D.corridors[state.cor]) state.cor = Object.keys(D.corridors)[0];
+  C = D.corridors[state.cor]; M = C.months.length; YEARS = [...new Set(C.months.map(m => m.slice(0, 4)))];
+  if (!C.routes.some(r => r[0] === state.route)) state.route = C.routes[0][0];
+  if (state.dir !== "both" && !C.directions.includes(state.dir)) state.dir = "both";
+  if (!secOf(state.sec)) state.sec = "corridor";
+  if (!span(state.sec)) { const s = C.sections.find(x => span(x.section_id)); if (s) state.sec = s.section_id; }
+}
 
 function el(tag, attrs, parent, text) {
   const e = document.createElementNS(NS, tag);
@@ -234,40 +262,42 @@ function describe() {
   const s = secOf(state.sec);
   const dir = state.dir === "both" ? "both directions" : state.dir;
   const day = { weekday: "weekdays", saturday: "Saturdays", sunday: "Sundays" }[state.day];
-  return { where: s.name, text: `Line ${state.route}, ${dir}, ${day}`, len: s.length_mi };
+  return { where: s.name, text: `${C.street}, line ${state.route}, ${dir}, ${day}`, len: s.length_mi };
 }
 
 function renderStats() {
-  const pm = BANDS[2].h, y0 = YEARS[0], y1 = YEARS[YEARS.length - 1];
+  const pm = BANDS[2].h, sp = span(state.sec) || [YEARS[0], YEARS[YEARS.length - 1]], y0 = sp[0], y1 = sp[1];
   const a = avg(yearMonths(y0), pm), b = avg(yearMonths(y1), pm), len = secOf(state.sec).length_mi;
   const tiles = (a && b) ? [
     [`${f1(b)}<small>mph</small>`, `PM-peak speed in ${y1}`],
     [`${b < a ? "−" : "+"}${Math.abs((b / a - 1) * 100).toFixed(0)}<small>%</small>`, `Change since ${y0} (${f1(a)} mph then)`],
     [`${(len / b * 60).toFixed(0)}<small>min</small>`, `To ride this stretch at PM peak, ${((len / b - len / a) * 60 >= 0 ? "+" : "−")}${Math.abs((len / b - len / a) * 60).toFixed(0)} min since ${y0}`],
   ] : [["–", `No ${state.route} service for this selection`], ["–", ""], ["–", ""]];
-  tiles.push([`${(D.meta.rows / 1e6).toFixed(2)}<small>M</small>`, `Hourly records archived, ${D.meta.first.slice(0, 4)} to ${D.meta.last.slice(0, 4)}`]);
+  tiles.push([`${(D.rows / 1e6).toFixed(2)}<small>M</small>`, `Hourly records archived across ${Object.keys(D.corridors).length} streets`]);
   $("#stats").innerHTML = tiles.map(t => `<div class="stat"><b>${t[0]}</b><span>${t[1]}</span></div>`).join("");
 }
 
 function renderStreet() {
   const host = $("#street"); host.innerHTML = "";
-  D.sections.slice(1).forEach((s, i) => {
+  C.sections.slice(1).forEach((s, i) => {
     const b = document.createElement("button");
     b.className = "stretch"; b.type = "button"; b.id = "sec-" + s.section_id; b.style.setProperty("--len", s.length_mi);
     b.setAttribute("aria-pressed", state.sec === "corridor" || state.sec === s.section_id);
-    b.innerHTML = `<i></i><em>${D.breakpoints[i]}<small>${s.length_mi.toFixed(1)} mi to ${D.breakpoints[i + 1].replace(" (I-105)", "")}</small></em>`;
+    b.innerHTML = `<i></i><em>${C.breakpoints[i]}<small>${s.length_mi.toFixed(1)} mi to ${C.breakpoints[i + 1].replace(" (I-105)", "")}</small></em>`;
+    b.disabled = !span(s.section_id); if (b.disabled) b.title = "No service on this stretch for this line";
     b.onclick = () => set("sec", state.sec === s.section_id ? "corridor" : s.section_id);
     host.appendChild(b);
   });
   const d = describe();
-  $("#street-label").textContent = `North ← Vermont Av → South · showing ${d.where} (${d.len.toFixed(1)} mi)`;
+  $("#street-label").textContent = `${C.ends[0]} ← ${C.street} → ${C.ends[1]} · showing ${d.where} (${d.len.toFixed(1)} mi)`;
+  $("#events").innerHTML = C.events.map(e => `<li><b>${e.date || "Planned"}</b> · ${e.label}${e.status ? ` (${e.status})` : ""}</li>`).join("");
   $("#whole").hidden = state.sec === "corridor";
 }
 
 function renderTS() {
   const host = $("#ts"), W = Math.max(320, host.clientWidth), narrow = W < 560;
   const H = narrow ? 300 : 380, m = { l: 34, r: narrow ? 12 : 76, t: 26, b: 26 };
-  const data = BANDS.map(b => D.months.map((_, i) => avg([i], b.h)));
+  const data = BANDS.map(b => C.months.map((_, i) => avg([i], b.h)));
   const all = data.flat().filter(v => v != null);
   const d = describe();
   $("#ts-sub").textContent = `${d.text}, ${d.where}. Each point is a month; speed is distance over scheduled running time, stops included.`;
@@ -281,15 +311,22 @@ function renderTS() {
     el("text", { x: m.l - 6, y: y(t) + 4, "text-anchor": "end" }, svg, t);
   }
   el("text", { x: 0, y: 10 }, svg, "mph");
-  D.months.forEach((mo, i) => { if (mo.endsWith("-01")) {
+  C.months.forEach((mo, i) => { if (mo.endsWith("-01")) {
     el("line", { x1: x(i), x2: x(i), y1: H - m.b, y2: H - m.b + 4, stroke: "var(--ink-3)" }, svg);
     if (!narrow || (+mo.slice(0, 4)) % 2 === 0) el("text", { x: x(i), y: H - 6, "text-anchor": "middle" }, svg, mo.slice(0, 4));
   } });
-  const covid = D.months.indexOf("2020-03");
+  const covid = C.months.indexOf("2020-03");
   if (covid > 0) {
     el("line", { x1: x(covid), x2: x(covid), y1: m.t, y2: H - m.b, stroke: "var(--ink-3)", "stroke-dasharray": "2 3" }, svg);
     el("text", { x: x(covid) + 5, y: m.t - 6 }, svg, narrow ? "Mar 2020" : "Mar 2020 stay-at-home order");
   }
+  C.events.filter(e => e.date).forEach((e, n) => {
+    const i = C.months.indexOf(e.date.slice(0, 7));
+    if (i < 0) return;
+    const right = x(i) > W * 0.6;
+    el("line", { x1: x(i), x2: x(i), y1: m.t, y2: H - m.b, stroke: "var(--accent)", "stroke-dasharray": "4 3" }, svg);
+    if (!narrow) el("text", { x: x(i) + (right ? -5 : 5), y: m.t + 12 + 13 * (n % 3), "text-anchor": right ? "end" : "start", class: "lab" }, svg, e.short);
+  });
   const ends = [];
   data.forEach((arr, k) => {
     let p = "", pen = false;
@@ -311,7 +348,7 @@ function renderTS() {
     const i = Math.max(0, Math.min(M - 1, Math.round((px - m.l) / (W - m.l - m.r) * (M - 1))));
     cross.setAttribute("x1", x(i)); cross.setAttribute("x2", x(i)); cross.setAttribute("visibility", "visible");
     dots.forEach((c, k) => { const v = data[k][i]; c.setAttribute("visibility", v == null ? "hidden" : "visible"); if (v != null) { c.setAttribute("cx", x(i)); c.setAttribute("cy", y(v)); } });
-    showTip(`<b>${monthName(D.months[i])}</b>` + BANDS.map((b, k) => row(b.c, b.name, data[k][i] == null ? "no service" : f1(data[k][i]) + " mph")).join(""), ev.clientX, ev.clientY);
+    showTip(`<b>${monthName(C.months[i])}</b>` + BANDS.map((b, k) => row(b.c, b.name, data[k][i] == null ? "no service" : f1(data[k][i]) + " mph")).join(""), ev.clientX, ev.clientY);
   });
   hit.addEventListener("pointerleave", () => { hideTip(); cross.setAttribute("visibility", "hidden"); dots.forEach(c => c.setAttribute("visibility", "hidden")); });
 }
@@ -341,20 +378,20 @@ function renderObs() {
   const host = $("#obs"), W = Math.max(300, host.clientWidth), H = 300, m = { l: 34, r: 10, t: 26, b: 26 };
   const recent = Array.from({ length: Math.min(3, M) }, (_, i) => M - 1 - i);
   const sched = Array.from({ length: 24 }, (_, h) => avg(recent, [h]));
-  const dirs = state.dir === "both" ? ["northbound", "southbound"] : [state.dir];
+  const dirs = state.dir === "both" ? C.directions : [state.dir];
   const comb = (rows, key) => { if (rows.length < dirs.length) return null; return rows.length / rows.reduce((s, r) => s + 1 / r[key], 0); };
-  const periods = state.route === "204" ? [...new Set(D.calitp.map(c => c.period))].map(p => {
-    const rows = D.calitp.filter(c => c.period === p && c.section === state.sec && dirs.includes(c.direction));
+  const periods = C.calitp.length && state.route === "204" ? [...new Set(C.calitp.map(c => c.period))].map(p => {
+    const rows = C.calitp.filter(c => c.period === p && c.section === state.sec && dirs.includes(c.direction));
     return rows.length < dirs.length ? null : { p, start: rows[0].start, end: rows[0].end, p20: comb(rows, "p20"), p50: comb(rows, "p50"), p80: comb(rows, "p80") };
   }).filter(Boolean) : [];
   // measured hours: combine directions within each recorded hour, then average the recorded hours for each clock hour
   const liveHours = {};
-  D.live.filter(l => l.route === state.route && l.section === state.sec && l.day === state.day && dirs.includes(l.direction)).forEach(l => (liveHours[l.date + "|" + l.hour] ||= []).push(l));
+  C.live.filter(l => l.route === state.route && l.section === state.sec && l.day === state.day && dirs.includes(l.direction)).forEach(l => (liveHours[l.date + "|" + l.hour] ||= []).push(l));
   const byHour = {};
   Object.values(liveHours).forEach(rows => { const v = comb(rows, "mph"); if (v) (byHour[rows[0].hour] ||= []).push({ mph: v, date: rows[0].date }); });
   const live = Object.entries(byHour).map(([hour, a]) => ({ hour: +hour, n: a.length, mph: a.length / a.reduce((s, r) => s + 1 / r.mph, 0) }));
   const liveDates = Object.values(byHour).flat().map(r => r.date).sort(), liveN = liveDates.length;
-  const cal = periods.length ? `Cal-ITP measured one weekday (retrieved ${D.calitp_retrieved}).` : (state.route === "204" ? "Cal-ITP has no measurement for this selection." : "Cal-ITP figures are loaded for line 204 only.");
+  const cal = periods.length ? `Cal-ITP measured one weekday (retrieved ${D.calitp_retrieved}).` : (C.calitp.length && state.route === "204" ? "Cal-ITP has no measurement for this selection." : "Cal-ITP figures are loaded for Vermont line 204 only.");
   const span = liveN && liveDates[0] !== liveDates[liveN - 1] ? `${liveDates[0]} to ${liveDates[liveN - 1]}` : liveDates[0];
   const lv = liveN ? ` Live points: average of ${liveN} measured hour${liveN > 1 ? "s" : ""}, ${span}.` : " No live hours recorded yet for this selection.";
   $("#obs-sub").textContent = `Current timetable, by clock hour. ${cal}${lv}` + (state.day !== "weekday" && periods.length ? " Cal-ITP figures are for a weekday." : "");
@@ -394,24 +431,44 @@ function renderObs() {
 
 function renderTable() {
   const pm = BANDS[2].h, y0 = YEARS[0], y1 = YEARS[YEARS.length - 1], d = describe();
-  $("#tbl-sub").textContent = `${d.text}. PM-peak scheduled speed (3 to 8pm) in ${y0} and ${y1}.`;
-  const rows = [...D.sections.slice(1), D.sections[0]].map(s => {
-    const a = avg(yearMonths(y0), pm, s.section_id), b = avg(yearMonths(y1), pm, s.section_id);
-    const tot = s.section_id === "corridor";
-    return `<tr${tot ? ' class="total"' : ""}><td>${tot ? "Whole corridor" : s.name}</td><td>${s.length_mi.toFixed(1)}</td><td>${f1(a)}</td><td>${f1(b)}</td><td>${a && b ? (b < a ? "−" : "+") + Math.abs((b / a - 1) * 100).toFixed(0) + "%" : "–"}</td><td>${b ? (s.length_mi / b * 60).toFixed(0) : "–"}</td></tr>`;
+  $("#tbl-sub").textContent = `${d.text}. PM-peak scheduled speed (3 to 8pm) in ${y0} and ${y1}; a year in brackets marks the nearest year this line served the stretch.`;
+  const rows = [...C.sections.slice(1), C.sections[0]].map(s => {
+    const sp = span(s.section_id), ya = sp ? sp[0] : y0, yb = sp ? sp[1] : y1;
+    const a = avg(yearMonths(ya), pm, s.section_id), b = avg(yearMonths(yb), pm, s.section_id);
+    const tot = s.section_id === "corridor", yr = (v, y, ref) => f1(v) + (v != null && y !== ref ? ` (${y})` : "");
+    return `<tr${tot ? ' class="total"' : ""}><td>${tot ? "Whole corridor" : s.name}</td><td>${s.length_mi.toFixed(1)}</td><td>${yr(a, ya, y0)}</td><td>${yr(b, yb, y1)}</td><td>${a && b ? (b < a ? "−" : "+") + Math.abs((b / a - 1) * 100).toFixed(0) + "%" : "–"}</td><td>${b ? (s.length_mi / b * 60).toFixed(0) : "–"}</td></tr>`;
   });
   $("#tbl").innerHTML = `<thead><tr><th>Stretch</th><th>Miles</th><th>${y0} mph</th><th>${y1} mph</th><th>Change</th><th>Minutes now</th></tr></thead><tbody>${rows.join("")}</tbody>`;
 }
 
-function render() {
-  document.querySelectorAll(".seg").forEach(seg => seg.querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", state[seg.dataset.f] === b.dataset.v)));
-  renderStats(); renderStreet(); renderTS(); renderHeat(); renderObs(); renderTable();
+const cap = t => t[0].toUpperCase() + t.slice(1);
+function renderControls() {
+  const fill = (id, opts) => { $(id).innerHTML = opts.map(o => `<button type="button" id="f-${$(id).dataset.f}-${o[0]}" data-v="${o[0]}">${o[1]}</button>`).join(""); };
+  fill("#seg-cor", Object.entries(D.corridors).map(([k, c]) => [k, c.name]));
+  fill("#seg-route", C.routes);
+  fill("#seg-dir", [["both", "Both"], ...C.directions.map(d => [d, cap(d)])]);
+  document.querySelectorAll(".seg").forEach(seg => seg.querySelectorAll("button").forEach(b => {
+    b.setAttribute("aria-pressed", state[seg.dataset.f] === b.dataset.v);
+    b.onclick = () => set(seg.dataset.f, b.dataset.v);
+  }));
 }
-function set(k, v) { state[k] = v; try { localStorage.setItem("aviary-vermont-filters", JSON.stringify(state)); } catch (e) {} render(); }
-document.querySelectorAll(".seg").forEach(seg => seg.querySelectorAll("button").forEach(b => { b.type = "button"; b.onclick = () => set(seg.dataset.f, b.dataset.v); }));
+function renderFocus() {
+  $("#focus-panel").hidden = !C.focus.length;
+  if (!C.focus.length) return;
+  const n = Math.max(...C.focus.map(f => f.n)), f0 = C.focus[0];
+  $("#focus-sub").textContent = `Every line 2 bus is timed by GPS through the stretch LADOT plans to rebuild next, by the Vista Theatre. This is the record of conditions before the project. Collection began ${f0.first}; the most-sampled row has ${n} bus pass${n === 1 ? "" : "es"} so far, so treat early figures as a test of the method.`;
+  $("#focus-tbl").innerHTML = `<thead><tr><th>Segment</th><th>Direction</th><th>Miles</th><th>Bus passes</th><th>Middle pass, seconds</th><th>20th to 80th percentile</th><th>mph</th></tr></thead><tbody>` +
+    C.focus.map(f => `<tr><td>${f.name}</td><td>${cap(f.direction)}</td><td>${f.length_mi.toFixed(2)}</td><td>${f.n}</td><td>${f.median_s.toFixed(0)}</td><td>${f.p20_s.toFixed(0)} to ${f.p80_s.toFixed(0)}</td><td>${(f.length_mi / f.median_s * 3600).toFixed(1)}</td></tr>`).join("") + "</tbody>";
+}
+function render() {
+  useCorridor(); renderControls();
+  $("#n-feeds").textContent = C.meta.feed_versions; $("#n-first").textContent = C.meta.first; $("#n-last").textContent = C.meta.last;
+  renderStats(); renderStreet(); renderTS(); renderHeat(); renderObs(); renderFocus(); renderTable();
+}
+function set(k, v) { state[k] = v; try { localStorage.setItem("aviary-filters-2", JSON.stringify(state)); } catch (e) {} render(); }
 $("#whole").onclick = () => set("sec", "corridor");
-$("#n-feeds").textContent = D.meta.feed_versions; $("#n-rows").textContent = D.meta.rows.toLocaleString("en-US");
-$("#n-first").textContent = D.meta.first; $("#n-last").textContent = D.meta.last;
+$("#n-rows").textContent = D.rows.toLocaleString("en-US");
+$("#planned").textContent = D.planned.length ? "Tracked without bus data yet: " + D.planned.map(p => p.name).join("; ") + "." : "";
 let rz; addEventListener("resize", () => { clearTimeout(rz); rz = setTimeout(render, 120); });
 addEventListener("scroll", hideTip, { passive: true });
 render();

@@ -3,25 +3,9 @@
 Hourly bus speeds on Los Angeles streets being redesigned, starting with Vermont Avenue (LA Metro lines 204 and 754,
 2016 to today), with live GPS collection so each project has a measured "before". Built as a demo for CoMotion LA.
 
-## See it
+**Outputs:** [aviary.herebox.org](https://aviary.herebox.org) (live charts) · [here.github.io/aviary](https://here.github.io/aviary/) (GitHub Pages mirror with data downloads; not live until Pages and Actions are enabled)
 
-| Output | Link | State |
-|---|---|---|
-| Charts page | **https://aviary.herebox.org** | Live |
-| Bus collector status | https://aviary.herebox.org/api/status | Live, every minute (lines 204, 754, 2, 4) |
-| Archived bus pings | https://aviary.herebox.org/api/files?prefix=raw/ | Live |
-| Bike and scooter collector status | https://aviary.herebox.org/gbfs/status | Live, every 10 minutes |
-| GitHub Pages mirror with data downloads | https://here.github.io/aviary/ | Not live until Pages and Actions are enabled |
-
-## LADOT and Metro projects tracked
-
-- [Hollywood Boulevard Safety and Mobility Project](https://ladotlivablestreets.org/projects/hollywood-blvd) (LADOT): Gower St to Hillhurst Av built from August 2024; Phase 2 to Fountain Av expected early 2027
-- [Sunset Boulevard / Cesar Chavez Avenue (Sunset East)](https://ladotlivablestreets.org/projects/sunset) (LADOT): in design
-- Fountain Avenue street safety project (LADOT): notes in `docs/projects/fountain-av.md` when present
-- [Vermont Transit Corridor BRT](https://boardagendas.metro.net/board-report/2026-0025/) (Metro): groundbreaking reported October 2026
-- [LADOT project news](https://ladot.lacity.gov/dotnews) and [LADOT Livable Streets](https://ladotlivablestreets.org)
-
-Status notes with sources: `docs/EXPANSION_PLAN.md` and `docs/projects/`. Dates there come from web search and need re-checking before publication.
+**LADOT and Metro projects:** [Hollywood Blvd Safety and Mobility](https://ladotlivablestreets.org/projects/hollywood-blvd) · [Sunset Blvd / Cesar Chavez (Sunset East)](https://ladotlivablestreets.org/projects/sunset) · [Fountain Av](docs/projects/fountain-av.md) · [Vermont Transit Corridor BRT](https://boardagendas.metro.net/board-report/2026-0025/) · [LADOT Livable Streets](https://ladotlivablestreets.org) · [LADOT news](https://ladot.lacity.gov/dotnews)
 
 ## Data sources
 
@@ -36,6 +20,22 @@ Status notes with sources: `docs/EXPANSION_PLAN.md` and `docs/projects/`. Dates 
 | Swiftly API | Official Metro realtime feed and possible history | Key requested |
 
 Formats: Parquet and CSV described by a Frictionless `datapackage.json`; GPS pings also as Open Mobility Foundation MDS 2.0 Telemetry.
+
+## Live endpoints
+
+| Output | Link | State |
+|---|---|---|
+| Charts page | https://aviary.herebox.org | Live |
+| Bus collector status | https://aviary.herebox.org/api/status | Live, every minute (lines 204, 754, 2, 4) |
+| Archived bus pings | https://aviary.herebox.org/api/files?prefix=raw/ | Live |
+| Bike and scooter collector status | https://aviary.herebox.org/gbfs/status | Live, every 10 minutes |
+| GitHub Pages mirror | https://here.github.io/aviary/ | Not live until Pages and Actions are enabled |
+
+## Project notes
+
+Sourced status notes: [Hollywood Blvd](docs/projects/hollywood-blvd.md), [Fountain Av](docs/projects/fountain-av.md), and
+[the expansion plan](docs/EXPANSION_PLAN.md) for Sunset East and Vermont BRT. Dates and figures there come from web search
+summaries and need re-checking before publication.
 
 ## Build it yourself
 

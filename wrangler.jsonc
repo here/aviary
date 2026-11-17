@@ -12,7 +12,7 @@
   },
   "triggers": { "crons": ["* * * * *"] },
   "r2_buckets": [{ "binding": "ARCHIVE", "bucket_name": "aviary-vermont-speeds-bucket" }],
-  "vars": { "ROUTES": "204,754" },
+  "vars": { "ROUTES": "204,754,2,4" },
   "observability": { "enabled": true },
   // Cloudflare creates the DNS record and certificate for this hostname on deploy (herebox.org must be a zone in the account).
   "routes": [{ "pattern": "aviary.herebox.org", "custom_domain": true }]

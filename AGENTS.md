@@ -45,6 +45,8 @@ All Cloudflare resource names are prefixed `aviary-`. Use `aviary.herebox.org` f
 7. **Swiftly**: the owner has requested an API key for LA Metro's official GTFS-realtime feed. When it
    arrives, add Swiftly as a second collector source and ask whether historical exports are included.
 8. **Measured history**: see "Cal-ITP" below.
+9. **Expansion to before/after road-diet corridors** (Fountain, Hollywood, Sunset / Cesar Chavez): plan in
+   `docs/EXPANSION_PLAN.md`. The collector already archives lines 2 and 4 for it.
 
 ## Things that are easy to get wrong
 

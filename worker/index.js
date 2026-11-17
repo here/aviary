@@ -31,7 +31,7 @@ async function gzip(text) {
 }
 
 async function collect(env, when = new Date()) {
-  const routes = env.ROUTES || "204,754";
+  const routes = env.ROUTES || "204,754,2,4";
   const { lines, error } = await listen(FEED + routes, LISTEN_MS);
   const iso = when.toISOString();                       // 2026-11-17T04:27:00.000Z
   const key = `raw/${iso.slice(0, 10)}/${iso.slice(11, 13)}/vehicle_positions_${iso.slice(0, 13)}${iso.slice(14, 16)}.ndjson.gz`;

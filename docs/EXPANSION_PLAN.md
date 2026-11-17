@@ -49,6 +49,26 @@ with a similar street that was not changed?
 Scheduled speeds for lines 2, 4 and the former 704 on the Sunset corridor since 2018 are in
 `data/corridors/sunset/` (built by `pipeline/backfill_corridor.py`).
 
+## Priority: Lyman Pl to Fountain Av (Hollywood Phase 2), installing early 2027
+
+The owner flagged this as the most interesting segment because the "before" window is closing.
+
+- On line 2 the segment is Sunset Bl from Hillhurst / Virgil to Fountain Av: about a quarter mile, two stops,
+  past the Vista Theatre. The Hollywood Bl part (Lyman Pl to the junction) has no line 2 service.
+- **Too short for the timetable method.** Stop times are rounded to the minute, so scheduled speed over a
+  quarter mile is noise. It sits inside the "Vermont Av to Sunset Junction" section of the scheduled series.
+- **Measured GPS is the baseline.** The collector has archived line 2 pings since 2026-11-17. It is defined as
+  `focus_sections` F1 in `corridors/sunset.json`.
+- **To build next**, in order:
+  1. A measured roll-up for path-based corridors (port `build_observed.py` to use `polyline.py`), reporting F1
+     by hour: speed, seconds to traverse, and the slow-to-fast spread. Check the six-way junction delay
+     separately from the rest.
+  2. Collisions at and around the junction, 2014 on, from LAPD open data.
+  3. A GBFS collector for scooters and bikes in the area, and Metro Bike Share station trips nearby.
+  4. Ask Cal-ITP or Swiftly for line 2 pings on this segment back to 2022, to lengthen the baseline and
+     cover seasons.
+- Keep the collector running without gaps until at least a few months after installation.
+
 ## 0. Done already: start archiving lines 2 and 4
 
 GPS history cannot be recovered later, so the live Cloudflare collector now records lines 2 and 4 as

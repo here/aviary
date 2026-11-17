@@ -50,6 +50,26 @@ Added 2026-11-17 (later the same day):
 Cloudflare: account ID `4c63641622d8786f6373a2430b970c25`, which owns the `herebox.org` zone.
 All Cloudflare resource names are prefixed `aviary-`. Use `aviary.herebox.org` for anything needing DNS.
 
+## In flight when the session ended (2026-11-17, about 08:00 UTC)
+
+Three background agents were started just before the owner's usage window closed. Their work may be partial.
+Check `git log` and `git status` first; each was told to commit and push only its own files.
+
+| Agent task | Files it owns | Done when |
+|---|---|---|
+| Hollywood Bl corridor (LADOT Hollywood Blvd Safety and Mobility Project, Gower St to Hillhurst Av) | `corridors/hollywood.json`, `data/corridors/hollywood/` | JSON has path, sections, routes, events; scheduled backfill since 2018 exists |
+| Hollywood project research | `docs/projects/hollywood-blvd.md` | Status, extents, dates, what was built, sources |
+| Fountain Av street safety project research (no bus) | `docs/projects/fountain-av.md`, `corridors/fountain.json` | Status, extents, dates, sources; corridor file has endpoints and events, no routes |
+
+If any of these is missing or half-done, redo it; nothing else depends on them yet. Owner's reference pages:
+`https://ladotlivablestreets.org/projects/hollywood-blvd` and `/projects/sunset` (JavaScript-rendered; use a
+browser or web search, a plain fetch returns an empty shell).
+
+Session constraints worth knowing: the cloud environment `aviary` has a limited network allowlist
+(Cloudflare API, api.metro.net, gitlab.com, Caltrans GIS, data.ca.gov, aviary.herebox.org). data.lacity.org,
+LADOT sites and operator sites are blocked there; widen the allowlist in the environment settings or work
+from a local machine. The owner could not approve environment changes from a phone.
+
 ## Open work, in order
 
 1. **Confirm the collector is writing**: `https://aviary.herebox.org/api/status` should show a recent `at`

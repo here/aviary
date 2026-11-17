@@ -105,7 +105,7 @@ Notes:
 - The minute files under `raw/` expire after 7 days. The workflow has already copied each day into `daily/` and `mds/` by then.
 - The Worker stores messages without parsing them, so it uses little CPU. The free plan allows 10 ms of CPU per run, which is tight for
   compressing a minute of messages; the $5 Workers Paid plan removes the risk.
-- `wrangler.jsonc` has a commented `routes` line for a custom domain. More routes go in `worker/index.js`.
+- The site is served at `aviary.herebox.org` (set in `wrangler.jsonc`; Cloudflare creates the DNS record on deploy). More routes go in `worker/index.js`.
 - Test locally: `npx wrangler dev --test-scheduled`, then open `http://localhost:8787/__scheduled?cron=*+*+*+*+*`.
 
 ## Rebuilding

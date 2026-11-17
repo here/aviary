@@ -13,7 +13,7 @@
   "triggers": { "crons": ["* * * * *"] },
   "r2_buckets": [{ "binding": "ARCHIVE", "bucket_name": "vermont-speeds-archive" }],
   "vars": { "ROUTES": "204,754" },
-  "observability": { "enabled": true }
-  // To serve on your own domain, add for example:
-  // "routes": [{ "pattern": "vermont.example.org", "custom_domain": true }]
+  "observability": { "enabled": true },
+  // Cloudflare creates the DNS record and certificate for this hostname on deploy (herebox.org must be a zone in the account).
+  "routes": [{ "pattern": "aviary.herebox.org", "custom_domain": true }]
 }

@@ -5,7 +5,7 @@ Hourly bus speeds on Los Angeles streets being redesigned, starting with Vermont
 
 **Outputs:** [aviary.herebox.org](https://aviary.herebox.org) (live charts) · [here.github.io/aviary](https://here.github.io/aviary/) (GitHub Pages mirror with data downloads; not live until Pages and Actions are enabled)
 
-**LADOT and Metro projects:** [Hollywood Blvd Safety and Mobility](https://ladotlivablestreets.org/projects/hollywood-blvd) · [Sunset Blvd / Cesar Chavez (Sunset East)](https://ladotlivablestreets.org/projects/sunset) · [Fountain Av](docs/projects/fountain-av.md) · [Vermont Transit Corridor BRT](https://boardagendas.metro.net/board-report/2026-0025/) · [LADOT Livable Streets](https://ladotlivablestreets.org) · [LADOT news](https://ladot.lacity.gov/dotnews)
+**LADOT and Metro projects:** [Hollywood Blvd Safety and Mobility](https://ladotlivablestreets.org/projects/hollywood-blvd) · [Sunset Blvd / Cesar Chavez (Sunset East)](https://ladotlivablestreets.org/projects/sunset) · [Fountain Av Streetscape (City of West Hollywood, not LADOT)](docs/projects/fountain-av.md) · [Vermont Transit Corridor BRT](https://boardagendas.metro.net/board-report/2026-0025/) · [LADOT Livable Streets](https://ladotlivablestreets.org) · [LADOT news](https://ladot.lacity.gov/dotnews)
 
 ## Data sources
 

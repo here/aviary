@@ -61,6 +61,18 @@ Check `git log` and `git status` first; each was told to commit and push only it
 | Hollywood project research | `docs/projects/hollywood-blvd.md` | Status, extents, dates, what was built, sources |
 | Fountain Av street safety project research (no bus) | `docs/projects/fountain-av.md`, `corridors/fountain.json` | Status, extents, dates, sources; corridor file has endpoints and events, no routes |
 
+Outcome so far: both research documents are finished and pushed. Findings that change the plan:
+
+- **Fountain Av's road diet is the City of West Hollywood's project** (La Cienega Bl to La Brea Av, 1.8 mi, four lanes
+  to two, approved 2025-09-15), not LADOT's. Construction was expected late 2026 and is not confirmed as started.
+  LADOT's only work found on Fountain is a 2023 westbound bike lane, Vermont Av to Kingsley Dr.
+- **"No bus on Fountain" holds only for the West Hollywood part.** LADOT DASH Hollywood runs on Fountain in Hollywood.
+- **Hollywood Phase 1** opened August 2024; no published before/after data was found. Baseline cited by LADOT:
+  53 severe-injury and fatal collisions in the project area, 2010 to 2019.
+- Both documents are built from search-result summaries only; no source page was opened. Verify before quoting.
+- `corridors/fountain.json` has approximate coordinates (latitude held constant) and must be corrected before use.
+- The Hollywood corridor build (JSON plus 2018 backfill) had not reported back when this was written.
+
 If any of these is missing or half-done, redo it; nothing else depends on them yet. Owner's reference pages:
 `https://ladotlivablestreets.org/projects/hollywood-blvd` and `/projects/sunset` (JavaScript-rendered; use a
 browser or web search, a plain fetch returns an empty shell).

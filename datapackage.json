@@ -1,5 +1,5 @@
 {
-  "name": "vermont-av-bus-speeds",
+  "name": "aviary-vermont-av-bus-speeds",
   "title": "Hourly bus speeds on Vermont Av, Los Angeles (LA Metro lines 204 and 754)",
   "profile": "tabular-data-package",
   "version": "0.1.0",

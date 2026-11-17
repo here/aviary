@@ -2,7 +2,7 @@
 // Deploy with `npx wrangler deploy` after `python pipeline/build_site.py`.
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "vermont-speeds",
+  "name": "aviary-vermont-speeds",
   "main": "worker/index.js",
   "compatibility_date": "2026-10-01",
   "assets": {
@@ -11,7 +11,7 @@
     "run_worker_first": ["/api/*"]
   },
   "triggers": { "crons": ["* * * * *"] },
-  "r2_buckets": [{ "binding": "ARCHIVE", "bucket_name": "vermont-speeds-archive" }],
+  "r2_buckets": [{ "binding": "ARCHIVE", "bucket_name": "aviary-vermont-speeds-bucket" }],
   "vars": { "ROUTES": "204,754" },
   "observability": { "enabled": true },
   // Cloudflare creates the DNS record and certificate for this hostname on deploy (herebox.org must be a zone in the account).

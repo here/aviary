@@ -87,8 +87,8 @@ Pages on a private repository needs a paid GitHub plan.
 
 ```bash
 npx wrangler login
-npx wrangler r2 bucket create vermont-speeds-archive
-npx wrangler r2 bucket lifecycle add vermont-speeds-archive expire-minute-files raw/ --expire-days 7
+npx wrangler r2 bucket create aviary-vermont-speeds-bucket
+npx wrangler r2 bucket lifecycle add aviary-vermont-speeds-bucket expire-minute-files raw/ --expire-days 7
 python pipeline/build_site.py && npx wrangler deploy      # first deploy; the workflow redeploys after that
 ```
 

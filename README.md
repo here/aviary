@@ -1,10 +1,47 @@
-# Vermont Av bus speeds
+# Aviary: LA street speeds, before and after
 
-Hourly bus speeds on Vermont Avenue in Los Angeles (LA Metro line 204 Local and 754 Rapid),
-2016 to today, with an interactive time-series page. Built as a demo for CoMotion LA.
+Hourly bus speeds on Los Angeles streets being redesigned, starting with Vermont Avenue (LA Metro lines 204 and 754,
+2016 to today), with live GPS collection so each project has a measured "before". Built as a demo for CoMotion LA.
 
-- **Page:** `python pipeline/build_site.py` writes a self-contained `_site/index.html` plus the downloadable archive. It is published by the workflow to GitHub Pages and to Cloudflare.
-- **Archive:** `data/`, described by `datapackage.json` (Frictionless Tabular Data Package).
+## See it
+
+| Output | Link | State |
+|---|---|---|
+| Charts page | **https://aviary.herebox.org** | Live |
+| Bus collector status | https://aviary.herebox.org/api/status | Live, every minute (lines 204, 754, 2, 4) |
+| Archived bus pings | https://aviary.herebox.org/api/files?prefix=raw/ | Live |
+| Bike and scooter collector status | https://aviary.herebox.org/gbfs/status | Live, every 10 minutes |
+| GitHub Pages mirror with data downloads | https://here.github.io/aviary/ | Not live until Pages and Actions are enabled |
+
+## LADOT and Metro projects tracked
+
+- [Hollywood Boulevard Safety and Mobility Project](https://ladotlivablestreets.org/projects/hollywood-blvd) (LADOT): Gower St to Hillhurst Av built from August 2024; Phase 2 to Fountain Av expected early 2027
+- [Sunset Boulevard / Cesar Chavez Avenue (Sunset East)](https://ladotlivablestreets.org/projects/sunset) (LADOT): in design
+- Fountain Avenue street safety project (LADOT): notes in `docs/projects/fountain-av.md` when present
+- [Vermont Transit Corridor BRT](https://boardagendas.metro.net/board-report/2026-0025/) (Metro): groundbreaking reported October 2026
+- [LADOT project news](https://ladot.lacity.gov/dotnews) and [LADOT Livable Streets](https://ladotlivablestreets.org)
+
+Status notes with sources: `docs/EXPANSION_PLAN.md` and `docs/projects/`. Dates there come from web search and need re-checking before publication.
+
+## Data sources
+
+| Source | Used for | Access |
+|---|---|---|
+| [LA Metro bus GTFS history](https://gitlab.com/LACMTA/gtfs_bus) | Scheduled hourly speeds since 2016 | Open |
+| [LA Metro realtime API](https://api.metro.net) (`wss://api.metro.net`) | Live bus GPS, collected every minute | Open, no key |
+| [Cal-ITP Average Transit Speeds by Stop](https://data.ca.gov/dataset/average-transit-speeds-by-stop) | Independent measured-speed check | Open |
+| [GBFS feeds](https://github.com/MobilityData/gbfs/blob/master/systems.csv) (Bird, Metro Bike Share) | Shared bike and scooter availability | Open |
+| Cal-ITP GTFS-realtime archive | Measured bus history back to about 2022 | By request |
+| LADOT MDS trip data | Bike and scooter trips before and after | By request |
+| Swiftly API | Official Metro realtime feed and possible history | Key requested |
+
+Formats: Parquet and CSV described by a Frictionless `datapackage.json`; GPS pings also as Open Mobility Foundation MDS 2.0 Telemetry.
+
+## Build it yourself
+
+- **Page:** `python pipeline/build_site.py` writes a self-contained `_site/index.html` plus the downloadable archive. The workflow publishes it to GitHub Pages and Cloudflare.
+- **Archive:** `data/`, described by `datapackage.json`.
+- **Handoff notes for agents:** `AGENTS.md`.
 
 ## What is in the archive
 

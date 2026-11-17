@@ -3,7 +3,7 @@
 Hourly bus speeds on Vermont Avenue in Los Angeles (LA Metro line 204 Local and 754 Rapid),
 2016 to today, with an interactive time-series page. Built as a demo for CoMotion LA.
 
-- **Page:** `docs/index.html` is self-contained. Open it in a browser, or serve `docs/` with GitHub Pages.
+- **Page:** `python pipeline/build_site.py` writes a self-contained `_site/index.html` plus the downloadable archive. It is published by the workflow to GitHub Pages and to Cloudflare.
 - **Archive:** `data/`, described by `datapackage.json` (Frictionless Tabular Data Package).
 
 ## What is in the archive
@@ -12,9 +12,9 @@ Hourly bus speeds on Vermont Avenue in Los Angeles (LA Metro line 204 Local and 
 |---|---|
 | `data/hourly/year=YYYY/vermont_speeds.parquet` | Every hour since 2016-01-31: corridor plus six sections, both lines, both directions. About 2.2M rows. |
 | `data/hourly_csv/vermont_corridor_YYYY.csv.gz` | The corridor rows of the same table as CSV. |
-| `data/observed/vermont_observed_hourly.csv` | Speeds measured from live bus GPS. Same columns. Grows as the collector runs. |
-| `data/observed/mds_telemetry_*.json.gz` | The GPS pings behind the observed speeds, as OMF MDS 2.0 Telemetry objects. |
-| `data/raw/*.ndjson.gz` | Sample of the raw GTFS-realtime vehicle positions as received. |
+| `data/observed/vermont_observed_YYYY-MM.csv` | Speeds measured from live bus GPS, one file per month. Same columns. Grows as the collector runs. |
+| `data/observed/sample/mds_telemetry_*.json.gz` | Sample of the GPS pings as OMF MDS 2.0 Telemetry objects. Daily files go to R2 (`mds/`), not git. |
+| `data/raw/*.ndjson.gz` | Sample of the raw GTFS-realtime vehicle positions as received. Daily files go to R2 (`daily/`). |
 | `data/reference/calitp_speeds_204.csv` | Cal-ITP measured speeds (20th, 50th, 80th percentile by time of day), rolled up to the same sections. |
 | `data/sections.csv`, `data/feed_versions.csv` | Section boundaries; which GTFS version covers which dates. |
 
@@ -42,8 +42,7 @@ traffic may still have changed.
 `pipeline/collect_realtime.py` listens to Metro's public vehicle-position feed
 (`wss://api.metro.net`, no key needed) and `pipeline/build_observed.py` turns consecutive GPS pings
 into hourly section speeds. No public archive of this feed exists, so the measured series starts
-when collection starts. The workflow in `.github/workflows/collect.yml` samples 20 minutes of
-every hour and commits the result.
+when collection starts. See "Hosting and ongoing collection" below.
 
 **Independent check.** Cal-ITP publishes stop-to-stop speeds measured from archived GPS for one
 recent weekday. On the current timetable the two agree closely (midday about 8.7 mph measured,
@@ -59,6 +58,56 @@ for-hire modes. It has no transit-bus mode and no roadway-speed table. So:
   LA Metro is not a registered MDS provider, so `provider_id` is a placeholder.
 - The hourly speed table is this project's own schema, documented in `datapackage.json`.
 
+## Hosting and ongoing collection
+
+```
+LA Metro feed ──every minute──> Cloudflare Worker (cron) ──> R2  raw/<day>/<hour>/*.ndjson.gz
+                                                                │
+GitHub Actions, hourly:  download last 2 days ──> hourly speeds ──> commit data/observed/
+                         daily raw + MDS files ──> R2 daily/ and mds/
+                         build site ──> GitHub Pages  and  Cloudflare (site + /api + collector)
+```
+
+One workflow, `.github/workflows/publish.yml`, does everything on GitHub's side. It works in two modes:
+
+| | GitHub only | With Cloudflare (recommended) |
+|---|---|---|
+| Collection | The workflow listens for 20 minutes each hour | Worker listens about 55 seconds of every minute |
+| Coverage | About a third of each hour | Continuous |
+| Raw archive | Workflow artifacts, kept 90 days | R2, kept indefinitely |
+| Site | GitHub Pages | Cloudflare, plus GitHub Pages as a mirror |
+| Extra routes | none | `/api/status`, `/api/files?prefix=daily/`, `/api/file/<key>` |
+
+### GitHub Pages (one setting)
+
+Repository Settings > Pages > Source: **GitHub Actions**. Merge this branch into `main`; the next run publishes.
+Pages on a private repository needs a paid GitHub plan.
+
+### Cloudflare (one-time, about ten minutes)
+
+```bash
+npx wrangler login
+npx wrangler r2 bucket create vermont-speeds-archive
+npx wrangler r2 bucket lifecycle add vermont-speeds-archive expire-minute-files raw/ --expire-days 7
+python pipeline/build_site.py && npx wrangler deploy      # first deploy; the workflow redeploys after that
+```
+
+Then add four repository secrets (Settings > Secrets and variables > Actions):
+
+| Secret | Where it comes from |
+|---|---|
+| `CLOUDFLARE_ACCOUNT_ID` | Cloudflare dashboard, account overview |
+| `CLOUDFLARE_API_TOKEN` | API token from the "Edit Cloudflare Workers" template |
+| `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY` | R2 > Manage API tokens, Object Read and Write on the bucket |
+
+Notes:
+
+- The minute files under `raw/` expire after 7 days. The workflow has already copied each day into `daily/` and `mds/` by then.
+- The Worker stores messages without parsing them, so it uses little CPU. The free plan allows 10 ms of CPU per run, which is tight for
+  compressing a minute of messages; the $5 Workers Paid plan removes the risk.
+- `wrangler.jsonc` has a commented `routes` line for a custom domain. More routes go in `worker/index.js`.
+- Test locally: `npx wrangler dev --test-scheduled`, then open `http://localhost:8787/__scheduled?cron=*+*+*+*+*`.
+
 ## Rebuilding
 
 ```bash
@@ -68,7 +117,7 @@ python pipeline/backfill_gtfs.py --repo /tmp/gtfs_bus --out data    # about 10 m
 python pipeline/fetch_calitp.py
 python pipeline/collect_realtime.py --minutes 55 --out data/raw     # live pings
 python pipeline/build_observed.py
-python pipeline/build_site.py                                       # writes docs/index.html
+python pipeline/build_site.py                                       # writes _site/
 ```
 
 The corridor and its sections are defined once, in `pipeline/corridor.py`.
@@ -78,7 +127,8 @@ The corridor and its sections are defined once, in `pipeline/corridor.py`.
 - Bus speeds include boarding time, so they are lower than general traffic speeds on the same street.
 - Five of the 130 GTFS commits are unusable (deletions or broken uploads) and are skipped; the neighbouring version fills in. 2019-01-05 has no data.
 - Day types on the page are by day of week; holidays are not separated.
-- The hourly collection workflow only runs on a schedule once it is on the repository's default branch.
+- The scheduled workflow only runs once it is on the repository's default branch.
+- The Cloudflare deployment has been run locally with `wrangler dev` (collector, storage, routes) but not yet deployed to an account.
 
 ## Other sources worth adding
 

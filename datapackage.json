@@ -202,7 +202,9 @@
       "title": "Observed hourly speeds from live vehicle positions",
       "format": "csv",
       "mediatype": "text/csv",
-      "path": "data/observed/vermont_observed_hourly.csv",
+      "path": [
+        "data/observed/vermont_observed_2026-11.csv"
+      ],
       "schema": {
         "fields": [
           {
@@ -268,7 +270,8 @@
           "section_id",
           "source"
         ]
-      }
+      },
+      "description": "One file per local month, vermont_observed_YYYY-MM.csv; new months are added as collection continues."
     },
     {
       "name": "sections",

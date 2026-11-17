@@ -3,8 +3,12 @@
 
 Reads the NDJSON written by collect_realtime.py and produces
 
-    data/observed/vermont_observed_hourly.csv         same columns as the schedule archive
-    data/observed/mds_telemetry_YYYY-MM-DD.json.gz    the pings as OMF MDS 2.0 Telemetry objects
+    data/observed/vermont_observed_YYYY-MM.csv   one file per month, same columns as the schedule archive
+
+and optionally (--export DIR), one pair of files per UTC day for cold storage:
+
+    vehicle_positions_YYYY-MM-DD.ndjson.gz       the day's pings, de-duplicated, as received
+    mds_telemetry_YYYY-MM-DD.json.gz             the same pings as OMF MDS 2.0 Telemetry objects
 
 Method: consecutive GPS pings of the same vehicle on the same trip give a
 distance travelled along the street (change in latitude) and an elapsed time.
@@ -31,7 +35,7 @@ MDS_NAMESPACE = uuid.uuid5(uuid.NAMESPACE_DNS, "api.metro.net")  # stable demo U
 
 def load(raw_dir: pathlib.Path) -> pd.DataFrame:
     rows = []
-    for path in sorted(glob.glob(str(raw_dir / "vehicle_positions_*.ndjson*"))):
+    for path in sorted(glob.glob(str(raw_dir / "**" / "vehicle_positions_*.ndjson*"), recursive=True)):
         opener = gzip.open if path.endswith(".gz") else open
         with opener(path, "rt") as fh:
             for line in fh:
@@ -40,11 +44,11 @@ def load(raw_dir: pathlib.Path) -> pd.DataFrame:
                     v, trip, pos = r["vehicle"], r["vehicle"].get("trip", {}), r["vehicle"]["position"]
                     rows.append((v["vehicle"]["id"], trip.get("tripId"), trip.get("startDate"), r.get("route_code"),
                                  int(v["timestamp"]), pos["latitude"], pos["longitude"], pos.get("speed"),
-                                 pos.get("bearing"), v.get("stopId"), v.get("currentStatus")))
+                                 pos.get("bearing"), v.get("stopId"), v.get("currentStatus"), line.strip()))
                 except (KeyError, ValueError, TypeError):
                     continue
     df = pd.DataFrame(rows, columns=["vehicle_id", "trip_id", "start_date", "route", "ts", "lat", "lon",
-                                     "gps_speed_mps", "bearing", "stop_id", "status"])
+                                     "gps_speed_mps", "bearing", "stop_id", "status", "raw"])
     return df.dropna(subset=["trip_id"]).drop_duplicates(["vehicle_id", "ts"]).sort_values(["vehicle_id", "trip_id", "ts"])
 
 
@@ -89,8 +93,12 @@ def hourly(df: pd.DataFrame) -> pd.DataFrame:
               "travel_time_min", "length_mi", "n_trips", "source", "feed_version"]].sort_values(keys)
 
 
-def mds_telemetry(df: pd.DataFrame, out_dir: pathlib.Path) -> None:
-    """Write pings as MDS 2.0 Telemetry (https://github.com/openmobilityfoundation/mobility-data-specification)."""
+def export_daily(df: pd.DataFrame, out_dir: pathlib.Path) -> None:
+    """Write de-duplicated raw pings and MDS 2.0 Telemetry, one file per UTC day.
+
+    MDS: https://github.com/openmobilityfoundation/mobility-data-specification
+    """
+    out_dir.mkdir(parents=True, exist_ok=True)
     uid = lambda *parts: str(uuid.uuid5(MDS_NAMESPACE, "/".join(map(str, parts))))
     provider = uid("LACMTA")
     df = df.assign(day=pd.to_datetime(df.ts, unit="s", utc=True).dt.strftime("%Y-%m-%d"))
@@ -109,24 +117,37 @@ def mds_telemetry(df: pd.DataFrame, out_dir: pathlib.Path) -> None:
             if r.status == "STOPPED_AT" and r.stop_id:
                 item["gtfs_stop_id"] = r.stop_id
             items.append(item)
+        with gzip.open(out_dir / f"vehicle_positions_{day}.ndjson.gz", "wt") as fh:
+            fh.write("\n".join(g.sort_values("ts").raw) + "\n")
         with gzip.open(out_dir / f"mds_telemetry_{day}.json.gz", "wt") as fh:
             json.dump({"version": "2.0.0", "telemetry": items}, fh, separators=(",", ":"))
 
 
+KEYS = ["hour_start_utc", "route", "direction", "section_id"]
+
+
+def write_monthly(h: pd.DataFrame, out_dir: pathlib.Path) -> None:
+    """Merge into the per-month files; a re-measured hour replaces the earlier row."""
+    out_dir.mkdir(parents=True, exist_ok=True)
+    for month, g in h.groupby(h.hour_start_local.str[:7]):
+        target = out_dir / f"vermont_observed_{month}.csv"
+        if target.exists():
+            old = pd.read_csv(target, dtype={"route": str, "feed_version": str}, keep_default_na=False)
+            g = pd.concat([old, g.astype({"route": str})]).drop_duplicates(KEYS, keep="last")
+        g.sort_values(KEYS).to_csv(target, index=False)
+
+
 if __name__ == "__main__":
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
-    ap.add_argument("--raw", type=pathlib.Path, default=pathlib.Path("data/raw"))
+    ap.add_argument("--raw", type=pathlib.Path, default=pathlib.Path("data/raw"), help="searched recursively")
     ap.add_argument("--out", type=pathlib.Path, default=pathlib.Path("data/observed"))
+    ap.add_argument("--export", type=pathlib.Path, help="also write daily raw + MDS telemetry files here")
     a = ap.parse_args()
-    a.out.mkdir(parents=True, exist_ok=True)
     pings = load(a.raw)
+    if pings.empty:
+        raise SystemExit("no pings found")
     h = hourly(pings)
-    target = a.out / "vermont_observed_hourly.csv"
-    if target.exists():  # keep hours from earlier runs; a re-measured hour replaces the old row
-        old = pd.read_csv(target, dtype={"route": str, "feed_version": str}, keep_default_na=False)
-        h = pd.concat([old, h.astype({"route": str})]).drop_duplicates(
-            ["hour_start_utc", "route", "direction", "section_id"], keep="last").sort_values(
-            ["hour_start_utc", "route", "direction", "section_id"])
-    h.to_csv(target, index=False)
-    mds_telemetry(pings, a.out)
+    write_monthly(h, a.out)
+    if a.export:
+        export_daily(pings, a.export)
     print(f"{len(pings):,} pings -> {len(h):,} hourly rows")

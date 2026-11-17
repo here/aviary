@@ -157,9 +157,9 @@ code { font: 12.5px ui-monospace, SFMono-Regular, Menlo, monospace; background: 
       <p>LA Metro keeps its bus timetable (GTFS) in a public git repository with <span id="n-feeds"></span> versions since 2016. For each date we take the version in force, find every 204 and 754 trip, and time it between cross streets. Metro resets running times at service changes using measured trips, so the timetable follows real conditions with a lag. Stretches where the line stays flat for a year or more are periods when Metro left the running times unchanged; they are not evidence that traffic stood still.</p></div>
     <div><h3>What is measured</h3>
       <ul><li>Cal-ITP (Caltrans) publishes stop-to-stop speeds from archived bus GPS: the middle trip and the 20th to 80th percentile range for one recent weekday.</li>
-      <li>A collector in this project records live GPS positions from Metro's public feed. It has only just started, so the live points cover a single evening.</li></ul></div>
+      <li>A collector in this project records live GPS positions from Metro's public feed around the clock. Live points average the measured hours of the last four weeks.</li></ul></div>
     <div><h3>The archive</h3>
-      <p><span id="n-rows"></span> hourly records from <span id="n-first"></span> to <span id="n-last"></span>, stored as Parquet (one folder per year) with gzipped CSV copies of the corridor rows and a Frictionless <code>datapackage.json</code> describing every column. Raw GPS pings are also exported as Open Mobility Foundation MDS 2.0 Telemetry objects.</p></div>
+      <p><span id="n-rows"></span> hourly records from <span id="n-first"></span> to <span id="n-last"></span>, stored as Parquet (one folder per year) with gzipped CSV copies of the corridor rows and a Frictionless <code>datapackage.json</code> describing every column. Raw GPS pings are also exported as Open Mobility Foundation MDS 2.0 Telemetry objects.<!--DOWNLOADS--></p></div>
     <div><h3>Limits to state on stage</h3>
       <ul><li>These are bus speeds including stops, so they sit well below car speeds on the same street.</li>
       <li>MDS has no transit-bus mode and no roadway-speed table. The telemetry export borrows its vehicle-position format; the hourly table is our own schema.</li>
@@ -347,12 +347,17 @@ function renderObs() {
     const rows = D.calitp.filter(c => c.period === p && c.section === state.sec && dirs.includes(c.direction));
     return rows.length < dirs.length ? null : { p, start: rows[0].start, end: rows[0].end, p20: comb(rows, "p20"), p50: comb(rows, "p50"), p80: comb(rows, "p80") };
   }).filter(Boolean) : [];
+  // measured hours: combine directions within each recorded hour, then average the recorded hours for each clock hour
   const liveHours = {};
-  D.live.filter(l => l.route === state.route && l.section === state.sec && dirs.includes(l.direction)).forEach(l => (liveHours[l.date + "|" + l.hour] ||= []).push(l));
-  const live = Object.values(liveHours).map(rows => ({ hour: rows[0].hour, date: rows[0].date, mph: comb(rows, "mph"), n: rows.reduce((s, r) => s + r.n, 0) })).filter(l => l.mph);
+  D.live.filter(l => l.route === state.route && l.section === state.sec && l.day === state.day && dirs.includes(l.direction)).forEach(l => (liveHours[l.date + "|" + l.hour] ||= []).push(l));
+  const byHour = {};
+  Object.values(liveHours).forEach(rows => { const v = comb(rows, "mph"); if (v) (byHour[rows[0].hour] ||= []).push({ mph: v, date: rows[0].date }); });
+  const live = Object.entries(byHour).map(([hour, a]) => ({ hour: +hour, n: a.length, mph: a.length / a.reduce((s, r) => s + 1 / r.mph, 0) }));
+  const liveDates = Object.values(byHour).flat().map(r => r.date).sort(), liveN = liveDates.length;
   const cal = periods.length ? `Cal-ITP measured one weekday (retrieved ${D.calitp_retrieved}).` : (state.route === "204" ? "Cal-ITP has no measurement for this selection." : "Cal-ITP figures are loaded for line 204 only.");
-  const lv = live.length ? ` Live points: ${live.length} hour${live.length > 1 ? "s" : ""} recorded on ${live[0].date}.` : " No live hours recorded yet for this selection.";
-  $("#obs-sub").textContent = `Current timetable, by clock hour. ${cal}${lv}` + (state.day !== "weekday" ? " Measurements are weekdays; the timetable line follows your Days filter." : "");
+  const span = liveN && liveDates[0] !== liveDates[liveN - 1] ? `${liveDates[0]} to ${liveDates[liveN - 1]}` : liveDates[0];
+  const lv = liveN ? ` Live points: average of ${liveN} measured hour${liveN > 1 ? "s" : ""}, ${span}.` : " No live hours recorded yet for this selection.";
+  $("#obs-sub").textContent = `Current timetable, by clock hour. ${cal}${lv}` + (state.day !== "weekday" && periods.length ? " Cal-ITP figures are for a weekday." : "");
   $("#obs-legend").innerHTML = `<span><i style="background:var(--s1)"></i>Timetable, last 3 months</span><span><i style="background:var(--s2)"></i>Measured, middle trip</span><span><i class="band" style="background:var(--s2)"></i>Measured, 20th to 80th percentile</span><span><i class="dot" style="background:var(--s3)"></i>Live GPS sample</span>`;
   const vals = [...sched, ...periods.flatMap(p => [p.p20, p.p80]), ...live.map(l => l.mph)].filter(v => v != null);
   const svg = svgIn(host, W, H);
@@ -382,7 +387,7 @@ function renderObs() {
     const p = periods.find(q => h >= q.start && h < q.end), l = live.find(q => q.hour === h);
     showTip(`<b>${hourName(h)} to ${hourName(h + 1)}</b>` + row("--s1", "Timetable", sched[h] == null ? "no service" : f1(sched[h]) + " mph")
       + (p ? row("--s2", `Measured (${p.p})`, f1(p.p50) + " mph") + row("--s2", "Range", `${f1(p.p20)} to ${f1(p.p80)}`) : "")
-      + (l ? row("--s3", "Live sample", f1(l.mph) + " mph") : ""), ev.clientX, ev.clientY);
+      + (l ? row("--s3", `Live (${l.n} hr${l.n > 1 ? "s" : ""})`, f1(l.mph) + " mph") : ""), ev.clientX, ev.clientY);
   });
   hit.addEventListener("pointerleave", () => { hideTip(); cross.setAttribute("visibility", "hidden"); });
 }

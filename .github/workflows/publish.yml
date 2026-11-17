@@ -1,0 +1,113 @@
+# Hourly: gather the newest bus GPS pings, roll them up to hourly speeds,
+# commit the archive, and publish the site.
+#
+# Two ways to gather pings, chosen automatically:
+#   - Cloudflare (preferred): the Worker in worker/ records the feed every
+#     minute into R2. This job downloads the last two UTC days from R2.
+#     Needs secrets CLOUDFLARE_ACCOUNT_ID, CLOUDFLARE_API_TOKEN,
+#     R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY.
+#   - GitHub only: with no R2 secrets, this job listens to the feed itself
+#     for 20 minutes each hour.
+#
+# Scheduled runs only fire on the repository's default branch.
+name: Collect and publish
+on:
+  schedule:
+    - cron: "17 * * * *"
+  push:
+    branches: [main]
+    paths: ["site/**", "pipeline/**", "worker/**", "wrangler.jsonc", "data/hourly/**", ".github/workflows/publish.yml"]
+  workflow_dispatch:
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+concurrency:
+  group: publish
+  cancel-in-progress: false
+env:
+  R2_BUCKET: vermont-speeds-archive
+  CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+  CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+  AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+  AWS_DEFAULT_REGION: auto
+  AWS_REQUEST_CHECKSUM_CALCULATION: when_required
+  AWS_RESPONSE_CHECKSUM_VALIDATION: when_required
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -r requirements.txt
+
+      - name: Download pings recorded by the Cloudflare Worker
+        if: env.AWS_ACCESS_KEY_ID != ''
+        run: |
+          for day in "$(date -u +%F)" "$(date -u -d yesterday +%F)"; do
+            aws s3 sync "s3://$R2_BUCKET/raw/$day/" "run/raw/$day/" --only-show-errors \
+              --endpoint-url "https://$CLOUDFLARE_ACCOUNT_ID.r2.cloudflarestorage.com"
+          done
+
+      - name: Or listen to the feed from here (no Cloudflare storage configured)
+        if: env.AWS_ACCESS_KEY_ID == '' && github.event_name != 'push'
+        run: python pipeline/collect_realtime.py --minutes 20 --out run/raw
+
+      - name: Roll up to hourly speeds
+        run: |
+          if [ -n "$(find run/raw -name 'vehicle_positions_*' 2>/dev/null | head -1)" ]; then
+            python pipeline/build_observed.py --raw run/raw --out data/observed --export run/export
+          else
+            echo "No new pings this run."
+          fi
+
+      - name: Store daily raw and MDS telemetry files in R2
+        if: env.AWS_ACCESS_KEY_ID != '' && hashFiles('run/export/*') != ''
+        run: |
+          E="https://$CLOUDFLARE_ACCOUNT_ID.r2.cloudflarestorage.com"
+          aws s3 cp run/export/ "s3://$R2_BUCKET/daily/" --recursive --exclude "*" --include "vehicle_positions_*" --only-show-errors --endpoint-url "$E"
+          aws s3 cp run/export/ "s3://$R2_BUCKET/mds/" --recursive --exclude "*" --include "mds_telemetry_*" --only-show-errors --endpoint-url "$E"
+
+      - name: Or keep them as a workflow artifact
+        if: env.AWS_ACCESS_KEY_ID == '' && hashFiles('run/export/*') != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: pings-${{ github.run_id }}
+          path: run/export
+          retention-days: 90
+
+      - name: Commit the observed archive
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/observed
+          git diff --cached --quiet || git commit -m "Observed speeds $(date -u +%Y-%m-%dT%H:00Z)"
+          git push
+
+      - name: Build the site
+        run: python pipeline/build_site.py
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+      - name: Deploy site, API routes and collector to Cloudflare
+        if: env.CLOUDFLARE_API_TOKEN != ''
+        run: npx --yes wrangler@4 deploy
+
+  github-pages:
+    needs: build
+    runs-on: ubuntu-latest
+    # Needs Settings > Pages > Source set to "GitHub Actions"; until then this job fails without stopping collection.
+    continue-on-error: true
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - id: deploy
+        uses: actions/deploy-pages@v4

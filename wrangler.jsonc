@@ -1,0 +1,19 @@
+// Cloudflare Worker: static site + /api routes + the once-a-minute collector.
+// Deploy with `npx wrangler deploy` after `python pipeline/build_site.py`.
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "vermont-speeds",
+  "main": "worker/index.js",
+  "compatibility_date": "2026-10-01",
+  "assets": {
+    "directory": "./_site",
+    "binding": "ASSETS",
+    "run_worker_first": ["/api/*"]
+  },
+  "triggers": { "crons": ["* * * * *"] },
+  "r2_buckets": [{ "binding": "ARCHIVE", "bucket_name": "vermont-speeds-archive" }],
+  "vars": { "ROUTES": "204,754" },
+  "observability": { "enabled": true }
+  // To serve on your own domain, add for example:
+  // "routes": [{ "pattern": "vermont.example.org", "custom_domain": true }]
+}

@@ -2,3 +2,7 @@ __pycache__/
 *.pyc
 # raw pings are large; the hourly roll-up and gzipped samples are what is archived
 data/raw/*.ndjson
+_site/
+run/
+node_modules/
+.wrangler/

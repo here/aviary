@@ -52,6 +52,7 @@ const json = (body, status = 200) => new Response(JSON.stringify(body, null, 2),
 
 export default {
   async scheduled(controller, env, ctx) {
+    if (!env.ARCHIVE) return; // storage not attached yet
     ctx.waitUntil(collect(env, new Date(controller.scheduledTime)));
   },
 
@@ -59,6 +60,7 @@ export default {
     const url = new URL(request.url);
     if (!url.pathname.startsWith("/api/")) return env.ASSETS.fetch(request);
     if (request.method !== "GET" && request.method !== "HEAD") return json({ error: "read-only" }, 405);
+    if (!env.ARCHIVE) return json({ at: null, messages: 0, error: "archive storage (R2) is not attached yet" }, url.pathname === "/api/status" ? 200 : 503);
 
     // GET /api/status -> when the collector last ran and what it stored
     if (url.pathname === "/api/status") {

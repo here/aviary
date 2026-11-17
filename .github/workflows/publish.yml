@@ -98,7 +98,9 @@ jobs:
 
       - name: Deploy site, API routes and collector to Cloudflare
         if: env.CLOUDFLARE_API_TOKEN != ''
-        run: npx --yes wrangler@4 deploy
+        run: |
+          npx --yes wrangler@4 deploy
+          npx --yes wrangler@4 deploy -c wrangler.gbfs.jsonc
 
   github-pages:
     needs: build

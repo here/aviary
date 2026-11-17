@@ -26,6 +26,20 @@ comes from a live GPS collector that has only just started, and from a Cal-ITP s
 | GitHub Pages | Not enabled; URL will be `https://here.github.io/aviary/` |
 | Worker in `worker/index.js` | Tested locally with `wrangler dev` only (collector, R2, routes all worked) |
 
+Added 2026-11-17 (later the same day):
+
+- **Sunset / Cesar Chavez corridor** (`corridors/sunset.json`): scheduled speeds for lines 2, 4 and the former 704,
+  2018-01-01 to 2026-11-15, 1.4M rows in `data/corridors/sunset/hourly/` (Parquet only, extra `corridor_id` column).
+  Built by `pipeline/backfill_corridor.py` using `pipeline/polyline.py` (distance along a path). Not on the page yet.
+  Line 2 left Sunset east of Alvarado around 2021, so sections S4 to S6 have line 2 data only to 2021.
+- **Bus collector** now records lines 2 and 4 as well (`ROUTES`).
+- **GBFS collector**: Worker `aviary-gbfs-collector` (`worker/gbfs.js`, `wrangler.gbfs.jsonc`), every 10 minutes,
+  snapshots to R2 under `gbfs/`. Working: Bird (about 3,100 vehicles in the study box) and Metro Bike Share
+  (145 stations). Returning nothing in the box: Lyft, Spin, Veo. **Lime is missing**: its feed address 404s.
+  Maintenance routes: `aviary.herebox.org/gbfs/status`, `/gbfs/run`, `/gbfs/discover`. No roll-up script yet,
+  and `gbfs/` has no expiry rule or daily compaction yet (about 290 snapshots a day).
+- Project status notes and the priority segment (Lyman Pl to Fountain Av) are in `docs/EXPANSION_PLAN.md`.
+
 Cloudflare: account ID `4c63641622d8786f6373a2430b970c25`, which owns the `herebox.org` zone.
 All Cloudflare resource names are prefixed `aviary-`. Use `aviary.herebox.org` for anything needing DNS.
 

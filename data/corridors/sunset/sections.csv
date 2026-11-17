@@ -1,0 +1,8 @@
+corridor_id,section_id,name,start_mi,end_mi,length_mi
+sunset,S1,Western Av to Vermont Av,0.0,1.011,1.01
+sunset,S2,Vermont Av to Sunset Junction (Santa Monica Bl),1.011,1.776,0.765
+sunset,S3,Sunset Junction (Santa Monica Bl) to Alvarado St,1.776,3.279,1.504
+sunset,S4,Alvarado St to Douglas St,3.279,4.024,0.744
+sunset,S5,Douglas St to Figueroa St,4.024,4.91,0.887
+sunset,S6,Figueroa St to New High St (Cesar Chavez Av),4.91,5.407,0.497
+sunset,corridor,Western Av to New High St (Cesar Chavez Av),0.0,5.407,5.407

@@ -27,6 +27,16 @@ h = pd.read_parquet("data/hourly")                      # all years
 pm = h[(h.section_id == "corridor") & (h.route == "204")]
 ```
 
+## Other corridors and sources (in progress)
+
+| Path | Contents |
+|---|---|
+| `corridors/sunset.json` | Sunset Bl / Cesar Chavez Av, Western Av to New High St: path, six sections, project events |
+| `data/corridors/sunset/hourly/year=YYYY/sunset_speeds.parquet` | Scheduled hourly speeds for lines 2, 4 and the former 704 since 2018; same columns plus `corridor_id` |
+| R2 `gbfs/` | Shared bike and scooter availability snapshots every 10 minutes (Bird, Metro Bike Share), from `worker/gbfs.js` |
+
+See `docs/EXPANSION_PLAN.md` for the before/after plan these support.
+
 ## Where the numbers come from
 
 **Ten years of hourly data: the published timetable (`source = gtfs_schedule`).**

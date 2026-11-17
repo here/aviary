@@ -60,9 +60,9 @@ The owner flagged this as the most interesting segment because the "before" wind
 - **Measured GPS is the baseline.** The collector has archived line 2 pings since 2026-11-17. It is defined as
   `focus_sections` F1 in `corridors/sunset.json`.
 - **To build next**, in order:
-  1. A measured roll-up for path-based corridors (port `build_observed.py` to use `polyline.py`), reporting F1
-     by hour: speed, seconds to traverse, and the slow-to-fast spread. Check the six-way junction delay
-     separately from the rest.
+  1. **Done 2026-11-17**: `pipeline/build_observed_corridor.py` times every bus across F1, the junction zone
+     (F1a) and the rest (F1b), and summarises by hour (trips, median seconds, 20th/80th percentile). Still to do:
+     put it on the page, and review a full day of data for bad traversals (GPS jumps, layovers).
   2. Collisions at and around the junction, 2014 on, from LAPD open data.
   3. A GBFS collector for scooters and bikes in the area, and Metro Bike Share station trips nearby.
   4. Ask Cal-ITP or Swiftly for line 2 pings on this segment back to 2022, to lengthen the baseline and

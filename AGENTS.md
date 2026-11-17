@@ -38,6 +38,13 @@ Added 2026-11-17 (later the same day):
   (145 stations). Returning nothing in the box: Lyft, Spin, Veo. **Lime is missing**: its feed address 404s.
   Maintenance routes: `aviary.herebox.org/gbfs/status`, `/gbfs/run`, `/gbfs/discover`. No roll-up script yet,
   and `gbfs/` has no expiry rule or daily compaction yet (about 290 snapshots a day).
+- **Measured roll-up for path corridors**: `pipeline/build_observed_corridor.py` writes hourly section speeds and,
+  for the short focus segments, one row per bus traversal plus an hourly summary, under
+  `data/corridors/sunset/observed/`. Focus segments F1 (Hillhurst / Virgil junction to Fountain Av), F1a (junction
+  zone) and F1b (rest) are defined in `corridors/sunset.json`. Pings arrive about every 6 seconds, so crossing
+  times are well resolved. Only about 20 minutes of late-night data existed when this was written.
+  `pipeline/fetch_archive.py` downloads archived files from the public API without keys. The workflow runs the
+  roll-up for every file in `corridors/`.
 - Project status notes and the priority segment (Lyman Pl to Fountain Av) are in `docs/EXPANSION_PLAN.md`.
 
 Cloudflare: account ID `4c63641622d8786f6373a2430b970c25`, which owns the `herebox.org` zone.

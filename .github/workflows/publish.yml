@@ -56,12 +56,15 @@ jobs:
 
       - name: Or listen to the feed from here (no Cloudflare storage configured)
         if: env.AWS_ACCESS_KEY_ID == '' && github.event_name != 'push'
-        run: python pipeline/collect_realtime.py --minutes 20 --out run/raw
+        run: python pipeline/collect_realtime.py --routes 204,754,2,4 --minutes 20 --out run/raw
 
       - name: Roll up to hourly speeds
         run: |
           if [ -n "$(find run/raw -name 'vehicle_positions_*' 2>/dev/null | head -1)" ]; then
             python pipeline/build_observed.py --raw run/raw --out data/observed --export run/export
+            for corridor in corridors/*.json; do
+              python pipeline/build_observed_corridor.py --corridor "$corridor" --raw run/raw || echo "no pings for $corridor"
+            done
           else
             echo "No new pings this run."
           fi
@@ -85,7 +88,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/observed
+          git add data/observed data/corridors
           git diff --cached --quiet || git commit -m "Observed speeds $(date -u +%Y-%m-%dT%H:00Z)"
           git push
 

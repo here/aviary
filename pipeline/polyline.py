@@ -33,6 +33,14 @@ class PolylineCorridor:
              "length_mi": round(float(pos[i + 1] - pos[i]), 3)}
             for i in range(len(pos) - 1)
         ]
+        self.focus = []
+        for f in cfg.get("focus_sections", []):
+            ends = []
+            for name, lon, lat, offset in (f["from"], f["to"]):
+                ends.append(float(self.locate(np.array([lat]), np.array([lon]))[0][0]) + offset)
+            self.focus.append({"corridor_id": self.id, "focus_id": f["id"], "name": f["name"],
+                               "start_mi": round(ends[0], 3), "end_mi": round(ends[1], 3),
+                               "length_mi": round(ends[1] - ends[0], 3)})
         self.total = {"corridor_id": self.id, "section_id": "corridor", "name": f"{names[0]} to {names[-1]}",
                       "start_mi": round(float(pos[0]), 3), "end_mi": round(float(pos[-1]), 3),
                       "length_mi": round(sum(s["length_mi"] for s in self.sections), 3)}

@@ -19,9 +19,9 @@ comes from a live GPS collector that has only just started, and from a Cal-ITP s
 | Hourly schedule archive, 2016-01-31 to 2026-11-16 | Built and committed (`data/hourly/`, about 2.2M rows) |
 | Observed archive | 13 section-hours from one 20-minute sample (`data/observed/vermont_observed_2026-11.csv`) |
 | Charts page | Works; built by `pipeline/build_site.py` into `_site/` (not committed) |
-| `https://aviary.herebox.org` | Live, **interim**: page only, bundled inside the Worker. No collector, no archive downloads, `/api/status` reports storage not attached |
-| Cloudflare Worker `aviary-vermont-speeds` | Deployed (interim build, not the code in `worker/index.js`) |
-| R2 bucket `aviary-vermont-speeds-bucket` | **Not created**: R2 is not enabled on the Cloudflare account |
+| `https://aviary.herebox.org` | Live, **interim**: charts page bundled inside the Worker, plus the real collector and `/api` routes. No archive downloads under `/data/` yet |
+| Cloudflare Worker `aviary-vermont-speeds` | Deployed 2026-11-17 from a cloud session: `worker/index.js` wrapped to serve the bundled page instead of static assets. Cron every minute. First capture not yet confirmed at time of writing; check `/api/status` |
+| R2 bucket `aviary-vermont-speeds-bucket` | Created, with a 7-day expiry rule on `raw/` |
 | GitHub Actions workflow `publish.yml` | Written, YAML parses, **never run** |
 | GitHub Pages | Not enabled; URL will be `https://here.github.io/aviary/` |
 | Worker in `worker/index.js` | Tested locally with `wrangler dev` only (collector, R2, routes all worked) |
@@ -31,11 +31,12 @@ All Cloudflare resource names are prefixed `aviary-`. Use `aviary.herebox.org` f
 
 ## Open work, in order
 
-1. **Enable R2** in the Cloudflare dashboard (owner action; asks for a payment method). Then:
-   `npx wrangler r2 bucket create aviary-vermont-speeds-bucket` and the lifecycle rule in the README.
-2. **Full Worker deploy**: `python pipeline/build_site.py && npx wrangler deploy` from the repo root.
-   This replaces the interim Worker with site + archive files + `/api` routes + every-minute collector.
-3. **Merge to `main`**. Scheduled workflows only run on the default branch.
+1. **Confirm the collector is writing**: `https://aviary.herebox.org/api/status` should show a recent `at`
+   and `/api/files?prefix=raw/` should list minute files.
+2. **Full Worker deploy**: `python pipeline/build_site.py && npx wrangler deploy` from the repo root, or let
+   the workflow do it once the secrets exist. This replaces the interim Worker with the static-assets
+   version, which adds the archive downloads under `/data/`.
+3. `main` exists and is the branch the workflow watches. Keep it the default branch.
 4. **Repository secrets**: `CLOUDFLARE_ACCOUNT_ID`, `CLOUDFLARE_API_TOKEN`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`
    (see README for where each comes from). Without the R2 pair the workflow falls back to sampling
    the feed itself for 20 minutes an hour.

@@ -1,0 +1,8 @@
+section_id,name,north_lat,south_lat,length_mi
+corridor,Sunset Bl to Athens Station (I-105),34.098,33.9285,11.682
+S1,Sunset Bl to Wilshire Bl,34.098,34.0621,2.474
+S2,Wilshire Bl to Washington Bl,34.0621,34.0404,1.496
+S3,Washington Bl to Exposition Bl,34.0404,34.0186,1.502
+S4,Exposition Bl to Slauson Av,34.0186,33.989,2.04
+S5,Slauson Av to Manchester Av,33.989,33.9604,1.971
+S6,Manchester Av to Athens Station (I-105),33.9604,33.9285,2.199

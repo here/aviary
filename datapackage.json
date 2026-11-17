@@ -1,0 +1,393 @@
+{
+  "name": "vermont-av-bus-speeds",
+  "title": "Hourly bus speeds on Vermont Av, Los Angeles (LA Metro lines 204 and 754)",
+  "profile": "tabular-data-package",
+  "version": "0.1.0",
+  "created": "2026-11-17",
+  "licenses": [
+    {
+      "name": "CC-BY-4.0",
+      "title": "Creative Commons Attribution 4.0"
+    }
+  ],
+  "sources": [
+    {
+      "title": "LA Metro bus GTFS (git history)",
+      "path": "https://gitlab.com/LACMTA/gtfs_bus"
+    },
+    {
+      "title": "LA Metro realtime API (GTFS-realtime vehicle positions)",
+      "path": "https://api.metro.net"
+    },
+    {
+      "title": "Cal-ITP / Caltrans Average Transit Speeds by Stop",
+      "path": "https://data.ca.gov/dataset/average-transit-speeds-by-stop"
+    }
+  ],
+  "resources": [
+    {
+      "name": "hourly-all-sections",
+      "title": "Hourly speeds, corridor and six sections, 2016 onward",
+      "format": "parquet",
+      "mediatype": "application/vnd.apache.parquet",
+      "path": [
+        "data/hourly/year=2016/vermont_speeds.parquet",
+        "data/hourly/year=2017/vermont_speeds.parquet",
+        "data/hourly/year=2018/vermont_speeds.parquet",
+        "data/hourly/year=2019/vermont_speeds.parquet",
+        "data/hourly/year=2020/vermont_speeds.parquet",
+        "data/hourly/year=2021/vermont_speeds.parquet",
+        "data/hourly/year=2022/vermont_speeds.parquet",
+        "data/hourly/year=2023/vermont_speeds.parquet",
+        "data/hourly/year=2024/vermont_speeds.parquet",
+        "data/hourly/year=2025/vermont_speeds.parquet",
+        "data/hourly/year=2026/vermont_speeds.parquet"
+      ],
+      "schema": {
+        "fields": [
+          {
+            "name": "hour_start_utc",
+            "type": "datetime",
+            "description": "Start of the hour, UTC (ISO 8601)."
+          },
+          {
+            "name": "hour_start_local",
+            "type": "string",
+            "description": "Start of the hour in America/Los_Angeles with UTC offset, e.g. 2024-05-01T17:00:00-0700."
+          },
+          {
+            "name": "route",
+            "type": "string",
+            "description": "LA Metro line: 204 (Local) or 754 (Rapid)."
+          },
+          {
+            "name": "direction",
+            "type": "string",
+            "description": "northbound or southbound."
+          },
+          {
+            "name": "section_id",
+            "type": "string",
+            "description": "corridor (Sunset Bl to Athens Station) or S1..S6; see sections.csv."
+          },
+          {
+            "name": "speed_mph",
+            "type": "number",
+            "description": "Average speed over the section in miles per hour, stops and signals included (length_mi / travel_time)."
+          },
+          {
+            "name": "travel_time_min",
+            "type": "number",
+            "description": "Average minutes to traverse the section. For corridor rows, the sum of the six section averages."
+          },
+          {
+            "name": "length_mi",
+            "type": "number",
+            "description": "Section length in miles."
+          },
+          {
+            "name": "n_trips",
+            "type": "integer",
+            "description": "Trips contributing in that hour (for corridor rows, the fewest on any section)."
+          },
+          {
+            "name": "source",
+            "type": "string",
+            "description": "gtfs_schedule = derived from the published timetable; gtfs_realtime_observed = measured from vehicle GPS."
+          },
+          {
+            "name": "feed_version",
+            "type": "string",
+            "description": "For gtfs_schedule rows: publication date and commit of the LACMTA/gtfs_bus version used. Empty for observed rows."
+          }
+        ],
+        "primaryKey": [
+          "hour_start_utc",
+          "route",
+          "direction",
+          "section_id",
+          "source"
+        ]
+      },
+      "description": "Hive-partitioned by local year. hour_start_utc is a UTC timestamp column."
+    },
+    {
+      "name": "hourly-corridor-csv",
+      "title": "Hourly speeds, corridor rows only",
+      "format": "csv",
+      "compression": "gz",
+      "mediatype": "text/csv",
+      "path": [
+        "data/hourly_csv/vermont_corridor_2016.csv.gz",
+        "data/hourly_csv/vermont_corridor_2017.csv.gz",
+        "data/hourly_csv/vermont_corridor_2018.csv.gz",
+        "data/hourly_csv/vermont_corridor_2019.csv.gz",
+        "data/hourly_csv/vermont_corridor_2020.csv.gz",
+        "data/hourly_csv/vermont_corridor_2021.csv.gz",
+        "data/hourly_csv/vermont_corridor_2022.csv.gz",
+        "data/hourly_csv/vermont_corridor_2023.csv.gz",
+        "data/hourly_csv/vermont_corridor_2024.csv.gz",
+        "data/hourly_csv/vermont_corridor_2025.csv.gz",
+        "data/hourly_csv/vermont_corridor_2026.csv.gz"
+      ],
+      "schema": {
+        "fields": [
+          {
+            "name": "hour_start_utc",
+            "type": "datetime",
+            "description": "Start of the hour, UTC (ISO 8601)."
+          },
+          {
+            "name": "hour_start_local",
+            "type": "string",
+            "description": "Start of the hour in America/Los_Angeles with UTC offset, e.g. 2024-05-01T17:00:00-0700."
+          },
+          {
+            "name": "route",
+            "type": "string",
+            "description": "LA Metro line: 204 (Local) or 754 (Rapid)."
+          },
+          {
+            "name": "direction",
+            "type": "string",
+            "description": "northbound or southbound."
+          },
+          {
+            "name": "section_id",
+            "type": "string",
+            "description": "corridor (Sunset Bl to Athens Station) or S1..S6; see sections.csv."
+          },
+          {
+            "name": "speed_mph",
+            "type": "number",
+            "description": "Average speed over the section in miles per hour, stops and signals included (length_mi / travel_time)."
+          },
+          {
+            "name": "travel_time_min",
+            "type": "number",
+            "description": "Average minutes to traverse the section. For corridor rows, the sum of the six section averages."
+          },
+          {
+            "name": "length_mi",
+            "type": "number",
+            "description": "Section length in miles."
+          },
+          {
+            "name": "n_trips",
+            "type": "integer",
+            "description": "Trips contributing in that hour (for corridor rows, the fewest on any section)."
+          },
+          {
+            "name": "source",
+            "type": "string",
+            "description": "gtfs_schedule = derived from the published timetable; gtfs_realtime_observed = measured from vehicle GPS."
+          },
+          {
+            "name": "feed_version",
+            "type": "string",
+            "description": "For gtfs_schedule rows: publication date and commit of the LACMTA/gtfs_bus version used. Empty for observed rows."
+          }
+        ],
+        "primaryKey": [
+          "hour_start_utc",
+          "route",
+          "direction",
+          "section_id",
+          "source"
+        ]
+      }
+    },
+    {
+      "name": "observed-hourly",
+      "title": "Observed hourly speeds from live vehicle positions",
+      "format": "csv",
+      "mediatype": "text/csv",
+      "path": "data/observed/vermont_observed_hourly.csv",
+      "schema": {
+        "fields": [
+          {
+            "name": "hour_start_utc",
+            "type": "datetime",
+            "description": "Start of the hour, UTC (ISO 8601)."
+          },
+          {
+            "name": "hour_start_local",
+            "type": "string",
+            "description": "Start of the hour in America/Los_Angeles with UTC offset, e.g. 2024-05-01T17:00:00-0700."
+          },
+          {
+            "name": "route",
+            "type": "string",
+            "description": "LA Metro line: 204 (Local) or 754 (Rapid)."
+          },
+          {
+            "name": "direction",
+            "type": "string",
+            "description": "northbound or southbound."
+          },
+          {
+            "name": "section_id",
+            "type": "string",
+            "description": "corridor (Sunset Bl to Athens Station) or S1..S6; see sections.csv."
+          },
+          {
+            "name": "speed_mph",
+            "type": "number",
+            "description": "Average speed over the section in miles per hour, stops and signals included (length_mi / travel_time)."
+          },
+          {
+            "name": "travel_time_min",
+            "type": "number",
+            "description": "Average minutes to traverse the section. For corridor rows, the sum of the six section averages."
+          },
+          {
+            "name": "length_mi",
+            "type": "number",
+            "description": "Section length in miles."
+          },
+          {
+            "name": "n_trips",
+            "type": "integer",
+            "description": "Trips contributing in that hour (for corridor rows, the fewest on any section)."
+          },
+          {
+            "name": "source",
+            "type": "string",
+            "description": "gtfs_schedule = derived from the published timetable; gtfs_realtime_observed = measured from vehicle GPS."
+          },
+          {
+            "name": "feed_version",
+            "type": "string",
+            "description": "For gtfs_schedule rows: publication date and commit of the LACMTA/gtfs_bus version used. Empty for observed rows."
+          }
+        ],
+        "primaryKey": [
+          "hour_start_utc",
+          "route",
+          "direction",
+          "section_id",
+          "source"
+        ]
+      }
+    },
+    {
+      "name": "sections",
+      "title": "Corridor sections",
+      "format": "csv",
+      "path": "data/sections.csv",
+      "schema": {
+        "fields": [
+          {
+            "name": "section_id",
+            "type": "string"
+          },
+          {
+            "name": "name",
+            "type": "string"
+          },
+          {
+            "name": "north_lat",
+            "type": "number"
+          },
+          {
+            "name": "south_lat",
+            "type": "number"
+          },
+          {
+            "name": "length_mi",
+            "type": "number"
+          }
+        ],
+        "primaryKey": "section_id"
+      }
+    },
+    {
+      "name": "feed-versions",
+      "title": "GTFS version in force for each date range",
+      "format": "csv",
+      "path": "data/feed_versions.csv",
+      "schema": {
+        "fields": [
+          {
+            "name": "feed_version",
+            "type": "string"
+          },
+          {
+            "name": "first_date",
+            "type": "date"
+          },
+          {
+            "name": "last_date",
+            "type": "date"
+          },
+          {
+            "name": "days",
+            "type": "integer"
+          }
+        ]
+      }
+    },
+    {
+      "name": "calitp-reference",
+      "title": "Cal-ITP measured speeds for line 204 rolled up to sections (snapshot)",
+      "format": "csv",
+      "path": "data/reference/calitp_speeds_204.csv",
+      "schema": {
+        "fields": [
+          {
+            "name": "section_id",
+            "type": "string"
+          },
+          {
+            "name": "direction",
+            "type": "string"
+          },
+          {
+            "name": "time_period",
+            "type": "string"
+          },
+          {
+            "name": "p20_mph",
+            "type": "number"
+          },
+          {
+            "name": "p50_mph",
+            "type": "number"
+          },
+          {
+            "name": "p80_mph",
+            "type": "number"
+          },
+          {
+            "name": "median_n_trips",
+            "type": "number"
+          },
+          {
+            "name": "n_segments",
+            "type": "integer"
+          },
+          {
+            "name": "start_hour",
+            "type": "integer"
+          },
+          {
+            "name": "end_hour",
+            "type": "integer"
+          },
+          {
+            "name": "route",
+            "type": "string"
+          },
+          {
+            "name": "source",
+            "type": "string"
+          },
+          {
+            "name": "retrieved",
+            "type": "date"
+          }
+        ]
+      }
+    }
+  ]
+}

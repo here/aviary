@@ -122,6 +122,12 @@ come from search-result summaries; verify before quoting.
 - **`wrangler login` needs a local browser.** In a cloud session use an API token; in CI use the secret.
 - **Traffic tiles are decoded by `pipeline/mvt.py`**, not `mapbox-vector-tile`, which pins an older protobuf than
   `gtfs-realtime-bindings` needs. Tile y runs downwards from the top left; extent is 4096.
+- **The built page has no CSS reset**, so `site/template.html` itself carries `[hidden] { display: none !important; }`.
+  Without it, elements hidden with the `hidden` attribute (the next-project-site box, the Line control on Fountain Av)
+  still render, because `.panel` and `.ctl` set `display`. After editing CSS, check that braces balance: a stray
+  `}` silently disables the rule that follows it.
+- **Street picker order** is set in `pipeline/build_site.py` (`order = [...]`). A street with no bus data but with
+  TomTom traffic data (Fountain Av) is shown with traffic only: no Line control, traffic-based figure and table.
 - **Page conventions**: `site/template.html` is a single self-contained file with the data inlined at
   `/*DATA*/null`. Colors are CSS tokens with light and dark values; the four series colors were checked for
   colorblind separation, so do not swap them casually. No external requests except Google Fonts.

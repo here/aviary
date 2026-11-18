@@ -22,6 +22,7 @@
   --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500;
   --seq-lo: #9ec5f4; --seq-hi: #16365f; color-scheme: dark }
 
+[hidden] { display: none !important; }
 body { background: var(--bg); color: var(--ink); font: 15px/1.55 var(--body); }
 .wrap { max-width: 1080px; margin: 0 auto; padding-block: 28px 56px;
   padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
@@ -47,11 +48,12 @@ header { display: flex; flex-direction: column; gap: 10px; }
 .toc a { font-size: 13px; color: var(--ink-2); text-decoration: none; padding: 5px 10px; border: 1px solid var(--ring); border-radius: 999px; background: var(--surface); }
 .toc a:hover { color: var(--ink); border-color: var(--ink-3); }
 .toc a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-section[id], .notes[id] { scroll-margin-top: 16px; }
+section[id] { scroll-margin-top: 16px; }
 table.plain td { white-space: normal; text-align: left; vertical-align: top; }
 table.plain th { text-align: left; }
 table.plain td:first-child { min-width: 14em; }
 table.plain a { color: var(--accent); }
+table.plain tr.group th { text-align: left; padding-top: 16px; font-family: var(--display); font-size: 14px; letter-spacing: 0; text-transform: none; color: var(--ink); border-bottom: 1px solid var(--ink-3); }
 .sources { margin: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 28px; }
 @media (max-width: 760px) { .sources { grid-template-columns: minmax(0, 1fr); } }
 .sources dt { font-weight: 600; font-size: 14px; }
@@ -73,13 +75,18 @@ table.plain a { color: var(--accent); }
 .stat b { font: 600 28px/1.15 var(--display); font-variant-numeric: tabular-nums; }
 .stat b small { font-size: 14px; font-weight: 500; color: var(--ink-2); margin-left: 3px; }
 .stat span { font-size: 12.5px; color: var(--ink-2); }
-  .stat:nth-child(3) { padding-left: 0; border-left: 0; } .stat:nth-child(n+3) { border-top: 1px solid var(--grid); } }
 
-.controls { display: flex; flex-wrap: wrap; gap: 14px 22px; align-items: flex-end; }
-.ctl { display: flex; flex-direction: column; gap: 5px; }
+/* Controls: two aligned columns (Street | Line, Direction | Days) on wide screens, one column on phones. */
+.controls { display: grid; grid-template-columns: max-content max-content; gap: 14px 40px; align-items: start; justify-content: start; }
+@media (max-width: 760px) { .controls { grid-template-columns: minmax(0, 1fr); gap: 12px; } }
+@media (max-width: 560px) {
+  .seg { flex-wrap: wrap; gap: 6px; border: 0; background: none; overflow: visible; }
+  .seg button, .seg button + button { border: 1px solid var(--ring); border-radius: 8px; background: var(--surface); }
+}
+.ctl { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; min-width: 0; }
 .ctl > span { font-size: 11.5px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); }
-.seg { display: inline-flex; border: 1px solid var(--ring); border-radius: 8px; background: var(--surface); overflow: hidden; }
-.seg button { font: 500 13.5px var(--body); color: var(--ink-2); background: none; border: 0; padding: 7px 12px; cursor: pointer; }
+.seg { display: inline-flex; max-width: 100%; overflow-x: auto; border: 1px solid var(--ring); border-radius: 8px; background: var(--surface); }
+.seg button { font: 500 13.5px var(--body); color: var(--ink-2); background: none; border: 0; padding: 8px 14px; cursor: pointer; white-space: nowrap; min-height: 36px; }
 .seg button + button { border-left: 1px solid var(--ring); }
 .seg button[aria-pressed="true"] { background: var(--accent-soft); color: var(--ink); font-weight: 600; }
 button:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
@@ -131,11 +138,6 @@ th:first-child, td:first-child { text-align: left; padding-left: 0; }
 th { font-size: 11.5px; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; color: var(--ink-3); }
 tr.total td { font-weight: 600; border-bottom: 0; }
 
-.notes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px 32px; }
-@media (max-width: 760px) { .notes { grid-template-columns: minmax(0, 1fr); } }
-.notes h3 { font: 600 14px var(--body); margin: 0 0 4px; }
-.notes p, .notes li { font-size: 13.5px; color: var(--ink-2); }
-.notes ul { margin: 0; padding-left: 18px; }
 code { font: 12.5px ui-monospace, SFMono-Regular, Menlo, monospace; background: var(--accent-soft); padding: 1px 4px; border-radius: 3px; }
 </style>
 
@@ -158,7 +160,7 @@ code { font: 12.5px ui-monospace, SFMono-Regular, Menlo, monospace; background: 
   </header>
 
   <nav class="toc" aria-label="Page sections">
-    <a href="#trends">Trends</a><a href="#measured">Measured</a><a href="#next-site" class="toc-focus">Next project site</a><a href="#stretches">Stretches</a><a href="#projects">Projects</a><a href="#sources">Data sources</a><a href="#method">Method</a>
+    <a href="#trends">Trends</a><a href="#measured">Measured</a><a href="#next-site" class="toc-focus">Next project site</a><a href="#stretches">Stretches</a><a href="#projects">Projects</a><a href="#sources">Data sources</a><a href="#crowdsourced">Crowdsourced</a>
   </nav>
 
   <section class="controls" aria-label="Filters">
@@ -208,12 +210,15 @@ code { font: 12.5px ui-monospace, SFMono-Regular, Menlo, monospace; background: 
     <div class="tablewrap"><table class="plain">
       <thead><tr><th>Project</th><th>Where</th><th>Agency</th><th>Status</th></tr></thead>
       <tbody>
-        <tr><td><a href="https://ladotlivablestreets.org/projects/hollywood-blvd" target="_blank" rel="noopener">Hollywood Boulevard Safety and Mobility Project</a></td><td>Hollywood Bl, Gower St to Hillhurst Av</td><td>LADOT</td><td>Built; construction began August 2024</td></tr>
-        <tr><td><a href="https://ladotlivablestreets-cms.org/uploads/c0a97e71b260468c898f0c2094d1692b.pdf" target="_blank" rel="noopener">Hollywood project Phase 2, by the Vista Theatre</a></td><td>Sunset Bl, Lyman Pl and Hillhurst Av to Fountain Av</td><td>LADOT</td><td>Draft design; installation expected early 2027</td></tr>
-        <tr><td><a href="https://cd13.lacity.gov/access-to-hollywood" target="_blank" rel="noopener">Access to Hollywood</a></td><td>Hollywood Bl, Gower St to La Brea Av; Vine St</td><td>Council District 13, Bureau of Engineering</td><td>Announced 2024; current status to confirm</td></tr>
-        <tr><td><a href="https://ladotlivablestreets.org/projects/sunset" target="_blank" rel="noopener">Sunset East: Sunset Boulevard and Cesar Chavez Avenue</a></td><td>Fountain Av to Alameda St</td><td>LADOT</td><td>In design; outreach 2026</td></tr>
-        <tr><td><a href="https://engage.weho.org/fountain" target="_blank" rel="noopener">Fountain Avenue Streetscape Project</a></td><td>Fountain Av, La Cienega Bl to La Brea Av</td><td>City of West Hollywood</td><td>Phase 1 approved September 2025; construction expected late 2026 to early 2027</td></tr>
+        <tr class="group"><th colspan="4">Vermont Av</th></tr>
         <tr><td><a href="https://www.metro.net/projects/vermont-corridor/" target="_blank" rel="noopener">Vermont Transit Corridor (bus rapid transit)</a></td><td>Vermont Av, Sunset Bl to 120th St</td><td>LA Metro</td><td>Under construction since October 2026; opening targeted 2028</td></tr>
+        <tr class="group"><th colspan="4">Hollywood Bl</th></tr>
+        <tr><td><a href="https://ladotlivablestreets.org/projects/hollywood-blvd" target="_blank" rel="noopener">Hollywood Boulevard Safety and Mobility Project</a></td><td>Hollywood Bl, Gower St to Hillhurst Av; Phase 2 continues on Sunset Bl to Fountain Av, by the Vista Theatre</td><td>LADOT</td><td>Phase 1 built (construction began August 2024); Phase 2 in draft design, expected early 2027</td></tr>
+        <tr><td><a href="https://cd13.lacity.gov/access-to-hollywood" target="_blank" rel="noopener">Access to Hollywood</a></td><td>Hollywood Bl, Gower St to La Brea Av; Vine St</td><td>Council District 13, Bureau of Engineering</td><td>Announced 2024; current status to confirm</td></tr>
+        <tr class="group"><th colspan="4">Sunset Bl and Cesar Chavez Av</th></tr>
+        <tr><td><a href="https://ladotlivablestreets.org/projects/sunset" target="_blank" rel="noopener">Sunset East: Sunset Boulevard and Cesar Chavez Avenue</a></td><td>Fountain Av to Alameda St</td><td>LADOT</td><td>In design; outreach 2026</td></tr>
+        <tr class="group"><th colspan="4">Fountain Av (no bus data yet)</th></tr>
+        <tr><td><a href="https://engage.weho.org/fountain" target="_blank" rel="noopener">Fountain Avenue Streetscape Project</a></td><td>Fountain Av, La Cienega Bl to La Brea Av</td><td>City of West Hollywood</td><td>Phase 1 approved September 2025; construction expected late 2026 to early 2027</td></tr>
       </tbody>
     </table></div>
   </section>
@@ -229,28 +234,24 @@ code { font: 12.5px ui-monospace, SFMono-Regular, Menlo, monospace; background: 
       <div><dt><a href="https://data.ca.gov/dataset/average-transit-speeds-by-stop" target="_blank" rel="noopener">Cal-ITP average transit speeds</a></dt><dd>Caltrans' measured bus speeds by stop for one recent weekday. A cross-check on the timetable.</dd></div>
       <div><dt><a href="https://github.com/MobilityData/gbfs/blob/master/systems.csv" target="_blank" rel="noopener">GBFS shared bikes and scooters</a></dt><dd>Public availability feeds from Bird and Metro Bike Share, recorded every 10 minutes. Not yet charted.</dd></div>
       <div><dt><a href="https://github.com/openmobilityfoundation/mobility-data-specification" target="_blank" rel="noopener">Open Mobility Foundation MDS</a></dt><dd>The standard used to export the bus GPS positions as vehicle telemetry.</dd></div>
-      <div><dt><a href="https://telraam.net/en/our-traffic-counter" target="_blank" rel="noopener">Telraam counters (planned)</a></dt><dd>Window-mounted counters for cars, bikes and pedestrians, run by residents. No images are kept.</dd></div>
+      <div><dt><a href="#crowdsourced">Crowdsourced (planned)</a></dt><dd>Counts of cars, bikes and people collected by residents and community groups, without identifying anyone. See the options below.</dd></div>
     </dl>
   </section>
 
-  <section class="notes" id="method">
-    <div><h3>What the long series is</h3>
-      <p>LA Metro keeps its bus timetable (GTFS) in a public git repository going back to 2016; <span id="n-feeds"></span> versions cover this street. For each date we take the version in force, find every trip on the street, and time it between cross streets. Metro resets running times at service changes using measured trips, so the timetable follows real conditions with a lag. Stretches where the line stays flat for a year or more are periods when Metro left the running times unchanged; they are not evidence that traffic stood still.</p></div>
-    <div><h3>What is measured</h3>
-      <ul><li>Cal-ITP (Caltrans) publishes stop-to-stop speeds from archived bus GPS: the middle trip and the 20th to 80th percentile range for one recent weekday.</li>
-      <li>General-traffic speeds come from TomTom's traffic flow data, collected every 15 minutes since November 18, 2026, and matched to each stretch of street.</li>
-      <li>Collectors in this project record bus GPS positions around the clock from two feeds: LA Metro's public feed (a ping every few seconds for lines 204, 754, 2 and 4, since November 17, 2026) and Swiftly, Metro's realtime data provider (every bus once a minute, since November 18, 2026). The two carry the same vehicle records; duplicates are removed. Live points average the measured hours of the last four weeks.</li></ul></div>
-    <div><h3>The archive</h3>
-      <p><span id="n-rows"></span> hourly records across all streets (this one: <span id="n-first"></span> to <span id="n-last"></span>), stored as Parquet (one folder per year) with gzipped CSV copies of the corridor rows and a Frictionless <code>datapackage.json</code> describing every column. Raw GPS pings are also exported as Open Mobility Foundation MDS 2.0 Telemetry objects.<!--DOWNLOADS--></p></div>
-    <div><h3>Limits to state on stage</h3>
-      <ul><li>These are bus speeds including stops, so they sit well below car speeds on the same street.</li>
-      <li>MDS has no transit-bus mode and no roadway-speed table. The telemetry export borrows its vehicle-position format; the hourly table is our own schema.</li>
-      <li>A measured hourly history needs an archive of GPS feeds. That starts now with the collector, or sooner with access to Metro's or Cal-ITP's stored feeds.</li>
-      <li>Project dates come from news coverage and agency updates and should be confirmed with LADOT and Metro.</li></ul>
-      <p id="planned" style="margin-top:8px"></p></div>
+  <section class="panel" id="crowdsourced">
+    <h2>Crowdsourced data</h2>
+    <p>Counts collected by residents and community groups fill gaps that bus and traffic feeds leave, such as Fountain Av, where no bus runs, and the number of people walking and biking a road diet is meant to bring. Every option here counts without identifying people or vehicles.</p>
+    <dl class="sources">
+      <div><dt><a href="https://telraam.net/en/our-traffic-counter" target="_blank" rel="noopener">Telraam</a></dt><dd>A small counter inside a window facing the street counts cars, heavy vehicles, bikes and pedestrians and measures car speeds. Counting happens on the device and no images are kept. Counts are published openly by street segment. First choice for Fountain Av and Sunset Bl by the Vista Theatre, before construction starts.</dd></div>
+      <div><dt><a href="https://opentrafficcam.org/" target="_blank" rel="noopener">OpenTrafficCam</a></dt><dd>Open-source video counting: a do-it-yourself camera records the street, then software counts road users, turning movements and speeds. Suited to short before-and-after studies at one intersection, such as Hollywood, Sunset and Hillhurst. Video is kept until analysed, so it needs a clear deletion policy.</dd></div>
+      <div><dt><a href="https://metro.strava.com" target="_blank" rel="noopener">Strava Metro</a></dt><dd>Bike and run trips by street segment from app users, free for agencies and approved researchers. Skews toward sport riders.</dd></div>
+      <div><dt>Volunteer counts and speed checks</dt><dd>Manual bike and pedestrian counts on set days, and spot speed checks on a block, by local groups and residents. Simple, but needs a consistent method to compare before and after.</dd></div>
+    </dl>
+    <p>In practice: on Lake Street in San Francisco, residents used window counters to make the case for keeping a slow street (<a href="https://sf.streetsblog.org/2022/12/19/advocates-used-ai-to-win-slow-lake-fight/" target="_blank" rel="noopener">Streetsblog</a>), and <a href="https://transpomaps.org/projects/telraam/" target="_blank" rel="noopener">Transpo Maps</a> shows Bay Area counters on a live public map.</p>
   </section>
+
   <nav class="toc" aria-label="Page sections">
-    <a href="#trends">Trends</a><a href="#measured">Measured</a><a href="#next-site" class="toc-focus">Next project site</a><a href="#stretches">Stretches</a><a href="#projects">Projects</a><a href="#sources">Data sources</a><a href="#method">Method</a>
+    <a href="#trends">Trends</a><a href="#measured">Measured</a><a href="#next-site" class="toc-focus">Next project site</a><a href="#stretches">Stretches</a><a href="#projects">Projects</a><a href="#sources">Data sources</a><a href="#crowdsourced">Crowdsourced</a>
   </nav>
   <footer class="site-foot">
     <a href="https://github.com/here/aviary" target="_blank" rel="noopener"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg><span>Code and documentation on GitHub</span></a>
@@ -307,10 +308,11 @@ function span(sec) {
 function useCorridor() {
   if (!D.corridors[state.cor]) state.cor = Object.keys(D.corridors)[0];
   C = D.corridors[state.cor]; M = C.months.length; YEARS = [...new Set(C.months.map(m => m.slice(0, 4)))];
-  if (!C.routes.some(r => r[0] === state.route)) state.route = C.routes[0][0];
+  if (hasBus() && !C.routes.some(r => r[0] === state.route)) state.route = C.routes[0][0];
   if (state.dir !== "both" && !C.directions.includes(state.dir)) state.dir = "both";
   if (!secOf(state.sec)) state.sec = "corridor";
-  if (!span(state.sec)) { const s = C.sections.find(x => span(x.section_id)); if (s) state.sec = s.section_id; }
+  if (hasBus() && !span(state.sec)) { const s = C.sections.find(x => span(x.section_id)); if (s) state.sec = s.section_id; }
+  if (!hasBus() && !trafficSpeed(state.sec)) { const s = C.sections.find(x => trafficSpeed(x.section_id)); if (s) state.sec = s.section_id; }
 }
 
 function el(tag, attrs, parent, text) {
@@ -340,10 +342,15 @@ function describe() {
   const s = secOf(state.sec);
   const dir = state.dir === "both" ? "both directions" : state.dir;
   const day = { weekday: "weekdays", saturday: "Saturdays", sunday: "Sundays" }[state.day];
-  return { where: s.name, text: `${C.street}, line ${state.route}, ${dir}, ${day}`, len: s.length_mi };
+  return { where: s.name, text: hasBus() ? `${C.street}, line ${state.route}, ${dir}, ${day}` : `${C.street}, ${dir}, ${day}`, len: s.length_mi };
 }
 
 function renderStats() {
+  if (!hasBus()) {
+    const t = trafficSpeed(state.sec), len = secOf(state.sec).length_mi;
+    $("#stats").innerHTML = `<div class="stat"><b>${t ? (len / t.mph * 60).toFixed(0) + "<small>min</small>" : "–"}</b><span>${t ? `To drive this stretch in general traffic (TomTom), average of ${t.n} recorded hour${t.n > 1 ? "s" : ""}. No bus runs on this street.` : "No general-traffic speeds recorded yet for this selection. No bus runs on this street."}</span></div>`;
+    return;
+  }
   const pm = BANDS[2].h, sp = span(state.sec) || [YEARS[0], YEARS[YEARS.length - 1]], y0 = sp[0], y1 = sp[1];
   const a = avg(yearMonths(y0), pm), b = avg(yearMonths(y1), pm), len = secOf(state.sec).length_mi;
   const tile = (a && b)
@@ -358,8 +365,9 @@ function renderStreet() {
     const b = document.createElement("button");
     b.className = "stretch"; b.type = "button"; b.id = "sec-" + s.section_id; b.style.setProperty("--len", s.length_mi);
     b.setAttribute("aria-pressed", state.sec === "corridor" || state.sec === s.section_id);
-    b.innerHTML = `<i></i><em>${C.breakpoints[i]}<small>${s.length_mi.toFixed(1)} mi to ${C.breakpoints[i + 1].replace(" (I-105)", "")}</small></em>`;
-    b.disabled = !span(s.section_id); if (b.disabled) b.title = "No service on this stretch for this line";
+    const short = n => n.replace(/\s*\(.*?\)/g, "");
+    b.innerHTML = `<i></i><em>${short(C.breakpoints[i])}<small>${s.length_mi.toFixed(1)} mi to ${short(C.breakpoints[i + 1])}</small></em>`;
+    b.disabled = hasBus() && !span(s.section_id); if (b.disabled) b.title = "No service on this stretch for this line";
     b.onclick = () => set("sec", state.sec === s.section_id ? "corridor" : s.section_id);
     host.appendChild(b);
   });
@@ -371,6 +379,13 @@ function renderStreet() {
 
 function renderTS() {
   const host = $("#ts"), W = Math.max(320, host.clientWidth), narrow = W < 560;
+  if (!hasBus()) {
+    $("#ts-sub").textContent = `${C.street} has no bus service on this stretch, so there is no timetable history. General-traffic speeds are in the next chart, and the project dates are listed above.`;
+    $("#ts-legend").innerHTML = "";
+    const svg = svgIn(host, W, 120);
+    el("text", { x: W / 2, y: 64, "text-anchor": "middle" }, svg, "No bus timetable for this street");
+    return;
+  }
   const H = narrow ? 300 : 380, m = { l: 34, r: narrow ? 12 : 76, t: 26, b: 26 };
   const data = BANDS.map(b => C.months.map((_, i) => avg([i], b.h)));
   const all = data.flat().filter(v => v != null);
@@ -458,10 +473,10 @@ function renderObs() {
   const trafDates = Object.keys(trafHours).map(k => k.split("|")[0]).sort();
   const tspan = trafN && trafDates[0] !== trafDates[trafN - 1] ? `${trafDates[0]} to ${trafDates[trafN - 1]}` : trafDates[0];
   const tv = trafN ? ` Yellow line: general traffic from TomTom, average of ${trafN} hour${trafN > 1 ? "s" : ""}, ${tspan}.` : "";
-  $("#obs-sub").textContent = `Current timetable, by clock hour. ${cal}${lv}${tv}` + (state.day !== "weekday" && periods.length ? " Cal-ITP figures are for a weekday." : "");
-  $("#obs-legend").innerHTML = `<span><i style="background:var(--s1)"></i>Timetable, last 3 months</span>` +
+  $("#obs-sub").textContent = !hasBus() ? `General traffic by clock hour, from TomTom.${tv}` : `Current timetable, by clock hour. ${cal}${lv}${tv}` + (state.day !== "weekday" && periods.length ? " Cal-ITP figures are for a weekday." : "");
+  $("#obs-legend").innerHTML = (hasBus() ? `<span><i style="background:var(--s1)"></i>Timetable, last 3 months</span>` : "") +
     (periods.length ? `<span><i style="background:var(--s2)"></i>Cal-ITP measured, middle trip</span><span><i class="band" style="background:var(--s2)"></i>Cal-ITP measured, 20th to 80th percentile</span>` : "") +
-    `<span><i class="dot" style="background:var(--s3)"></i>Measured by bus GPS (Metro and Swiftly feeds)</span>` +
+    (hasBus() ? `<span><i class="dot" style="background:var(--s3)"></i>Measured by bus GPS (Metro and Swiftly feeds)</span>` : "") +
     (trafN ? `<span><i style="background:var(--s4)"></i>General traffic (TomTom)</span>` : "");
   const vals = [...sched, ...periods.flatMap(p => [p.p20, p.p80]), ...live.map(l => l.mph), ...traffic].filter(v => v != null);
   const svg = svgIn(host, W, H);
@@ -502,6 +517,16 @@ function renderObs() {
 }
 
 function renderTable() {
+  if (!hasBus()) {
+    const d = describe();
+    $("#tbl-sub").textContent = `${d.text}. General-traffic speed from TomTom, averaged over the hours recorded so far.`;
+    const rows = [...C.sections.slice(1), C.sections[0]].map(s => {
+      const t = trafficSpeed(s.section_id), tot = s.section_id === "corridor";
+      return `<tr${tot ? ' class="total"' : ""}><td>${tot ? "Whole street" : s.name}</td><td>${s.length_mi.toFixed(1)}</td><td>${t ? f1(t.mph) : "–"}</td><td>${t ? (s.length_mi / t.mph * 60).toFixed(1) : "–"}</td><td>${t ? t.n : 0}</td></tr>`;
+    });
+    $("#tbl").innerHTML = `<thead><tr><th>Stretch</th><th>Miles</th><th>Traffic mph</th><th>Minutes</th><th>Hours recorded</th></tr></thead><tbody>${rows.join("")}</tbody>`;
+    return;
+  }
   const pm = BANDS[2].h, y0 = YEARS[0], y1 = YEARS[YEARS.length - 1], d = describe();
   $("#tbl-sub").textContent = `${d.text}. PM-peak scheduled speed (3 to 8pm) in ${y0} and ${y1}; a year in brackets marks the nearest year this line served the stretch.`;
   const rows = [...C.sections.slice(1), C.sections[0]].map(s => {
@@ -514,10 +539,19 @@ function renderTable() {
 }
 
 const cap = t => t[0].toUpperCase() + t.slice(1);
+const hasBus = () => C.routes.length > 0;
+// general-traffic speed for a section under the current filters, averaged over recorded hours by travel time
+function trafficSpeed(sec) {
+  const dirs = state.dir === "both" ? C.directions : [state.dir], byHr = {};
+  (C.traffic || []).filter(t => t.section === sec && t.day === state.day && dirs.includes(t.direction)).forEach(t => (byHr[t.date + "|" + t.hour] ||= []).push(t.mph));
+  const v = Object.values(byHr).filter(a => a.length === dirs.length).map(a => a.length / a.reduce((s, x) => s + 1 / x, 0));
+  return v.length ? { mph: v.length / v.reduce((s, x) => s + 1 / x, 0), n: v.length } : null;
+}
 function renderControls() {
   const fill = (id, opts) => { $(id).innerHTML = opts.map(o => `<button type="button" id="f-${$(id).dataset.f}-${o[0]}" data-v="${o[0]}">${o[1]}</button>`).join(""); };
   fill("#seg-cor", Object.entries(D.corridors).map(([k, c]) => [k, c.name]));
   fill("#seg-route", C.routes);
+  $("#seg-route").closest(".ctl").hidden = !hasBus();
   fill("#seg-dir", [["both", "Both"], ...C.directions.map(d => [d, cap(d)])]);
   document.querySelectorAll(".seg").forEach(seg => seg.querySelectorAll("button").forEach(b => {
     b.setAttribute("aria-pressed", state[seg.dataset.f] === b.dataset.v);
@@ -537,13 +571,10 @@ function renderFocus() {
 }
 function render() {
   useCorridor(); renderControls();
-  $("#n-feeds").textContent = C.meta.feed_versions; $("#n-first").textContent = C.meta.first; $("#n-last").textContent = C.meta.last;
   renderStats(); renderStreet(); renderTS(); renderObs(); renderFocus(); renderTable();
 }
 function set(k, v) { state[k] = v; try { localStorage.setItem("aviary-filters-2", JSON.stringify(state)); } catch (e) {} render(); }
 $("#whole").onclick = () => set("sec", "corridor");
-$("#n-rows").textContent = D.rows.toLocaleString("en-US");
-$("#planned").textContent = D.planned.length ? "Tracked without bus data yet: " + D.planned.map(p => p.name).join("; ") + "." : "";
 let rz; addEventListener("resize", () => { clearTimeout(rz); rz = setTimeout(render, 120); });
 addEventListener("scroll", hideTip, { passive: true });
 render();

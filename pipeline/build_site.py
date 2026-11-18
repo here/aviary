@@ -15,6 +15,7 @@ import shutil
 import pandas as pd
 
 from corridor import BREAKPOINTS, CORRIDOR, SECTIONS, TIMEZONE
+from polyline import PolylineCorridor
 
 LIVE_DAYS = 28  # the page compares the timetable with the last four weeks of measured hours
 
@@ -111,8 +112,21 @@ if __name__ == "__main__":
     for path in sorted(pathlib.Path("corridors").glob("*.json")):
         cfg = json.loads(path.read_text())
         root = a.data / "corridors" / cfg["corridor_id"]
-        if not (root / "hourly").exists():  # no bus data (for example Fountain Av): listed in the notes only
-            planned.append({"name": cfg["name"], "events": cfg.get("events", [])})
+        events = [{**e, "short": e.get("short") or e["label"].split(" (")[0][:40]} for e in cfg.get("events", [])]
+        traffic = traffic_rows(sorted((root / "traffic").glob(f"{cfg['corridor_id']}_traffic_*.csv")))
+        if not (root / "hourly").exists():
+            # No bus data (Fountain Av): offered in the street picker when general-traffic speeds exist.
+            if not traffic:
+                planned.append({"name": cfg["name"], "events": cfg.get("events", [])})
+                continue
+            pc = PolylineCorridor(cfg)
+            corridors[cfg["corridor_id"]] = {
+                "months": [], "series": {}, "meta": {"rows": 0, "first": "", "last": "", "feed_versions": 0},
+                "name": cfg["name"].split(",")[0], "street": cfg["name"].split(",")[0], "ends": ["West", "East"],
+                "routes": [], "directions": [cfg["directions"]["increasing"], cfg["directions"]["decreasing"]],
+                "sections": [pc.total] + pc.sections, "breakpoints": [b[0] for b in cfg["breakpoints"]],
+                "events": events, "calitp": [], "live": [], "traffic": traffic, "focus": [],
+            }
             continue
         sec = pd.read_csv(root / "sections.csv")
         sections = sec[sec.section_id == "corridor"].to_dict("records") + sec[sec.section_id != "corridor"].to_dict("records")
@@ -123,12 +137,14 @@ if __name__ == "__main__":
             "routes": [[r, f"Line {r}"] for r in cfg["routes"]],
             "directions": [cfg["directions"]["increasing"], cfg["directions"]["decreasing"]],
             "sections": sections, "breakpoints": names,
-            "events": [{**e, "short": e.get("short") or e["label"].split(" (")[0][:40]} for e in cfg.get("events", [])],
+            "events": events,
             "calitp": [],
             "live": live_rows(sorted((root / "observed").glob(f"{cfg['corridor_id']}_observed_*.csv"))),
-            "traffic": traffic_rows(sorted((root / "traffic").glob(f"{cfg['corridor_id']}_traffic_*.csv"))),
+            "traffic": traffic,
             "focus": focus_rows(root, cfg["corridor_id"]),
         }
+    order = ["vermont", "hollywood", "sunset", "fountain"]  # street picker order
+    corridors = dict(sorted(corridors.items(), key=lambda kv: order.index(kv[0]) if kv[0] in order else len(order)))
     payload = {"corridors": corridors, "planned": planned, "calitp_retrieved": calitp.retrieved.iloc[0],
                "rows": sum(c["meta"]["rows"] for c in corridors.values())}
     page = a.template.read_text().replace("/*DATA*/null", json.dumps(payload, separators=(",", ":")))

@@ -89,6 +89,22 @@ Session constraints worth knowing: the cloud environment `aviary` has a limited 
 LADOT sites and operator sites are blocked there; widen the allowlist in the environment settings or work
 from a local machine. The owner could not approve environment changes from a phone.
 
+## Status update 2026-11-18
+
+- **The hourly workflow works with R2.** Run 7 (manual, 2026-11-18 00:18 UTC) downloaded the minute files from R2,
+  rolled them up, committed observed speeds, and wrote permanent daily files to R2 (`daily/` and `mds/` for
+  2026-11-17 and 2026-11-18). The 7-day expiry on `raw/` is now safe as long as the workflow keeps running.
+- **Cloudflare deploy from CI fails**: the `CLOUDFLARE_API_TOKEN` secret (and the token saved in the cloud
+  environment) has zone permissions only, not account-level Workers Scripts / R2 edit. The step is now
+  `continue-on-error`, so it no longer blocks the GitHub Pages deploy. Fix by adding account permissions to the token.
+- **Default branch is `main`**; Actions is enabled.
+- **GitHub Pages**: the workflow's Pages job deployed once (run 6). A separate `pages-build-deployment` workflow
+  also runs, which means Pages may be set to "Deploy from a branch". It should be set to "GitHub Actions"
+  (Settings > Pages) so the built `_site/` is what gets served.
+- **Scheduled runs are sparse**: only a few `schedule` runs fired on 2026-11-17 although the cron is hourly.
+  GitHub delays and drops scheduled runs under load. Each run downloads two days of files, so a missed hour is
+  harmless; a full day without runs is not. Watch it.
+
 ## Open work, in order
 
 1. **Confirm the collector is writing**: `https://aviary.herebox.org/api/status` should show a recent `at`

@@ -101,6 +101,8 @@ jobs:
 
       - name: Deploy site, API routes and collector to Cloudflare
         if: env.CLOUDFLARE_API_TOKEN != ''
+        # A token problem here must not stop data collection or the GitHub Pages deploy.
+        continue-on-error: true
         run: |
           npx --yes wrangler@4 deploy
           npx --yes wrangler@4 deploy -c wrangler.gbfs.jsonc

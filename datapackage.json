@@ -5,7 +5,7 @@
   "profile": "data-package",
   "version": "0.2.0",
   "created": "2026-11-17T00:00:00Z",
-  "updated": "2026-11-18T04:54:04Z",
+  "updated": "2026-11-18T05:08:28Z",
   "homepage": "https://aviary.herebox.org",
   "keywords": [
     "Los Angeles",
@@ -40,6 +40,10 @@
     {
       "title": "Cal-ITP / Caltrans Average Transit Speeds by Stop",
       "path": "https://data.ca.gov/dataset/average-transit-speeds-by-stop"
+    },
+    {
+      "title": "TomTom Orbis Traffic API v2 (traffic flow tiles)",
+      "path": "https://docs.tomtom.com/traffic-api/documentation/tomtom-orbis-maps/v2/product-information/introduction"
     }
   ],
   "resources": [
@@ -1706,6 +1710,83 @@
       }
     },
     {
+      "name": "vermont-traffic",
+      "title": "Vermont Av: hourly general-traffic speeds (TomTom)",
+      "path": "data/traffic/vermont_traffic_2026-11.csv",
+      "format": "csv",
+      "description": "One file per local month. Collected since November 2026.",
+      "profile": "tabular-data-resource",
+      "schema": {
+        "fields": [
+          {
+            "name": "corridor_id",
+            "type": "string",
+            "description": "Street identifier (`vermont`, or matching corridors/<corridor_id>.json)."
+          },
+          {
+            "name": "hour_start_utc",
+            "type": "datetime",
+            "description": "Start of the hour, UTC (ISO 8601)."
+          },
+          {
+            "name": "hour_start_local",
+            "type": "string",
+            "description": "Start of the hour in America/Los_Angeles with UTC offset."
+          },
+          {
+            "name": "direction",
+            "type": "string",
+            "description": "Direction of travel along the street."
+          },
+          {
+            "name": "section_id",
+            "type": "string",
+            "description": "`corridor` for the whole street, or a section id; see that street's sections file."
+          },
+          {
+            "name": "speed_mph",
+            "type": "number",
+            "description": "General-traffic speed: covered length over summed travel time of the matched road pieces, averaged over the hour's snapshots by travel time."
+          },
+          {
+            "name": "free_flow_mph",
+            "type": "number",
+            "description": "Same, at free-flow speed (TomTom speed divided by relative speed)."
+          },
+          {
+            "name": "travel_time_min",
+            "type": "number",
+            "description": "Minutes to traverse the section at speed_mph."
+          },
+          {
+            "name": "length_mi",
+            "type": "number",
+            "description": "Section length in miles."
+          },
+          {
+            "name": "coverage",
+            "type": "number",
+            "description": "Share of the section covered by matched road pieces (mean over snapshots)."
+          },
+          {
+            "name": "closed_share",
+            "type": "number",
+            "description": "Share of covered length reported closed or at 0 km/h."
+          },
+          {
+            "name": "n_snapshots",
+            "type": "integer",
+            "description": "15-minute snapshots in the hour."
+          },
+          {
+            "name": "source",
+            "type": "string",
+            "description": "`tomtom_traffic_flow` = TomTom Orbis Traffic API v2 flow tiles."
+          }
+        ]
+      }
+    },
+    {
       "name": "vermont-sections",
       "title": "Vermont Av: sections",
       "path": "data/sections.csv",
@@ -1837,12 +1918,166 @@
       }
     },
     {
+      "name": "fountain-traffic",
+      "title": "Fountain Av, La Cienega Bl to Vermont Av (West Hollywood streetscape project: La Cienega Bl to La Brea Av): hourly general-traffic speeds (TomTom)",
+      "path": "data/corridors/fountain/traffic/fountain_traffic_2026-11.csv",
+      "format": "csv",
+      "description": "One file per local month. Collected since November 2026.",
+      "profile": "tabular-data-resource",
+      "schema": {
+        "fields": [
+          {
+            "name": "corridor_id",
+            "type": "string",
+            "description": "Street identifier (`vermont`, or matching corridors/<corridor_id>.json)."
+          },
+          {
+            "name": "hour_start_utc",
+            "type": "datetime",
+            "description": "Start of the hour, UTC (ISO 8601)."
+          },
+          {
+            "name": "hour_start_local",
+            "type": "string",
+            "description": "Start of the hour in America/Los_Angeles with UTC offset."
+          },
+          {
+            "name": "direction",
+            "type": "string",
+            "description": "Direction of travel along the street."
+          },
+          {
+            "name": "section_id",
+            "type": "string",
+            "description": "`corridor` for the whole street, or a section id; see that street's sections file."
+          },
+          {
+            "name": "speed_mph",
+            "type": "number",
+            "description": "General-traffic speed: covered length over summed travel time of the matched road pieces, averaged over the hour's snapshots by travel time."
+          },
+          {
+            "name": "free_flow_mph",
+            "type": "number",
+            "description": "Same, at free-flow speed (TomTom speed divided by relative speed)."
+          },
+          {
+            "name": "travel_time_min",
+            "type": "number",
+            "description": "Minutes to traverse the section at speed_mph."
+          },
+          {
+            "name": "length_mi",
+            "type": "number",
+            "description": "Section length in miles."
+          },
+          {
+            "name": "coverage",
+            "type": "number",
+            "description": "Share of the section covered by matched road pieces (mean over snapshots)."
+          },
+          {
+            "name": "closed_share",
+            "type": "number",
+            "description": "Share of covered length reported closed or at 0 km/h."
+          },
+          {
+            "name": "n_snapshots",
+            "type": "integer",
+            "description": "15-minute snapshots in the hour."
+          },
+          {
+            "name": "source",
+            "type": "string",
+            "description": "`tomtom_traffic_flow` = TomTom Orbis Traffic API v2 flow tiles."
+          }
+        ]
+      }
+    },
+    {
       "name": "fountain-definition",
       "title": "Fountain Av, La Cienega Bl to Vermont Av (West Hollywood streetscape project: La Cienega Bl to La Brea Av): definition",
       "path": "corridors/fountain.json",
       "format": "json",
       "description": "Street path, section boundaries, bus lines and project dates. No bus data for this street yet.",
       "mediatype": "application/json"
+    },
+    {
+      "name": "hollywood-traffic",
+      "title": "Hollywood Bl, Highland Av to Vermont Av: hourly general-traffic speeds (TomTom)",
+      "path": "data/corridors/hollywood/traffic/hollywood_traffic_2026-11.csv",
+      "format": "csv",
+      "description": "One file per local month. Collected since November 2026.",
+      "profile": "tabular-data-resource",
+      "schema": {
+        "fields": [
+          {
+            "name": "corridor_id",
+            "type": "string",
+            "description": "Street identifier (`vermont`, or matching corridors/<corridor_id>.json)."
+          },
+          {
+            "name": "hour_start_utc",
+            "type": "datetime",
+            "description": "Start of the hour, UTC (ISO 8601)."
+          },
+          {
+            "name": "hour_start_local",
+            "type": "string",
+            "description": "Start of the hour in America/Los_Angeles with UTC offset."
+          },
+          {
+            "name": "direction",
+            "type": "string",
+            "description": "Direction of travel along the street."
+          },
+          {
+            "name": "section_id",
+            "type": "string",
+            "description": "`corridor` for the whole street, or a section id; see that street's sections file."
+          },
+          {
+            "name": "speed_mph",
+            "type": "number",
+            "description": "General-traffic speed: covered length over summed travel time of the matched road pieces, averaged over the hour's snapshots by travel time."
+          },
+          {
+            "name": "free_flow_mph",
+            "type": "number",
+            "description": "Same, at free-flow speed (TomTom speed divided by relative speed)."
+          },
+          {
+            "name": "travel_time_min",
+            "type": "number",
+            "description": "Minutes to traverse the section at speed_mph."
+          },
+          {
+            "name": "length_mi",
+            "type": "number",
+            "description": "Section length in miles."
+          },
+          {
+            "name": "coverage",
+            "type": "number",
+            "description": "Share of the section covered by matched road pieces (mean over snapshots)."
+          },
+          {
+            "name": "closed_share",
+            "type": "number",
+            "description": "Share of covered length reported closed or at 0 km/h."
+          },
+          {
+            "name": "n_snapshots",
+            "type": "integer",
+            "description": "15-minute snapshots in the hour."
+          },
+          {
+            "name": "source",
+            "type": "string",
+            "description": "`tomtom_traffic_flow` = TomTom Orbis Traffic API v2 flow tiles."
+          }
+        ]
+      }
     },
     {
       "name": "hollywood-definition",
@@ -2721,6 +2956,83 @@
             "name": "days",
             "type": "integer",
             "description": "Number of service days."
+          }
+        ]
+      }
+    },
+    {
+      "name": "sunset-traffic",
+      "title": "Sunset Bl and Cesar Chavez Av, Western Av to New High St: hourly general-traffic speeds (TomTom)",
+      "path": "data/corridors/sunset/traffic/sunset_traffic_2026-11.csv",
+      "format": "csv",
+      "description": "One file per local month. Collected since November 2026.",
+      "profile": "tabular-data-resource",
+      "schema": {
+        "fields": [
+          {
+            "name": "corridor_id",
+            "type": "string",
+            "description": "Street identifier (`vermont`, or matching corridors/<corridor_id>.json)."
+          },
+          {
+            "name": "hour_start_utc",
+            "type": "datetime",
+            "description": "Start of the hour, UTC (ISO 8601)."
+          },
+          {
+            "name": "hour_start_local",
+            "type": "string",
+            "description": "Start of the hour in America/Los_Angeles with UTC offset."
+          },
+          {
+            "name": "direction",
+            "type": "string",
+            "description": "Direction of travel along the street."
+          },
+          {
+            "name": "section_id",
+            "type": "string",
+            "description": "`corridor` for the whole street, or a section id; see that street's sections file."
+          },
+          {
+            "name": "speed_mph",
+            "type": "number",
+            "description": "General-traffic speed: covered length over summed travel time of the matched road pieces, averaged over the hour's snapshots by travel time."
+          },
+          {
+            "name": "free_flow_mph",
+            "type": "number",
+            "description": "Same, at free-flow speed (TomTom speed divided by relative speed)."
+          },
+          {
+            "name": "travel_time_min",
+            "type": "number",
+            "description": "Minutes to traverse the section at speed_mph."
+          },
+          {
+            "name": "length_mi",
+            "type": "number",
+            "description": "Section length in miles."
+          },
+          {
+            "name": "coverage",
+            "type": "number",
+            "description": "Share of the section covered by matched road pieces (mean over snapshots)."
+          },
+          {
+            "name": "closed_share",
+            "type": "number",
+            "description": "Share of covered length reported closed or at 0 km/h."
+          },
+          {
+            "name": "n_snapshots",
+            "type": "integer",
+            "description": "15-minute snapshots in the hour."
+          },
+          {
+            "name": "source",
+            "type": "string",
+            "description": "`tomtom_traffic_flow` = TomTom Orbis Traffic API v2 flow tiles."
           }
         ]
       }

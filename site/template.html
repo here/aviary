@@ -67,13 +67,12 @@ table.plain a { color: var(--accent); }
 @media (max-width: 560px) { .site-foot .sep { display: none; } .site-foot { flex-direction: column; } }
 .vh { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
-.stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0; border-top: 1px solid var(--grid); border-bottom: 1px solid var(--grid); }
+.stats { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0; border-top: 1px solid var(--grid); border-bottom: 1px solid var(--grid); }
 .stat { padding: 14px 16px 14px 0; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
 .stat + .stat { padding-left: 16px; border-left: 1px solid var(--grid); }
 .stat b { font: 600 28px/1.15 var(--display); font-variant-numeric: tabular-nums; }
 .stat b small { font-size: 14px; font-weight: 500; color: var(--ink-2); margin-left: 3px; }
 .stat span { font-size: 12.5px; color: var(--ink-2); }
-@media (max-width: 720px) { .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .stat:nth-child(3) { padding-left: 0; border-left: 0; } .stat:nth-child(n+3) { border-top: 1px solid var(--grid); } }
 
 .controls { display: flex; flex-wrap: wrap; gap: 14px 22px; align-items: flex-end; }
@@ -159,10 +158,8 @@ code { font: 12.5px ui-monospace, SFMono-Regular, Menlo, monospace; background: 
   </header>
 
   <nav class="toc" aria-label="Page sections">
-    <a href="#trends">Trends</a><a href="#hours">By hour</a><a href="#measured">Measured</a><a href="#next-site" class="toc-focus">Next project site</a><a href="#stretches">Stretches</a><a href="#projects">Projects</a><a href="#sources">Data sources</a><a href="#method">Method</a>
+    <a href="#trends">Trends</a><a href="#measured">Measured</a><a href="#next-site" class="toc-focus">Next project site</a><a href="#stretches">Stretches</a><a href="#projects">Projects</a><a href="#sources">Data sources</a><a href="#method">Method</a>
   </nav>
-
-  <section class="stats" id="stats" aria-live="polite"></section>
 
   <section class="controls" aria-label="Filters">
     <div class="ctl"><span>Street</span><div class="seg" data-f="cor" id="seg-cor"></div></div>
@@ -184,20 +181,14 @@ code { font: 12.5px ui-monospace, SFMono-Regular, Menlo, monospace; background: 
     <div class="chart" id="ts"></div>
   </section>
 
-  <div class="two">
-    <section class="panel" id="hours">
-      <h2>Every hour of the day, year by year</h2>
-      <p>Average scheduled speed for each clock hour. Darker cells are slower hours.</p>
-      <div class="chart" id="heat"></div>
-      <div class="ramp"><span id="ramp-lo"></span><i></i><span id="ramp-hi"></span></div>
-    </section>
-    <section class="panel" id="measured">
-      <h2>Timetable against measured speeds</h2>
-      <p id="obs-sub"></p>
-      <div class="legend" id="obs-legend"></div>
-      <div class="chart" id="obs"></div>
-    </section>
-  </div>
+  <section class="panel" id="measured">
+    <h2>Timetable against measured speeds</h2>
+    <p id="obs-sub"></p>
+    <div class="legend" id="obs-legend"></div>
+    <div class="chart" id="obs"></div>
+  </section>
+
+  <section class="stats" id="stats" aria-live="polite"></section>
 
   <section class="panel" id="next-site" hidden>
     <h2>Measured through the next project site</h2>
@@ -259,7 +250,7 @@ code { font: 12.5px ui-monospace, SFMono-Regular, Menlo, monospace; background: 
       <p id="planned" style="margin-top:8px"></p></div>
   </section>
   <nav class="toc" aria-label="Page sections">
-    <a href="#trends">Trends</a><a href="#hours">By hour</a><a href="#measured">Measured</a><a href="#next-site" class="toc-focus">Next project site</a><a href="#stretches">Stretches</a><a href="#projects">Projects</a><a href="#sources">Data sources</a><a href="#method">Method</a>
+    <a href="#trends">Trends</a><a href="#measured">Measured</a><a href="#next-site" class="toc-focus">Next project site</a><a href="#stretches">Stretches</a><a href="#projects">Projects</a><a href="#sources">Data sources</a><a href="#method">Method</a>
   </nav>
   <footer class="site-foot">
     <a href="https://github.com/here/aviary" target="_blank" rel="noopener"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg><span>Code and documentation on GitHub</span></a>
@@ -355,13 +346,10 @@ function describe() {
 function renderStats() {
   const pm = BANDS[2].h, sp = span(state.sec) || [YEARS[0], YEARS[YEARS.length - 1]], y0 = sp[0], y1 = sp[1];
   const a = avg(yearMonths(y0), pm), b = avg(yearMonths(y1), pm), len = secOf(state.sec).length_mi;
-  const tiles = (a && b) ? [
-    [`${f1(b)}<small>mph</small>`, `PM-peak speed in ${y1}`],
-    [`${b < a ? "−" : "+"}${Math.abs((b / a - 1) * 100).toFixed(0)}<small>%</small>`, `Change since ${y0} (${f1(a)} mph then)`],
-    [`${(len / b * 60).toFixed(0)}<small>min</small>`, `To ride this stretch at PM peak, ${((len / b - len / a) * 60 >= 0 ? "+" : "−")}${Math.abs((len / b - len / a) * 60).toFixed(0)} min since ${y0}`],
-  ] : [["–", `No ${state.route} service for this selection`], ["–", ""], ["–", ""]];
-  tiles.push([`${(D.rows / 1e6).toFixed(2)}<small>M</small>`, `Hourly records archived across ${Object.keys(D.corridors).length} streets`]);
-  $("#stats").innerHTML = tiles.map(t => `<div class="stat"><b>${t[0]}</b><span>${t[1]}</span></div>`).join("");
+  const tile = (a && b)
+    ? [`${(len / b * 60).toFixed(0)}<small>min</small>`, `To ride this stretch by bus at PM peak (3 to 8pm) in ${y1}, ${((len / b - len / a) * 60 >= 0 ? "+" : "−")}${Math.abs((len / b - len / a) * 60).toFixed(0)} min since ${y0}, scheduled`]
+    : ["–", `No line ${state.route} service on this stretch`];
+  $("#stats").innerHTML = `<div class="stat"><b>${tile[0]}</b><span>${tile[1]}</span></div>`;
 }
 
 function renderStreet() {
@@ -438,27 +426,6 @@ function renderTS() {
     showTip(`<b>${monthName(C.months[i])}</b>` + BANDS.map((b, k) => row(b.c, b.name, data[k][i] == null ? "no service" : f1(data[k][i]) + " mph")).join(""), ev.clientX, ev.clientY);
   });
   hit.addEventListener("pointerleave", () => { hideTip(); cross.setAttribute("visibility", "hidden"); dots.forEach(c => c.setAttribute("visibility", "hidden")); });
-}
-
-function renderHeat() {
-  const host = $("#heat"), W = Math.max(300, host.clientWidth), m = { l: 36, r: 2, t: 4, b: 22 };
-  const cw = (W - m.l - m.r) / 24, ch = Math.max(18, Math.min(26, cw * 1.25)), H = m.t + m.b + ch * YEARS.length;
-  const grid = YEARS.map(yv => { const ms = yearMonths(yv); return Array.from({ length: 24 }, (_, h) => avg(ms, [h])); });
-  const all = grid.flat().filter(v => v != null), svg = svgIn(host, W, H);
-  if (!all.length) return;
-  const lo = Math.min(...all), hi = Math.max(...all);
-  $("#ramp-lo").textContent = f1(lo) + " mph"; $("#ramp-hi").textContent = f1(hi) + " mph";
-  grid.forEach((rowv, r) => {
-    el("text", { x: m.l - 6, y: m.t + ch * r + ch / 2 + 4, "text-anchor": "end" }, svg, YEARS[r]);
-    rowv.forEach((v, h) => {
-      const pct = v == null ? 0 : Math.round(100 * (hi - v) / (hi - lo || 1));
-      const c = el("rect", { x: m.l + cw * h + 1, y: m.t + ch * r + 1, width: cw - 2, height: ch - 2, rx: 2,
-        fill: v == null ? "transparent" : `color-mix(in oklab, var(--seq-hi) ${pct}%, var(--seq-lo))`, stroke: v == null ? "var(--grid)" : "none" }, svg);
-      c.addEventListener("pointermove", ev => showTip(`<b>${YEARS[r]}, ${hourName(h)} to ${hourName(h + 1)}</b>` + (v == null ? "No scheduled service" : `${f1(v)} mph`), ev.clientX, ev.clientY));
-      c.addEventListener("pointerleave", hideTip);
-    });
-  });
-  for (let h = 0; h <= 21; h += (W < 420 ? 6 : 3)) el("text", { x: m.l + cw * h + 1, y: H - 6 }, svg, hourName(h));
 }
 
 function renderObs() {
@@ -557,10 +524,12 @@ function renderControls() {
     b.onclick = () => set(seg.dataset.f, b.dataset.v);
   }));
 }
+const FOCUS_MIN_PASSES = 10;  // show the next-project-site box only once enough buses have been timed
 function renderFocus() {
-  $("#next-site").hidden = !C.focus.length;
-  document.querySelectorAll(".toc-focus").forEach(a => { a.hidden = !C.focus.length; });
-  if (!C.focus.length) return;
+  const ready = C.focus.length > 0 && C.focus.reduce((s, f) => s + f.n, 0) >= FOCUS_MIN_PASSES;
+  $("#next-site").hidden = !ready;
+  document.querySelectorAll(".toc-focus").forEach(a => { a.hidden = !ready; });
+  if (!ready) return;
   const n = Math.max(...C.focus.map(f => f.n)), f0 = C.focus[0];
   $("#focus-sub").textContent = `Every line 2 bus is timed by GPS through the stretch LADOT plans to rebuild next, by the Vista Theatre. This is the record of conditions before the project. Collection began ${f0.first}; the most-sampled row has ${n} bus pass${n === 1 ? "" : "es"} so far, so treat early figures as a test of the method.`;
   $("#focus-tbl").innerHTML = `<thead><tr><th>Segment</th><th>Direction</th><th>Miles</th><th>Bus passes</th><th>Middle pass, seconds</th><th>20th to 80th percentile</th><th>mph</th></tr></thead><tbody>` +
@@ -569,7 +538,7 @@ function renderFocus() {
 function render() {
   useCorridor(); renderControls();
   $("#n-feeds").textContent = C.meta.feed_versions; $("#n-first").textContent = C.meta.first; $("#n-last").textContent = C.meta.last;
-  renderStats(); renderStreet(); renderTS(); renderHeat(); renderObs(); renderFocus(); renderTable();
+  renderStats(); renderStreet(); renderTS(); renderObs(); renderFocus(); renderTable();
 }
 function set(k, v) { state[k] = v; try { localStorage.setItem("aviary-filters-2", JSON.stringify(state)); } catch (e) {} render(); }
 $("#whole").onclick = () => set("sec", "corridor");

@@ -28,6 +28,7 @@ import io
 import json
 import pathlib
 import re
+import time
 import urllib.parse
 import urllib.request
 import zipfile
@@ -48,8 +49,17 @@ FIELDS = ["corridor_id", "analysis_date", "period", "hours", "route", "direction
           "p80_mph", "length_mi", "coverage", "n_trips", "source"]
 
 
-def get(url: str, headers=None) -> bytes:
-    return urllib.request.urlopen(urllib.request.Request(url, headers={"User-Agent": "aviary/1.0", **(headers or {})}), timeout=180).read()
+def get(url: str, headers=None, attempts: int = 5) -> bytes:
+    """Fetch with retries: Google Cloud Storage occasionally stalls a response."""
+    req = urllib.request.Request(url, headers={"User-Agent": "aviary/1.0", **(headers or {})})
+    for n in range(1, attempts + 1):
+        try:
+            return urllib.request.urlopen(req, timeout=90).read()
+        except (TimeoutError, OSError) as exc:
+            if n == attempts:
+                raise
+            print(f"  retry {n} after {exc!r}", flush=True)
+            time.sleep(5 * n)
 
 
 def inventory() -> list[dict]:

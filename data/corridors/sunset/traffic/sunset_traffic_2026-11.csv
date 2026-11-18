@@ -195,3 +195,17 @@ sunset,2026-11-18T17:00:00Z,2026-11-18T09:00:00-0800,westbound,S4,15.17,21.95,2.
 sunset,2026-11-18T17:00:00Z,2026-11-18T09:00:00-0800,westbound,S5,21.88,28.58,2.43,0.887,1.0,0.0,4,tomtom_traffic_flow
 sunset,2026-11-18T17:00:00Z,2026-11-18T09:00:00-0800,westbound,S6,11.98,19.44,2.49,0.497,0.925,0.0,4,tomtom_traffic_flow
 sunset,2026-11-18T17:00:00Z,2026-11-18T09:00:00-0800,westbound,corridor,14.11,22.19,23.0,5.407,0.987,0.0,4,tomtom_traffic_flow
+sunset,2026-11-18T18:00:00Z,2026-11-18T10:00:00-0800,eastbound,S1,15.87,23.19,3.82,1.01,1.0,0.0,1,tomtom_traffic_flow
+sunset,2026-11-18T18:00:00Z,2026-11-18T10:00:00-0800,eastbound,S2,14.08,18.64,3.26,0.765,1.0,0.0,1,tomtom_traffic_flow
+sunset,2026-11-18T18:00:00Z,2026-11-18T10:00:00-0800,eastbound,S3,10.58,26.48,8.53,1.504,1.0,0.0,1,tomtom_traffic_flow
+sunset,2026-11-18T18:00:00Z,2026-11-18T10:00:00-0800,eastbound,S4,14.7,23.66,3.04,0.744,1.0,0.0,1,tomtom_traffic_flow
+sunset,2026-11-18T18:00:00Z,2026-11-18T10:00:00-0800,eastbound,S5,24.09,27.22,2.21,0.887,1.0,0.0,1,tomtom_traffic_flow
+sunset,2026-11-18T18:00:00Z,2026-11-18T10:00:00-0800,eastbound,S6,15.52,22.93,1.92,0.497,0.759,0.0,1,tomtom_traffic_flow
+sunset,2026-11-18T18:00:00Z,2026-11-18T10:00:00-0800,eastbound,corridor,14.24,23.81,22.78,5.407,0.96,0.0,1,tomtom_traffic_flow
+sunset,2026-11-18T18:00:00Z,2026-11-18T10:00:00-0800,westbound,S1,15.54,21.61,3.9,1.01,1.0,0.0,1,tomtom_traffic_flow
+sunset,2026-11-18T18:00:00Z,2026-11-18T10:00:00-0800,westbound,S2,9.98,16.3,4.6,0.765,1.0,0.0,1,tomtom_traffic_flow
+sunset,2026-11-18T18:00:00Z,2026-11-18T10:00:00-0800,westbound,S3,13.66,26.39,6.61,1.504,1.0,0.0,1,tomtom_traffic_flow
+sunset,2026-11-18T18:00:00Z,2026-11-18T10:00:00-0800,westbound,S4,16.52,21.18,2.7,0.744,1.0,0.0,1,tomtom_traffic_flow
+sunset,2026-11-18T18:00:00Z,2026-11-18T10:00:00-0800,westbound,S5,25.71,29.71,2.07,0.887,1.0,0.0,1,tomtom_traffic_flow
+sunset,2026-11-18T18:00:00Z,2026-11-18T10:00:00-0800,westbound,S6,18.76,18.76,1.59,0.497,0.759,0.0,1,tomtom_traffic_flow
+sunset,2026-11-18T18:00:00Z,2026-11-18T10:00:00-0800,westbound,corridor,15.11,22.33,21.47,5.407,0.96,0.0,1,tomtom_traffic_flow

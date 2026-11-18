@@ -107,6 +107,20 @@ from a local machine. The owner could not approve environment changes from a pho
   GitHub delays and drops scheduled runs under load. Each run downloads two days of files, so a missed hour is
   harmless; a full day without runs is not. Watch it.
 
+## Swiftly (working 2026-11-18)
+
+- Key works. Host `api.goswift.ly`; header `Authorization: <key>` with **no** "Bearer" prefix. The session's
+  credential form always adds a prefix, so the owner set it as a network secret in the `aviary` environment
+  settings (type Bearer, prefix cleared). Limit: 180 requests per 15 minutes.
+- Test: `GET https://api.goswift.ly/test-key` returns `{"success":true}`.
+- Feeds (protobuf), agency keys `lametro` and `lametro-rail`:
+  `/real-time/<agency>/gtfs-rt-vehicle-positions`, `/gtfs-rt-trip-updates`, `/gtfs-rt-alerts`.
+  On 2026-11-18 the bus vehicle feed had about 1,700 vehicles (lines 2, 4, 204, 754, 180, 217 all present), 2 s old.
+  Route ids match the static GTFS (`204-13201`). Decode with `gtfs-realtime-bindings`.
+- Docs: `https://swiftly-inc.stoplight.io/docs/realtime-standalone/` (JavaScript-rendered; automated fetches get 404).
+- Not done: the Cloudflare collector does not use Swiftly yet. It needs its own copy of the key as a Worker secret
+  (for example `SWIFTLY_API_KEY`, set in the Cloudflare dashboard or pushed by the workflow from a GitHub secret).
+
 ## Open work, in order
 
 1. **Confirm the collector is writing**: `https://aviary.herebox.org/api/status` should show a recent `at`

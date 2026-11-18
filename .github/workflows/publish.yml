@@ -55,6 +55,17 @@ jobs:
               --endpoint-url "https://$CLOUDFLARE_ACCOUNT_ID.r2.cloudflarestorage.com"
           done
 
+      - name: Download and convert Swiftly snapshots
+        if: env.AWS_ACCESS_KEY_ID != ''
+        run: |
+          for day in "$(date -u +%F)" "$(date -u -d yesterday +%F)"; do
+            aws s3 sync "s3://$R2_BUCKET/swiftly/vp/$day/" "run/swiftly/vp/$day/" --only-show-errors \
+              --endpoint-url "https://$CLOUDFLARE_ACCOUNT_ID.r2.cloudflarestorage.com"
+          done
+          if [ -d run/swiftly/vp ]; then
+            python pipeline/swiftly_to_pings.py --in run/swiftly/vp --out run/raw/swiftly
+          fi
+
       - name: Or listen to the feed from here (no Cloudflare storage configured)
         if: env.AWS_ACCESS_KEY_ID == '' && github.event_name != 'push'
         run: python pipeline/collect_realtime.py --routes 204,754,2,4 --minutes 20 --out run/raw

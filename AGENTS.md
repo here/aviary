@@ -125,9 +125,17 @@ from a local machine. The owner could not approve environment changes from a pho
 - **Storage**: roughly 115 MB a day, about 3.5 GB a month. `swiftly/` has **no expiry rule** on purpose, because
   nothing rolls it up yet. R2's free tier is 10 GB, so after about three months either add a roll-up plus expiry
   or accept small storage charges.
-- **Not built yet**: a roll-up that decodes `swiftly/vp/` into the same ping columns `build_observed.py` uses
-  (vehicle id, trip id, start date, route, timestamp, lat, lon) so Swiftly feeds the existing hourly speeds and
-  focus-segment traversals. Decode with `gtfs-realtime-bindings`; route ids already match the static GTFS.
+- **Swiftly feeds the measured speeds (2026-11-18).** `pipeline/swiftly_to_pings.py` decodes `swiftly/vp/`
+  snapshots into the same JSON lines as Metro's websocket messages (the two feeds carry identical vehicle records),
+  tagged `"source":"swiftly"` and filtered to the study routes (Vermont plus every `corridors/*.json`). The hourly
+  workflow downloads two days of snapshots, converts them into `run/raw/swiftly/`, and the existing roll-ups read
+  both feeds, dropping duplicates on (vehicle id, timestamp). The daily raw export in R2 (`daily/`) now includes the
+  Swiftly records for the study routes.
+- What Swiftly adds: every route once a minute, so **Hollywood (lines 180, 217) has measured speeds** for the first
+  time, and the other corridors are covered when Metro's websocket drops. Metro's websocket still gives finer
+  pings (every few seconds) for 204, 754, 2 and 4, which matters for the short focus segments.
+- Page: the "Timetable against measured speeds" chart labels the green points as bus GPS from both feeds; Cal-ITP
+  legend entries appear only where Cal-ITP data exists (Vermont line 204).
 - **Owner's priorities (2026-11-18)**: overall travel time first. Lateness (schedule adherence) and bunching
   (uneven headways) are secondary, to be kept as possible findings for later. Bunching can be measured from the
   minute-by-minute vehicle positions; lateness needs trip updates or the scheduled times in the static GTFS.

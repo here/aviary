@@ -1,13 +1,22 @@
-// Cloudflare Worker: archives general-traffic speeds (HERE Traffic API v7 flow) on the study streets.
+// Cloudflare Worker: archives general-traffic speeds on the study streets from two providers.
 //
-// Every 30 minutes it asks HERE for current flow on every road segment inside three boxes (Vermont Av;
+// TomTom (Orbis Traffic API v2 vector flow tiles), every 15 minutes, if TOMTOM_API_KEY is set:
+//     traffic/tomtom/YYYY-MM-DD/HH/tomtom_flow_YYYY-MM-DDTHHMM.json.gz
+//   One gzipped JSON per run: {"at", "zoom", "attributes", "tiles": {"z/x/y": "<base64 Mapbox vector tile>"}}.
+//   22 zoom-14 tiles cover the three boxes below. Each road piece in a tile carries absolute_speed (km/h),
+//   relative_speed (current / free-flow), road_category, road_closure, part_of_two_way_road and an OpenLR
+//   location reference. Only primary, secondary and tertiary roads are requested. Decoding happens later in
+//   Python, not here, to stay inside the Worker's CPU limit.
+//
+// HERE (Traffic API v7 flow), every 30 minutes, if HERE_API_KEY is set: current flow on every road segment inside
+// three boxes (Vermont Av;
 // Hollywood Bl plus Fountain Av; Sunset Bl / Cesar Chavez Av) and stores each response, gzipped, in R2:
 //     traffic/here/YYYY-MM-DD/HH/here_<box>_YYYY-MM-DDTHHMM.json.gz
 // Each segment carries current speed, free-flow speed, jam factor and its shape, so a later roll-up can match
 // segments to the corridor sections. Three boxes x 48 runs a day is about 4,300 requests a month.
-// Does nothing until the HERE_API_KEY secret is set.
 //
 // Routes (on aviary.herebox.org): /traffic/status, /traffic/run (collect now).
+// A provider without a key is skipped.
 
 import hollywood from "../corridors/hollywood.json";
 import fountain from "../corridors/fountain.json";
@@ -29,6 +38,53 @@ const BOXES = {
   sunset: bbox(sunset.line),
 };
 
+// Slippy-map tiles covering a box at a zoom level.
+function tilesFor(b, z) {
+  const n = 2 ** z;
+  const tx = (lon) => Math.floor(((lon + 180) / 360) * n);
+  const ty = (lat) => Math.floor(((1 - Math.asinh(Math.tan((lat * Math.PI) / 180)) / Math.PI) / 2) * n);
+  const out = [];
+  for (let x = tx(b[0]); x <= tx(b[2]); x++) for (let y = ty(b[3]); y <= ty(b[1]); y++) out.push(`${z}/${x}/${y}`);
+  return out;
+}
+const TT_ZOOM = 14;
+const TT_TILES = [...new Set(Object.values(BOXES).flatMap((b) => tilesFor(b, TT_ZOOM)))];
+const TT_ATTRIBUTES = "tags(absolute_speed,relative_speed,road_category,road_closure,part_of_two_way_road,openlr),roadCategories(primary,secondary,tertiary)";
+const TT_FLOW = "https://api.tomtom.com/maps/orbis/traffic/flow/vector/tile/";
+
+function base64(buf) {
+  let s = "";
+  const bytes = new Uint8Array(buf);
+  for (let i = 0; i < bytes.length; i += 0x8000) s += String.fromCharCode(...bytes.subarray(i, i + 0x8000));
+  return btoa(s);
+}
+
+async function collectTomTom(env, iso, day, hour, stamp) {
+  if (!env.TOMTOM_API_KEY) return { error: "TOMTOM_API_KEY secret not set" };
+  const q = new URLSearchParams({ apiVersion: "2", attributes: TT_ATTRIBUTES });
+  const tiles = {}, errors = {};
+  let bytes = 0;
+  await Promise.all(TT_TILES.map(async (t) => {
+    try {
+      const r = await fetch(`${TT_FLOW}${t}?${q}`, { headers: { "TomTom-Api-Key": env.TOMTOM_API_KEY }, signal: AbortSignal.timeout(20000) });
+      if (!r.ok) throw new Error(`HTTP ${r.status} ${(await r.text()).slice(0, 120)}`);
+      const buf = await r.arrayBuffer();
+      bytes += buf.byteLength;
+      tiles[t] = base64(buf);
+    } catch (e) {
+      errors[t] = String(e.message || e);
+    }
+  }));
+  const status = { tiles: Object.keys(tiles).length, of: TT_TILES.length, bytes, errors: Object.keys(errors).length ? errors : undefined };
+  if (Object.keys(tiles).length) {
+    const key = `traffic/tomtom/${day}/${hour}/tomtom_flow_${stamp}.json.gz`;
+    await env.ARCHIVE.put(key, await gzip(JSON.stringify({ at: iso, zoom: TT_ZOOM, attributes: TT_ATTRIBUTES, tiles })),
+      { httpMetadata: { contentType: "application/json", contentEncoding: "gzip" } });
+    status.key = key;
+  }
+  return status;
+}
+
 async function gzip(text) {
   const stream = new Blob([text]).stream().pipeThrough(new CompressionStream("gzip"));
   return new Response(stream).arrayBuffer();
@@ -36,9 +92,11 @@ async function gzip(text) {
 
 async function collect(env, when = new Date()) {
   const iso = when.toISOString(), day = iso.slice(0, 10), hour = iso.slice(11, 13), stamp = `${iso.slice(0, 13)}${iso.slice(14, 16)}`;
-  const status = { at: iso, boxes: {} };
+  const status = { at: iso, tomtom: await collectTomTom(env, iso, day, hour, stamp), boxes: {} };
   if (!env.HERE_API_KEY) {
-    status.error = "HERE_API_KEY secret not set";
+    status.here = "HERE_API_KEY secret not set";
+  } else if (when.getUTCMinutes() % 30 !== 0) {
+    status.here = "runs on the hour and half hour";
   } else {
     for (const [name, b] of Object.entries(BOXES)) {
       const q = new URLSearchParams({ in: `bbox:${b.map((v) => v.toFixed(5)).join(",")}`, locationReferencing: "shape", apiKey: env.HERE_API_KEY });
@@ -70,9 +128,9 @@ export default {
     const path = new URL(request.url).pathname.replace(/^\/traffic/, "") || "/";
     if (path === "/status") {
       const o = await env.ARCHIVE.get("status/traffic.json");
-      return json(o ? await o.json() : { at: null, error: env.HERE_API_KEY ? "not run yet" : "HERE_API_KEY secret not set", boxes: BOXES });
+      return json(o ? await o.json() : { at: null, error: "not run yet", tomtom_key: !!env.TOMTOM_API_KEY, here_key: !!env.HERE_API_KEY, tiles: TT_TILES });
     }
     if (path === "/run") return json(await collect(env));
-    return json({ routes: ["/traffic/status", "/traffic/run"], boxes: BOXES }, 404);
+    return json({ routes: ["/traffic/status", "/traffic/run"], boxes: BOXES, tomtom_tiles: TT_TILES }, 404);
   },
 };

@@ -140,6 +140,16 @@ from a local machine. The owner could not approve environment changes from a pho
   (uneven headways) are secondary, to be kept as possible findings for later. Bunching can be measured from the
   minute-by-minute vehicle positions; lateness needs trip updates or the scheduled times in the static GTFS.
 
+## Data package (2026-11-18)
+
+- `datapackage.json` is **generated** by `pipeline/build_datapackage.py` from the files that exist; do not edit it by
+  hand. The workflow regenerates and commits it each run, so new monthly observed files and new corridors appear
+  automatically. Name `aviary-la-street-speeds`, version 0.2.0, profile `data-package`.
+- One resource per file; yearly Parquet and monthly CSV files of one dataset share a `group` (e.g. `sunset-hourly`).
+  Frictionless rejects a list of paths for these (it treats a list as parts of one file).
+- Street definitions `corridors/*.json` are listed as JSON resources and published at `/corridors/` on the site.
+- Validated with `frictionless` 2026-11-18: no metadata errors, every CSV matches its schema.
+
 ## Open work, in order
 
 1. **Confirm the collector is writing**: `https://aviary.herebox.org/api/status` should show a recent `at`

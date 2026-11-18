@@ -1,13 +1,27 @@
 {
-  "name": "aviary-vermont-av-bus-speeds",
-  "title": "Hourly bus speeds on Vermont Av, Los Angeles (LA Metro lines 204 and 754)",
-  "profile": "tabular-data-package",
-  "version": "0.1.0",
-  "created": "2026-11-17",
+  "name": "aviary-la-street-speeds",
+  "title": "Hourly bus speeds on Los Angeles streets being redesigned: Vermont Av, Hollywood Bl, Sunset Bl and Cesar Chavez Av",
+  "description": "Scheduled hourly bus speeds rebuilt from LA Metro's timetable history (Vermont Av since 2016, other streets since 2018), and measured speeds from bus GPS since November 2026. Speeds include stops. Each street's definition file lists the project dates on it.",
+  "profile": "data-package",
+  "version": "0.2.0",
+  "created": "2026-11-17T00:00:00Z",
+  "updated": "2026-11-18T02:14:20Z",
+  "homepage": "https://aviary.herebox.org",
+  "keywords": [
+    "Los Angeles",
+    "bus speeds",
+    "GTFS",
+    "GTFS-realtime",
+    "road diet",
+    "before and after",
+    "LA Metro",
+    "LADOT"
+  ],
   "licenses": [
     {
       "name": "CC-BY-4.0",
-      "title": "Creative Commons Attribution 4.0"
+      "title": "Creative Commons Attribution 4.0",
+      "path": "https://creativecommons.org/licenses/by/4.0/"
     }
   ],
   "sources": [
@@ -20,29 +34,23 @@
       "path": "https://api.metro.net"
     },
     {
+      "title": "Swiftly realtime API for LA Metro (GTFS-realtime vehicle positions)",
+      "path": "https://api.goswift.ly"
+    },
+    {
       "title": "Cal-ITP / Caltrans Average Transit Speeds by Stop",
       "path": "https://data.ca.gov/dataset/average-transit-speeds-by-stop"
     }
   ],
   "resources": [
     {
-      "name": "hourly-all-sections",
-      "title": "Hourly speeds, corridor and six sections, 2016 onward",
+      "name": "vermont-hourly-2016",
+      "title": "Vermont Av: hourly speeds, whole street and six sections, 2016 onward (2016)",
+      "path": "data/hourly/year=2016/vermont_speeds.parquet",
       "format": "parquet",
-      "mediatype": "application/vnd.apache.parquet",
-      "path": [
-        "data/hourly/year=2016/vermont_speeds.parquet",
-        "data/hourly/year=2017/vermont_speeds.parquet",
-        "data/hourly/year=2018/vermont_speeds.parquet",
-        "data/hourly/year=2019/vermont_speeds.parquet",
-        "data/hourly/year=2020/vermont_speeds.parquet",
-        "data/hourly/year=2021/vermont_speeds.parquet",
-        "data/hourly/year=2022/vermont_speeds.parquet",
-        "data/hourly/year=2023/vermont_speeds.parquet",
-        "data/hourly/year=2024/vermont_speeds.parquet",
-        "data/hourly/year=2025/vermont_speeds.parquet",
-        "data/hourly/year=2026/vermont_speeds.parquet"
-      ],
+      "group": "vermont-hourly",
+      "description": "Scheduled speeds for lines 204 and 754, Sunset Bl to Athens Station. Hive-partitioned by local year.",
+      "profile": "tabular-data-resource",
       "schema": {
         "fields": [
           {
@@ -58,27 +66,27 @@
           {
             "name": "route",
             "type": "string",
-            "description": "LA Metro line: 204 (Local) or 754 (Rapid)."
+            "description": "LA Metro bus line, e.g. 204, 754, 2, 4, 180, 217."
           },
           {
             "name": "direction",
             "type": "string",
-            "description": "northbound or southbound."
+            "description": "northbound / southbound on Vermont Av; eastbound / westbound on the other corridors."
           },
           {
             "name": "section_id",
             "type": "string",
-            "description": "corridor (Sunset Bl to Athens Station) or S1..S6; see sections.csv."
+            "description": "`corridor` for the whole street, or a section id (S1, S2, ...); see that street's sections file."
           },
           {
             "name": "speed_mph",
             "type": "number",
-            "description": "Average speed over the section in miles per hour, stops and signals included (length_mi / travel_time)."
+            "description": "Average speed over the section in miles per hour, stops and signals included."
           },
           {
             "name": "travel_time_min",
             "type": "number",
-            "description": "Average minutes to traverse the section. For corridor rows, the sum of the six section averages."
+            "description": "Average minutes to traverse the section. Corridor rows sum the section averages."
           },
           {
             "name": "length_mi",
@@ -88,17 +96,17 @@
           {
             "name": "n_trips",
             "type": "integer",
-            "description": "Trips contributing in that hour (for corridor rows, the fewest on any section)."
+            "description": "Trips contributing in that hour (corridor rows: the fewest on any section)."
           },
           {
             "name": "source",
             "type": "string",
-            "description": "gtfs_schedule = derived from the published timetable; gtfs_realtime_observed = measured from vehicle GPS."
+            "description": "`gtfs_schedule` = derived from the published timetable; `gtfs_realtime_observed` = measured from bus GPS (LA Metro's public feed and Swiftly, duplicates removed)."
           },
           {
             "name": "feed_version",
             "type": "string",
-            "description": "For gtfs_schedule rows: publication date and commit of the LACMTA/gtfs_bus version used. Empty for observed rows."
+            "description": "Scheduled rows: publication date and commit of the LACMTA/gtfs_bus version used. Empty for measured rows."
           }
         ],
         "primaryKey": [
@@ -109,27 +117,16 @@
           "source"
         ]
       },
-      "description": "Hive-partitioned by local year. hour_start_utc is a UTC timestamp column."
+      "mediatype": "application/vnd.apache.parquet"
     },
     {
-      "name": "hourly-corridor-csv",
-      "title": "Hourly speeds, corridor rows only",
-      "format": "csv",
-      "compression": "gz",
-      "mediatype": "text/csv",
-      "path": [
-        "data/hourly_csv/vermont_corridor_2016.csv.gz",
-        "data/hourly_csv/vermont_corridor_2017.csv.gz",
-        "data/hourly_csv/vermont_corridor_2018.csv.gz",
-        "data/hourly_csv/vermont_corridor_2019.csv.gz",
-        "data/hourly_csv/vermont_corridor_2020.csv.gz",
-        "data/hourly_csv/vermont_corridor_2021.csv.gz",
-        "data/hourly_csv/vermont_corridor_2022.csv.gz",
-        "data/hourly_csv/vermont_corridor_2023.csv.gz",
-        "data/hourly_csv/vermont_corridor_2024.csv.gz",
-        "data/hourly_csv/vermont_corridor_2025.csv.gz",
-        "data/hourly_csv/vermont_corridor_2026.csv.gz"
-      ],
+      "name": "vermont-hourly-2017",
+      "title": "Vermont Av: hourly speeds, whole street and six sections, 2016 onward (2017)",
+      "path": "data/hourly/year=2017/vermont_speeds.parquet",
+      "format": "parquet",
+      "group": "vermont-hourly",
+      "description": "Scheduled speeds for lines 204 and 754, Sunset Bl to Athens Station. Hive-partitioned by local year.",
+      "profile": "tabular-data-resource",
       "schema": {
         "fields": [
           {
@@ -145,27 +142,27 @@
           {
             "name": "route",
             "type": "string",
-            "description": "LA Metro line: 204 (Local) or 754 (Rapid)."
+            "description": "LA Metro bus line, e.g. 204, 754, 2, 4, 180, 217."
           },
           {
             "name": "direction",
             "type": "string",
-            "description": "northbound or southbound."
+            "description": "northbound / southbound on Vermont Av; eastbound / westbound on the other corridors."
           },
           {
             "name": "section_id",
             "type": "string",
-            "description": "corridor (Sunset Bl to Athens Station) or S1..S6; see sections.csv."
+            "description": "`corridor` for the whole street, or a section id (S1, S2, ...); see that street's sections file."
           },
           {
             "name": "speed_mph",
             "type": "number",
-            "description": "Average speed over the section in miles per hour, stops and signals included (length_mi / travel_time)."
+            "description": "Average speed over the section in miles per hour, stops and signals included."
           },
           {
             "name": "travel_time_min",
             "type": "number",
-            "description": "Average minutes to traverse the section. For corridor rows, the sum of the six section averages."
+            "description": "Average minutes to traverse the section. Corridor rows sum the section averages."
           },
           {
             "name": "length_mi",
@@ -175,17 +172,17 @@
           {
             "name": "n_trips",
             "type": "integer",
-            "description": "Trips contributing in that hour (for corridor rows, the fewest on any section)."
+            "description": "Trips contributing in that hour (corridor rows: the fewest on any section)."
           },
           {
             "name": "source",
             "type": "string",
-            "description": "gtfs_schedule = derived from the published timetable; gtfs_realtime_observed = measured from vehicle GPS."
+            "description": "`gtfs_schedule` = derived from the published timetable; `gtfs_realtime_observed` = measured from bus GPS (LA Metro's public feed and Swiftly, duplicates removed)."
           },
           {
             "name": "feed_version",
             "type": "string",
-            "description": "For gtfs_schedule rows: publication date and commit of the LACMTA/gtfs_bus version used. Empty for observed rows."
+            "description": "Scheduled rows: publication date and commit of the LACMTA/gtfs_bus version used. Empty for measured rows."
           }
         ],
         "primaryKey": [
@@ -194,147 +191,1594 @@
           "direction",
           "section_id",
           "source"
+        ]
+      },
+      "mediatype": "application/vnd.apache.parquet"
+    },
+    {
+      "name": "vermont-hourly-2018",
+      "title": "Vermont Av: hourly speeds, whole street and six sections, 2016 onward (2018)",
+      "path": "data/hourly/year=2018/vermont_speeds.parquet",
+      "format": "parquet",
+      "group": "vermont-hourly",
+      "description": "Scheduled speeds for lines 204 and 754, Sunset Bl to Athens Station. Hive-partitioned by local year.",
+      "profile": "tabular-data-resource",
+      "schema": {
+        "fields": [
+          {
+            "name": "hour_start_utc",
+            "type": "datetime",
+            "description": "Start of the hour, UTC (ISO 8601)."
+          },
+          {
+            "name": "hour_start_local",
+            "type": "string",
+            "description": "Start of the hour in America/Los_Angeles with UTC offset, e.g. 2024-05-01T17:00:00-0700."
+          },
+          {
+            "name": "route",
+            "type": "string",
+            "description": "LA Metro bus line, e.g. 204, 754, 2, 4, 180, 217."
+          },
+          {
+            "name": "direction",
+            "type": "string",
+            "description": "northbound / southbound on Vermont Av; eastbound / westbound on the other corridors."
+          },
+          {
+            "name": "section_id",
+            "type": "string",
+            "description": "`corridor` for the whole street, or a section id (S1, S2, ...); see that street's sections file."
+          },
+          {
+            "name": "speed_mph",
+            "type": "number",
+            "description": "Average speed over the section in miles per hour, stops and signals included."
+          },
+          {
+            "name": "travel_time_min",
+            "type": "number",
+            "description": "Average minutes to traverse the section. Corridor rows sum the section averages."
+          },
+          {
+            "name": "length_mi",
+            "type": "number",
+            "description": "Section length in miles."
+          },
+          {
+            "name": "n_trips",
+            "type": "integer",
+            "description": "Trips contributing in that hour (corridor rows: the fewest on any section)."
+          },
+          {
+            "name": "source",
+            "type": "string",
+            "description": "`gtfs_schedule` = derived from the published timetable; `gtfs_realtime_observed` = measured from bus GPS (LA Metro's public feed and Swiftly, duplicates removed)."
+          },
+          {
+            "name": "feed_version",
+            "type": "string",
+            "description": "Scheduled rows: publication date and commit of the LACMTA/gtfs_bus version used. Empty for measured rows."
+          }
+        ],
+        "primaryKey": [
+          "hour_start_utc",
+          "route",
+          "direction",
+          "section_id",
+          "source"
+        ]
+      },
+      "mediatype": "application/vnd.apache.parquet"
+    },
+    {
+      "name": "vermont-hourly-2019",
+      "title": "Vermont Av: hourly speeds, whole street and six sections, 2016 onward (2019)",
+      "path": "data/hourly/year=2019/vermont_speeds.parquet",
+      "format": "parquet",
+      "group": "vermont-hourly",
+      "description": "Scheduled speeds for lines 204 and 754, Sunset Bl to Athens Station. Hive-partitioned by local year.",
+      "profile": "tabular-data-resource",
+      "schema": {
+        "fields": [
+          {
+            "name": "hour_start_utc",
+            "type": "datetime",
+            "description": "Start of the hour, UTC (ISO 8601)."
+          },
+          {
+            "name": "hour_start_local",
+            "type": "string",
+            "description": "Start of the hour in America/Los_Angeles with UTC offset, e.g. 2024-05-01T17:00:00-0700."
+          },
+          {
+            "name": "route",
+            "type": "string",
+            "description": "LA Metro bus line, e.g. 204, 754, 2, 4, 180, 217."
+          },
+          {
+            "name": "direction",
+            "type": "string",
+            "description": "northbound / southbound on Vermont Av; eastbound / westbound on the other corridors."
+          },
+          {
+            "name": "section_id",
+            "type": "string",
+            "description": "`corridor` for the whole street, or a section id (S1, S2, ...); see that street's sections file."
+          },
+          {
+            "name": "speed_mph",
+            "type": "number",
+            "description": "Average speed over the section in miles per hour, stops and signals included."
+          },
+          {
+            "name": "travel_time_min",
+            "type": "number",
+            "description": "Average minutes to traverse the section. Corridor rows sum the section averages."
+          },
+          {
+            "name": "length_mi",
+            "type": "number",
+            "description": "Section length in miles."
+          },
+          {
+            "name": "n_trips",
+            "type": "integer",
+            "description": "Trips contributing in that hour (corridor rows: the fewest on any section)."
+          },
+          {
+            "name": "source",
+            "type": "string",
+            "description": "`gtfs_schedule` = derived from the published timetable; `gtfs_realtime_observed` = measured from bus GPS (LA Metro's public feed and Swiftly, duplicates removed)."
+          },
+          {
+            "name": "feed_version",
+            "type": "string",
+            "description": "Scheduled rows: publication date and commit of the LACMTA/gtfs_bus version used. Empty for measured rows."
+          }
+        ],
+        "primaryKey": [
+          "hour_start_utc",
+          "route",
+          "direction",
+          "section_id",
+          "source"
+        ]
+      },
+      "mediatype": "application/vnd.apache.parquet"
+    },
+    {
+      "name": "vermont-hourly-2020",
+      "title": "Vermont Av: hourly speeds, whole street and six sections, 2016 onward (2020)",
+      "path": "data/hourly/year=2020/vermont_speeds.parquet",
+      "format": "parquet",
+      "group": "vermont-hourly",
+      "description": "Scheduled speeds for lines 204 and 754, Sunset Bl to Athens Station. Hive-partitioned by local year.",
+      "profile": "tabular-data-resource",
+      "schema": {
+        "fields": [
+          {
+            "name": "hour_start_utc",
+            "type": "datetime",
+            "description": "Start of the hour, UTC (ISO 8601)."
+          },
+          {
+            "name": "hour_start_local",
+            "type": "string",
+            "description": "Start of the hour in America/Los_Angeles with UTC offset, e.g. 2024-05-01T17:00:00-0700."
+          },
+          {
+            "name": "route",
+            "type": "string",
+            "description": "LA Metro bus line, e.g. 204, 754, 2, 4, 180, 217."
+          },
+          {
+            "name": "direction",
+            "type": "string",
+            "description": "northbound / southbound on Vermont Av; eastbound / westbound on the other corridors."
+          },
+          {
+            "name": "section_id",
+            "type": "string",
+            "description": "`corridor` for the whole street, or a section id (S1, S2, ...); see that street's sections file."
+          },
+          {
+            "name": "speed_mph",
+            "type": "number",
+            "description": "Average speed over the section in miles per hour, stops and signals included."
+          },
+          {
+            "name": "travel_time_min",
+            "type": "number",
+            "description": "Average minutes to traverse the section. Corridor rows sum the section averages."
+          },
+          {
+            "name": "length_mi",
+            "type": "number",
+            "description": "Section length in miles."
+          },
+          {
+            "name": "n_trips",
+            "type": "integer",
+            "description": "Trips contributing in that hour (corridor rows: the fewest on any section)."
+          },
+          {
+            "name": "source",
+            "type": "string",
+            "description": "`gtfs_schedule` = derived from the published timetable; `gtfs_realtime_observed` = measured from bus GPS (LA Metro's public feed and Swiftly, duplicates removed)."
+          },
+          {
+            "name": "feed_version",
+            "type": "string",
+            "description": "Scheduled rows: publication date and commit of the LACMTA/gtfs_bus version used. Empty for measured rows."
+          }
+        ],
+        "primaryKey": [
+          "hour_start_utc",
+          "route",
+          "direction",
+          "section_id",
+          "source"
+        ]
+      },
+      "mediatype": "application/vnd.apache.parquet"
+    },
+    {
+      "name": "vermont-hourly-2021",
+      "title": "Vermont Av: hourly speeds, whole street and six sections, 2016 onward (2021)",
+      "path": "data/hourly/year=2021/vermont_speeds.parquet",
+      "format": "parquet",
+      "group": "vermont-hourly",
+      "description": "Scheduled speeds for lines 204 and 754, Sunset Bl to Athens Station. Hive-partitioned by local year.",
+      "profile": "tabular-data-resource",
+      "schema": {
+        "fields": [
+          {
+            "name": "hour_start_utc",
+            "type": "datetime",
+            "description": "Start of the hour, UTC (ISO 8601)."
+          },
+          {
+            "name": "hour_start_local",
+            "type": "string",
+            "description": "Start of the hour in America/Los_Angeles with UTC offset, e.g. 2024-05-01T17:00:00-0700."
+          },
+          {
+            "name": "route",
+            "type": "string",
+            "description": "LA Metro bus line, e.g. 204, 754, 2, 4, 180, 217."
+          },
+          {
+            "name": "direction",
+            "type": "string",
+            "description": "northbound / southbound on Vermont Av; eastbound / westbound on the other corridors."
+          },
+          {
+            "name": "section_id",
+            "type": "string",
+            "description": "`corridor` for the whole street, or a section id (S1, S2, ...); see that street's sections file."
+          },
+          {
+            "name": "speed_mph",
+            "type": "number",
+            "description": "Average speed over the section in miles per hour, stops and signals included."
+          },
+          {
+            "name": "travel_time_min",
+            "type": "number",
+            "description": "Average minutes to traverse the section. Corridor rows sum the section averages."
+          },
+          {
+            "name": "length_mi",
+            "type": "number",
+            "description": "Section length in miles."
+          },
+          {
+            "name": "n_trips",
+            "type": "integer",
+            "description": "Trips contributing in that hour (corridor rows: the fewest on any section)."
+          },
+          {
+            "name": "source",
+            "type": "string",
+            "description": "`gtfs_schedule` = derived from the published timetable; `gtfs_realtime_observed` = measured from bus GPS (LA Metro's public feed and Swiftly, duplicates removed)."
+          },
+          {
+            "name": "feed_version",
+            "type": "string",
+            "description": "Scheduled rows: publication date and commit of the LACMTA/gtfs_bus version used. Empty for measured rows."
+          }
+        ],
+        "primaryKey": [
+          "hour_start_utc",
+          "route",
+          "direction",
+          "section_id",
+          "source"
+        ]
+      },
+      "mediatype": "application/vnd.apache.parquet"
+    },
+    {
+      "name": "vermont-hourly-2022",
+      "title": "Vermont Av: hourly speeds, whole street and six sections, 2016 onward (2022)",
+      "path": "data/hourly/year=2022/vermont_speeds.parquet",
+      "format": "parquet",
+      "group": "vermont-hourly",
+      "description": "Scheduled speeds for lines 204 and 754, Sunset Bl to Athens Station. Hive-partitioned by local year.",
+      "profile": "tabular-data-resource",
+      "schema": {
+        "fields": [
+          {
+            "name": "hour_start_utc",
+            "type": "datetime",
+            "description": "Start of the hour, UTC (ISO 8601)."
+          },
+          {
+            "name": "hour_start_local",
+            "type": "string",
+            "description": "Start of the hour in America/Los_Angeles with UTC offset, e.g. 2024-05-01T17:00:00-0700."
+          },
+          {
+            "name": "route",
+            "type": "string",
+            "description": "LA Metro bus line, e.g. 204, 754, 2, 4, 180, 217."
+          },
+          {
+            "name": "direction",
+            "type": "string",
+            "description": "northbound / southbound on Vermont Av; eastbound / westbound on the other corridors."
+          },
+          {
+            "name": "section_id",
+            "type": "string",
+            "description": "`corridor` for the whole street, or a section id (S1, S2, ...); see that street's sections file."
+          },
+          {
+            "name": "speed_mph",
+            "type": "number",
+            "description": "Average speed over the section in miles per hour, stops and signals included."
+          },
+          {
+            "name": "travel_time_min",
+            "type": "number",
+            "description": "Average minutes to traverse the section. Corridor rows sum the section averages."
+          },
+          {
+            "name": "length_mi",
+            "type": "number",
+            "description": "Section length in miles."
+          },
+          {
+            "name": "n_trips",
+            "type": "integer",
+            "description": "Trips contributing in that hour (corridor rows: the fewest on any section)."
+          },
+          {
+            "name": "source",
+            "type": "string",
+            "description": "`gtfs_schedule` = derived from the published timetable; `gtfs_realtime_observed` = measured from bus GPS (LA Metro's public feed and Swiftly, duplicates removed)."
+          },
+          {
+            "name": "feed_version",
+            "type": "string",
+            "description": "Scheduled rows: publication date and commit of the LACMTA/gtfs_bus version used. Empty for measured rows."
+          }
+        ],
+        "primaryKey": [
+          "hour_start_utc",
+          "route",
+          "direction",
+          "section_id",
+          "source"
+        ]
+      },
+      "mediatype": "application/vnd.apache.parquet"
+    },
+    {
+      "name": "vermont-hourly-2023",
+      "title": "Vermont Av: hourly speeds, whole street and six sections, 2016 onward (2023)",
+      "path": "data/hourly/year=2023/vermont_speeds.parquet",
+      "format": "parquet",
+      "group": "vermont-hourly",
+      "description": "Scheduled speeds for lines 204 and 754, Sunset Bl to Athens Station. Hive-partitioned by local year.",
+      "profile": "tabular-data-resource",
+      "schema": {
+        "fields": [
+          {
+            "name": "hour_start_utc",
+            "type": "datetime",
+            "description": "Start of the hour, UTC (ISO 8601)."
+          },
+          {
+            "name": "hour_start_local",
+            "type": "string",
+            "description": "Start of the hour in America/Los_Angeles with UTC offset, e.g. 2024-05-01T17:00:00-0700."
+          },
+          {
+            "name": "route",
+            "type": "string",
+            "description": "LA Metro bus line, e.g. 204, 754, 2, 4, 180, 217."
+          },
+          {
+            "name": "direction",
+            "type": "string",
+            "description": "northbound / southbound on Vermont Av; eastbound / westbound on the other corridors."
+          },
+          {
+            "name": "section_id",
+            "type": "string",
+            "description": "`corridor` for the whole street, or a section id (S1, S2, ...); see that street's sections file."
+          },
+          {
+            "name": "speed_mph",
+            "type": "number",
+            "description": "Average speed over the section in miles per hour, stops and signals included."
+          },
+          {
+            "name": "travel_time_min",
+            "type": "number",
+            "description": "Average minutes to traverse the section. Corridor rows sum the section averages."
+          },
+          {
+            "name": "length_mi",
+            "type": "number",
+            "description": "Section length in miles."
+          },
+          {
+            "name": "n_trips",
+            "type": "integer",
+            "description": "Trips contributing in that hour (corridor rows: the fewest on any section)."
+          },
+          {
+            "name": "source",
+            "type": "string",
+            "description": "`gtfs_schedule` = derived from the published timetable; `gtfs_realtime_observed` = measured from bus GPS (LA Metro's public feed and Swiftly, duplicates removed)."
+          },
+          {
+            "name": "feed_version",
+            "type": "string",
+            "description": "Scheduled rows: publication date and commit of the LACMTA/gtfs_bus version used. Empty for measured rows."
+          }
+        ],
+        "primaryKey": [
+          "hour_start_utc",
+          "route",
+          "direction",
+          "section_id",
+          "source"
+        ]
+      },
+      "mediatype": "application/vnd.apache.parquet"
+    },
+    {
+      "name": "vermont-hourly-2024",
+      "title": "Vermont Av: hourly speeds, whole street and six sections, 2016 onward (2024)",
+      "path": "data/hourly/year=2024/vermont_speeds.parquet",
+      "format": "parquet",
+      "group": "vermont-hourly",
+      "description": "Scheduled speeds for lines 204 and 754, Sunset Bl to Athens Station. Hive-partitioned by local year.",
+      "profile": "tabular-data-resource",
+      "schema": {
+        "fields": [
+          {
+            "name": "hour_start_utc",
+            "type": "datetime",
+            "description": "Start of the hour, UTC (ISO 8601)."
+          },
+          {
+            "name": "hour_start_local",
+            "type": "string",
+            "description": "Start of the hour in America/Los_Angeles with UTC offset, e.g. 2024-05-01T17:00:00-0700."
+          },
+          {
+            "name": "route",
+            "type": "string",
+            "description": "LA Metro bus line, e.g. 204, 754, 2, 4, 180, 217."
+          },
+          {
+            "name": "direction",
+            "type": "string",
+            "description": "northbound / southbound on Vermont Av; eastbound / westbound on the other corridors."
+          },
+          {
+            "name": "section_id",
+            "type": "string",
+            "description": "`corridor` for the whole street, or a section id (S1, S2, ...); see that street's sections file."
+          },
+          {
+            "name": "speed_mph",
+            "type": "number",
+            "description": "Average speed over the section in miles per hour, stops and signals included."
+          },
+          {
+            "name": "travel_time_min",
+            "type": "number",
+            "description": "Average minutes to traverse the section. Corridor rows sum the section averages."
+          },
+          {
+            "name": "length_mi",
+            "type": "number",
+            "description": "Section length in miles."
+          },
+          {
+            "name": "n_trips",
+            "type": "integer",
+            "description": "Trips contributing in that hour (corridor rows: the fewest on any section)."
+          },
+          {
+            "name": "source",
+            "type": "string",
+            "description": "`gtfs_schedule` = derived from the published timetable; `gtfs_realtime_observed` = measured from bus GPS (LA Metro's public feed and Swiftly, duplicates removed)."
+          },
+          {
+            "name": "feed_version",
+            "type": "string",
+            "description": "Scheduled rows: publication date and commit of the LACMTA/gtfs_bus version used. Empty for measured rows."
+          }
+        ],
+        "primaryKey": [
+          "hour_start_utc",
+          "route",
+          "direction",
+          "section_id",
+          "source"
+        ]
+      },
+      "mediatype": "application/vnd.apache.parquet"
+    },
+    {
+      "name": "vermont-hourly-2025",
+      "title": "Vermont Av: hourly speeds, whole street and six sections, 2016 onward (2025)",
+      "path": "data/hourly/year=2025/vermont_speeds.parquet",
+      "format": "parquet",
+      "group": "vermont-hourly",
+      "description": "Scheduled speeds for lines 204 and 754, Sunset Bl to Athens Station. Hive-partitioned by local year.",
+      "profile": "tabular-data-resource",
+      "schema": {
+        "fields": [
+          {
+            "name": "hour_start_utc",
+            "type": "datetime",
+            "description": "Start of the hour, UTC (ISO 8601)."
+          },
+          {
+            "name": "hour_start_local",
+            "type": "string",
+            "description": "Start of the hour in America/Los_Angeles with UTC offset, e.g. 2024-05-01T17:00:00-0700."
+          },
+          {
+            "name": "route",
+            "type": "string",
+            "description": "LA Metro bus line, e.g. 204, 754, 2, 4, 180, 217."
+          },
+          {
+            "name": "direction",
+            "type": "string",
+            "description": "northbound / southbound on Vermont Av; eastbound / westbound on the other corridors."
+          },
+          {
+            "name": "section_id",
+            "type": "string",
+            "description": "`corridor` for the whole street, or a section id (S1, S2, ...); see that street's sections file."
+          },
+          {
+            "name": "speed_mph",
+            "type": "number",
+            "description": "Average speed over the section in miles per hour, stops and signals included."
+          },
+          {
+            "name": "travel_time_min",
+            "type": "number",
+            "description": "Average minutes to traverse the section. Corridor rows sum the section averages."
+          },
+          {
+            "name": "length_mi",
+            "type": "number",
+            "description": "Section length in miles."
+          },
+          {
+            "name": "n_trips",
+            "type": "integer",
+            "description": "Trips contributing in that hour (corridor rows: the fewest on any section)."
+          },
+          {
+            "name": "source",
+            "type": "string",
+            "description": "`gtfs_schedule` = derived from the published timetable; `gtfs_realtime_observed` = measured from bus GPS (LA Metro's public feed and Swiftly, duplicates removed)."
+          },
+          {
+            "name": "feed_version",
+            "type": "string",
+            "description": "Scheduled rows: publication date and commit of the LACMTA/gtfs_bus version used. Empty for measured rows."
+          }
+        ],
+        "primaryKey": [
+          "hour_start_utc",
+          "route",
+          "direction",
+          "section_id",
+          "source"
+        ]
+      },
+      "mediatype": "application/vnd.apache.parquet"
+    },
+    {
+      "name": "vermont-hourly-2026",
+      "title": "Vermont Av: hourly speeds, whole street and six sections, 2016 onward (2026)",
+      "path": "data/hourly/year=2026/vermont_speeds.parquet",
+      "format": "parquet",
+      "group": "vermont-hourly",
+      "description": "Scheduled speeds for lines 204 and 754, Sunset Bl to Athens Station. Hive-partitioned by local year.",
+      "profile": "tabular-data-resource",
+      "schema": {
+        "fields": [
+          {
+            "name": "hour_start_utc",
+            "type": "datetime",
+            "description": "Start of the hour, UTC (ISO 8601)."
+          },
+          {
+            "name": "hour_start_local",
+            "type": "string",
+            "description": "Start of the hour in America/Los_Angeles with UTC offset, e.g. 2024-05-01T17:00:00-0700."
+          },
+          {
+            "name": "route",
+            "type": "string",
+            "description": "LA Metro bus line, e.g. 204, 754, 2, 4, 180, 217."
+          },
+          {
+            "name": "direction",
+            "type": "string",
+            "description": "northbound / southbound on Vermont Av; eastbound / westbound on the other corridors."
+          },
+          {
+            "name": "section_id",
+            "type": "string",
+            "description": "`corridor` for the whole street, or a section id (S1, S2, ...); see that street's sections file."
+          },
+          {
+            "name": "speed_mph",
+            "type": "number",
+            "description": "Average speed over the section in miles per hour, stops and signals included."
+          },
+          {
+            "name": "travel_time_min",
+            "type": "number",
+            "description": "Average minutes to traverse the section. Corridor rows sum the section averages."
+          },
+          {
+            "name": "length_mi",
+            "type": "number",
+            "description": "Section length in miles."
+          },
+          {
+            "name": "n_trips",
+            "type": "integer",
+            "description": "Trips contributing in that hour (corridor rows: the fewest on any section)."
+          },
+          {
+            "name": "source",
+            "type": "string",
+            "description": "`gtfs_schedule` = derived from the published timetable; `gtfs_realtime_observed` = measured from bus GPS (LA Metro's public feed and Swiftly, duplicates removed)."
+          },
+          {
+            "name": "feed_version",
+            "type": "string",
+            "description": "Scheduled rows: publication date and commit of the LACMTA/gtfs_bus version used. Empty for measured rows."
+          }
+        ],
+        "primaryKey": [
+          "hour_start_utc",
+          "route",
+          "direction",
+          "section_id",
+          "source"
+        ]
+      },
+      "mediatype": "application/vnd.apache.parquet"
+    },
+    {
+      "name": "vermont-hourly-csv-2016",
+      "title": "Vermont Av: hourly speeds, whole-street rows only (2016)",
+      "path": "data/hourly_csv/vermont_corridor_2016.csv.gz",
+      "format": "csv",
+      "group": "vermont-hourly-csv",
+      "profile": "tabular-data-resource",
+      "schema": {
+        "fields": [
+          {
+            "name": "hour_start_utc",
+            "type": "datetime",
+            "description": "Start of the hour, UTC (ISO 8601)."
+          },
+          {
+            "name": "hour_start_local",
+            "type": "string",
+            "description": "Start of the hour in America/Los_Angeles with UTC offset, e.g. 2024-05-01T17:00:00-0700."
+          },
+          {
+            "name": "route",
+            "type": "string",
+            "description": "LA Metro bus line, e.g. 204, 754, 2, 4, 180, 217."
+          },
+          {
+            "name": "direction",
+            "type": "string",
+            "description": "northbound / southbound on Vermont Av; eastbound / westbound on the other corridors."
+          },
+          {
+            "name": "section_id",
+            "type": "string",
+            "description": "`corridor` for the whole street, or a section id (S1, S2, ...); see that street's sections file."
+          },
+          {
+            "name": "speed_mph",
+            "type": "number",
+            "description": "Average speed over the section in miles per hour, stops and signals included."
+          },
+          {
+            "name": "travel_time_min",
+            "type": "number",
+            "description": "Average minutes to traverse the section. Corridor rows sum the section averages."
+          },
+          {
+            "name": "length_mi",
+            "type": "number",
+            "description": "Section length in miles."
+          },
+          {
+            "name": "n_trips",
+            "type": "integer",
+            "description": "Trips contributing in that hour (corridor rows: the fewest on any section)."
+          },
+          {
+            "name": "source",
+            "type": "string",
+            "description": "`gtfs_schedule` = derived from the published timetable; `gtfs_realtime_observed` = measured from bus GPS (LA Metro's public feed and Swiftly, duplicates removed)."
+          },
+          {
+            "name": "feed_version",
+            "type": "string",
+            "description": "Scheduled rows: publication date and commit of the LACMTA/gtfs_bus version used. Empty for measured rows."
+          }
+        ]
+      },
+      "compression": "gz",
+      "mediatype": "text/csv"
+    },
+    {
+      "name": "vermont-hourly-csv-2017",
+      "title": "Vermont Av: hourly speeds, whole-street rows only (2017)",
+      "path": "data/hourly_csv/vermont_corridor_2017.csv.gz",
+      "format": "csv",
+      "group": "vermont-hourly-csv",
+      "profile": "tabular-data-resource",
+      "schema": {
+        "fields": [
+          {
+            "name": "hour_start_utc",
+            "type": "datetime",
+            "description": "Start of the hour, UTC (ISO 8601)."
+          },
+          {
+            "name": "hour_start_local",
+            "type": "string",
+            "description": "Start of the hour in America/Los_Angeles with UTC offset, e.g. 2024-05-01T17:00:00-0700."
+          },
+          {
+            "name": "route",
+            "type": "string",
+            "description": "LA Metro bus line, e.g. 204, 754, 2, 4, 180, 217."
+          },
+          {
+            "name": "direction",
+            "type": "string",
+            "description": "northbound / southbound on Vermont Av; eastbound / westbound on the other corridors."
+          },
+          {
+            "name": "section_id",
+            "type": "string",
+            "description": "`corridor` for the whole street, or a section id (S1, S2, ...); see that street's sections file."
+          },
+          {
+            "name": "speed_mph",
+            "type": "number",
+            "description": "Average speed over the section in miles per hour, stops and signals included."
+          },
+          {
+            "name": "travel_time_min",
+            "type": "number",
+            "description": "Average minutes to traverse the section. Corridor rows sum the section averages."
+          },
+          {
+            "name": "length_mi",
+            "type": "number",
+            "description": "Section length in miles."
+          },
+          {
+            "name": "n_trips",
+            "type": "integer",
+            "description": "Trips contributing in that hour (corridor rows: the fewest on any section)."
+          },
+          {
+            "name": "source",
+            "type": "string",
+            "description": "`gtfs_schedule` = derived from the published timetable; `gtfs_realtime_observed` = measured from bus GPS (LA Metro's public feed and Swiftly, duplicates removed)."
+          },
+          {
+            "name": "feed_version",
+            "type": "string",
+            "description": "Scheduled rows: publication date and commit of the LACMTA/gtfs_bus version used. Empty for measured rows."
+          }
+        ]
+      },
+      "compression": "gz",
+      "mediatype": "text/csv"
+    },
+    {
+      "name": "vermont-hourly-csv-2018",
+      "title": "Vermont Av: hourly speeds, whole-street rows only (2018)",
+      "path": "data/hourly_csv/vermont_corridor_2018.csv.gz",
+      "format": "csv",
+      "group": "vermont-hourly-csv",
+      "profile": "tabular-data-resource",
+      "schema": {
+        "fields": [
+          {
+            "name": "hour_start_utc",
+            "type": "datetime",
+            "description": "Start of the hour, UTC (ISO 8601)."
+          },
+          {
+            "name": "hour_start_local",
+            "type": "string",
+            "description": "Start of the hour in America/Los_Angeles with UTC offset, e.g. 2024-05-01T17:00:00-0700."
+          },
+          {
+            "name": "route",
+            "type": "string",
+            "description": "LA Metro bus line, e.g. 204, 754, 2, 4, 180, 217."
+          },
+          {
+            "name": "direction",
+            "type": "string",
+            "description": "northbound / southbound on Vermont Av; eastbound / westbound on the other corridors."
+          },
+          {
+            "name": "section_id",
+            "type": "string",
+            "description": "`corridor` for the whole street, or a section id (S1, S2, ...); see that street's sections file."
+          },
+          {
+            "name": "speed_mph",
+            "type": "number",
+            "description": "Average speed over the section in miles per hour, stops and signals included."
+          },
+          {
+            "name": "travel_time_min",
+            "type": "number",
+            "description": "Average minutes to traverse the section. Corridor rows sum the section averages."
+          },
+          {
+            "name": "length_mi",
+            "type": "number",
+            "description": "Section length in miles."
+          },
+          {
+            "name": "n_trips",
+            "type": "integer",
+            "description": "Trips contributing in that hour (corridor rows: the fewest on any section)."
+          },
+          {
+            "name": "source",
+            "type": "string",
+            "description": "`gtfs_schedule` = derived from the published timetable; `gtfs_realtime_observed` = measured from bus GPS (LA Metro's public feed and Swiftly, duplicates removed)."
+          },
+          {
+            "name": "feed_version",
+            "type": "string",
+            "description": "Scheduled rows: publication date and commit of the LACMTA/gtfs_bus version used. Empty for measured rows."
+          }
+        ]
+      },
+      "compression": "gz",
+      "mediatype": "text/csv"
+    },
+    {
+      "name": "vermont-hourly-csv-2019",
+      "title": "Vermont Av: hourly speeds, whole-street rows only (2019)",
+      "path": "data/hourly_csv/vermont_corridor_2019.csv.gz",
+      "format": "csv",
+      "group": "vermont-hourly-csv",
+      "profile": "tabular-data-resource",
+      "schema": {
+        "fields": [
+          {
+            "name": "hour_start_utc",
+            "type": "datetime",
+            "description": "Start of the hour, UTC (ISO 8601)."
+          },
+          {
+            "name": "hour_start_local",
+            "type": "string",
+            "description": "Start of the hour in America/Los_Angeles with UTC offset, e.g. 2024-05-01T17:00:00-0700."
+          },
+          {
+            "name": "route",
+            "type": "string",
+            "description": "LA Metro bus line, e.g. 204, 754, 2, 4, 180, 217."
+          },
+          {
+            "name": "direction",
+            "type": "string",
+            "description": "northbound / southbound on Vermont Av; eastbound / westbound on the other corridors."
+          },
+          {
+            "name": "section_id",
+            "type": "string",
+            "description": "`corridor` for the whole street, or a section id (S1, S2, ...); see that street's sections file."
+          },
+          {
+            "name": "speed_mph",
+            "type": "number",
+            "description": "Average speed over the section in miles per hour, stops and signals included."
+          },
+          {
+            "name": "travel_time_min",
+            "type": "number",
+            "description": "Average minutes to traverse the section. Corridor rows sum the section averages."
+          },
+          {
+            "name": "length_mi",
+            "type": "number",
+            "description": "Section length in miles."
+          },
+          {
+            "name": "n_trips",
+            "type": "integer",
+            "description": "Trips contributing in that hour (corridor rows: the fewest on any section)."
+          },
+          {
+            "name": "source",
+            "type": "string",
+            "description": "`gtfs_schedule` = derived from the published timetable; `gtfs_realtime_observed` = measured from bus GPS (LA Metro's public feed and Swiftly, duplicates removed)."
+          },
+          {
+            "name": "feed_version",
+            "type": "string",
+            "description": "Scheduled rows: publication date and commit of the LACMTA/gtfs_bus version used. Empty for measured rows."
+          }
+        ]
+      },
+      "compression": "gz",
+      "mediatype": "text/csv"
+    },
+    {
+      "name": "vermont-hourly-csv-2020",
+      "title": "Vermont Av: hourly speeds, whole-street rows only (2020)",
+      "path": "data/hourly_csv/vermont_corridor_2020.csv.gz",
+      "format": "csv",
+      "group": "vermont-hourly-csv",
+      "profile": "tabular-data-resource",
+      "schema": {
+        "fields": [
+          {
+            "name": "hour_start_utc",
+            "type": "datetime",
+            "description": "Start of the hour, UTC (ISO 8601)."
+          },
+          {
+            "name": "hour_start_local",
+            "type": "string",
+            "description": "Start of the hour in America/Los_Angeles with UTC offset, e.g. 2024-05-01T17:00:00-0700."
+          },
+          {
+            "name": "route",
+            "type": "string",
+            "description": "LA Metro bus line, e.g. 204, 754, 2, 4, 180, 217."
+          },
+          {
+            "name": "direction",
+            "type": "string",
+            "description": "northbound / southbound on Vermont Av; eastbound / westbound on the other corridors."
+          },
+          {
+            "name": "section_id",
+            "type": "string",
+            "description": "`corridor` for the whole street, or a section id (S1, S2, ...); see that street's sections file."
+          },
+          {
+            "name": "speed_mph",
+            "type": "number",
+            "description": "Average speed over the section in miles per hour, stops and signals included."
+          },
+          {
+            "name": "travel_time_min",
+            "type": "number",
+            "description": "Average minutes to traverse the section. Corridor rows sum the section averages."
+          },
+          {
+            "name": "length_mi",
+            "type": "number",
+            "description": "Section length in miles."
+          },
+          {
+            "name": "n_trips",
+            "type": "integer",
+            "description": "Trips contributing in that hour (corridor rows: the fewest on any section)."
+          },
+          {
+            "name": "source",
+            "type": "string",
+            "description": "`gtfs_schedule` = derived from the published timetable; `gtfs_realtime_observed` = measured from bus GPS (LA Metro's public feed and Swiftly, duplicates removed)."
+          },
+          {
+            "name": "feed_version",
+            "type": "string",
+            "description": "Scheduled rows: publication date and commit of the LACMTA/gtfs_bus version used. Empty for measured rows."
+          }
+        ]
+      },
+      "compression": "gz",
+      "mediatype": "text/csv"
+    },
+    {
+      "name": "vermont-hourly-csv-2021",
+      "title": "Vermont Av: hourly speeds, whole-street rows only (2021)",
+      "path": "data/hourly_csv/vermont_corridor_2021.csv.gz",
+      "format": "csv",
+      "group": "vermont-hourly-csv",
+      "profile": "tabular-data-resource",
+      "schema": {
+        "fields": [
+          {
+            "name": "hour_start_utc",
+            "type": "datetime",
+            "description": "Start of the hour, UTC (ISO 8601)."
+          },
+          {
+            "name": "hour_start_local",
+            "type": "string",
+            "description": "Start of the hour in America/Los_Angeles with UTC offset, e.g. 2024-05-01T17:00:00-0700."
+          },
+          {
+            "name": "route",
+            "type": "string",
+            "description": "LA Metro bus line, e.g. 204, 754, 2, 4, 180, 217."
+          },
+          {
+            "name": "direction",
+            "type": "string",
+            "description": "northbound / southbound on Vermont Av; eastbound / westbound on the other corridors."
+          },
+          {
+            "name": "section_id",
+            "type": "string",
+            "description": "`corridor` for the whole street, or a section id (S1, S2, ...); see that street's sections file."
+          },
+          {
+            "name": "speed_mph",
+            "type": "number",
+            "description": "Average speed over the section in miles per hour, stops and signals included."
+          },
+          {
+            "name": "travel_time_min",
+            "type": "number",
+            "description": "Average minutes to traverse the section. Corridor rows sum the section averages."
+          },
+          {
+            "name": "length_mi",
+            "type": "number",
+            "description": "Section length in miles."
+          },
+          {
+            "name": "n_trips",
+            "type": "integer",
+            "description": "Trips contributing in that hour (corridor rows: the fewest on any section)."
+          },
+          {
+            "name": "source",
+            "type": "string",
+            "description": "`gtfs_schedule` = derived from the published timetable; `gtfs_realtime_observed` = measured from bus GPS (LA Metro's public feed and Swiftly, duplicates removed)."
+          },
+          {
+            "name": "feed_version",
+            "type": "string",
+            "description": "Scheduled rows: publication date and commit of the LACMTA/gtfs_bus version used. Empty for measured rows."
+          }
+        ]
+      },
+      "compression": "gz",
+      "mediatype": "text/csv"
+    },
+    {
+      "name": "vermont-hourly-csv-2022",
+      "title": "Vermont Av: hourly speeds, whole-street rows only (2022)",
+      "path": "data/hourly_csv/vermont_corridor_2022.csv.gz",
+      "format": "csv",
+      "group": "vermont-hourly-csv",
+      "profile": "tabular-data-resource",
+      "schema": {
+        "fields": [
+          {
+            "name": "hour_start_utc",
+            "type": "datetime",
+            "description": "Start of the hour, UTC (ISO 8601)."
+          },
+          {
+            "name": "hour_start_local",
+            "type": "string",
+            "description": "Start of the hour in America/Los_Angeles with UTC offset, e.g. 2024-05-01T17:00:00-0700."
+          },
+          {
+            "name": "route",
+            "type": "string",
+            "description": "LA Metro bus line, e.g. 204, 754, 2, 4, 180, 217."
+          },
+          {
+            "name": "direction",
+            "type": "string",
+            "description": "northbound / southbound on Vermont Av; eastbound / westbound on the other corridors."
+          },
+          {
+            "name": "section_id",
+            "type": "string",
+            "description": "`corridor` for the whole street, or a section id (S1, S2, ...); see that street's sections file."
+          },
+          {
+            "name": "speed_mph",
+            "type": "number",
+            "description": "Average speed over the section in miles per hour, stops and signals included."
+          },
+          {
+            "name": "travel_time_min",
+            "type": "number",
+            "description": "Average minutes to traverse the section. Corridor rows sum the section averages."
+          },
+          {
+            "name": "length_mi",
+            "type": "number",
+            "description": "Section length in miles."
+          },
+          {
+            "name": "n_trips",
+            "type": "integer",
+            "description": "Trips contributing in that hour (corridor rows: the fewest on any section)."
+          },
+          {
+            "name": "source",
+            "type": "string",
+            "description": "`gtfs_schedule` = derived from the published timetable; `gtfs_realtime_observed` = measured from bus GPS (LA Metro's public feed and Swiftly, duplicates removed)."
+          },
+          {
+            "name": "feed_version",
+            "type": "string",
+            "description": "Scheduled rows: publication date and commit of the LACMTA/gtfs_bus version used. Empty for measured rows."
+          }
+        ]
+      },
+      "compression": "gz",
+      "mediatype": "text/csv"
+    },
+    {
+      "name": "vermont-hourly-csv-2023",
+      "title": "Vermont Av: hourly speeds, whole-street rows only (2023)",
+      "path": "data/hourly_csv/vermont_corridor_2023.csv.gz",
+      "format": "csv",
+      "group": "vermont-hourly-csv",
+      "profile": "tabular-data-resource",
+      "schema": {
+        "fields": [
+          {
+            "name": "hour_start_utc",
+            "type": "datetime",
+            "description": "Start of the hour, UTC (ISO 8601)."
+          },
+          {
+            "name": "hour_start_local",
+            "type": "string",
+            "description": "Start of the hour in America/Los_Angeles with UTC offset, e.g. 2024-05-01T17:00:00-0700."
+          },
+          {
+            "name": "route",
+            "type": "string",
+            "description": "LA Metro bus line, e.g. 204, 754, 2, 4, 180, 217."
+          },
+          {
+            "name": "direction",
+            "type": "string",
+            "description": "northbound / southbound on Vermont Av; eastbound / westbound on the other corridors."
+          },
+          {
+            "name": "section_id",
+            "type": "string",
+            "description": "`corridor` for the whole street, or a section id (S1, S2, ...); see that street's sections file."
+          },
+          {
+            "name": "speed_mph",
+            "type": "number",
+            "description": "Average speed over the section in miles per hour, stops and signals included."
+          },
+          {
+            "name": "travel_time_min",
+            "type": "number",
+            "description": "Average minutes to traverse the section. Corridor rows sum the section averages."
+          },
+          {
+            "name": "length_mi",
+            "type": "number",
+            "description": "Section length in miles."
+          },
+          {
+            "name": "n_trips",
+            "type": "integer",
+            "description": "Trips contributing in that hour (corridor rows: the fewest on any section)."
+          },
+          {
+            "name": "source",
+            "type": "string",
+            "description": "`gtfs_schedule` = derived from the published timetable; `gtfs_realtime_observed` = measured from bus GPS (LA Metro's public feed and Swiftly, duplicates removed)."
+          },
+          {
+            "name": "feed_version",
+            "type": "string",
+            "description": "Scheduled rows: publication date and commit of the LACMTA/gtfs_bus version used. Empty for measured rows."
+          }
+        ]
+      },
+      "compression": "gz",
+      "mediatype": "text/csv"
+    },
+    {
+      "name": "vermont-hourly-csv-2024",
+      "title": "Vermont Av: hourly speeds, whole-street rows only (2024)",
+      "path": "data/hourly_csv/vermont_corridor_2024.csv.gz",
+      "format": "csv",
+      "group": "vermont-hourly-csv",
+      "profile": "tabular-data-resource",
+      "schema": {
+        "fields": [
+          {
+            "name": "hour_start_utc",
+            "type": "datetime",
+            "description": "Start of the hour, UTC (ISO 8601)."
+          },
+          {
+            "name": "hour_start_local",
+            "type": "string",
+            "description": "Start of the hour in America/Los_Angeles with UTC offset, e.g. 2024-05-01T17:00:00-0700."
+          },
+          {
+            "name": "route",
+            "type": "string",
+            "description": "LA Metro bus line, e.g. 204, 754, 2, 4, 180, 217."
+          },
+          {
+            "name": "direction",
+            "type": "string",
+            "description": "northbound / southbound on Vermont Av; eastbound / westbound on the other corridors."
+          },
+          {
+            "name": "section_id",
+            "type": "string",
+            "description": "`corridor` for the whole street, or a section id (S1, S2, ...); see that street's sections file."
+          },
+          {
+            "name": "speed_mph",
+            "type": "number",
+            "description": "Average speed over the section in miles per hour, stops and signals included."
+          },
+          {
+            "name": "travel_time_min",
+            "type": "number",
+            "description": "Average minutes to traverse the section. Corridor rows sum the section averages."
+          },
+          {
+            "name": "length_mi",
+            "type": "number",
+            "description": "Section length in miles."
+          },
+          {
+            "name": "n_trips",
+            "type": "integer",
+            "description": "Trips contributing in that hour (corridor rows: the fewest on any section)."
+          },
+          {
+            "name": "source",
+            "type": "string",
+            "description": "`gtfs_schedule` = derived from the published timetable; `gtfs_realtime_observed` = measured from bus GPS (LA Metro's public feed and Swiftly, duplicates removed)."
+          },
+          {
+            "name": "feed_version",
+            "type": "string",
+            "description": "Scheduled rows: publication date and commit of the LACMTA/gtfs_bus version used. Empty for measured rows."
+          }
+        ]
+      },
+      "compression": "gz",
+      "mediatype": "text/csv"
+    },
+    {
+      "name": "vermont-hourly-csv-2025",
+      "title": "Vermont Av: hourly speeds, whole-street rows only (2025)",
+      "path": "data/hourly_csv/vermont_corridor_2025.csv.gz",
+      "format": "csv",
+      "group": "vermont-hourly-csv",
+      "profile": "tabular-data-resource",
+      "schema": {
+        "fields": [
+          {
+            "name": "hour_start_utc",
+            "type": "datetime",
+            "description": "Start of the hour, UTC (ISO 8601)."
+          },
+          {
+            "name": "hour_start_local",
+            "type": "string",
+            "description": "Start of the hour in America/Los_Angeles with UTC offset, e.g. 2024-05-01T17:00:00-0700."
+          },
+          {
+            "name": "route",
+            "type": "string",
+            "description": "LA Metro bus line, e.g. 204, 754, 2, 4, 180, 217."
+          },
+          {
+            "name": "direction",
+            "type": "string",
+            "description": "northbound / southbound on Vermont Av; eastbound / westbound on the other corridors."
+          },
+          {
+            "name": "section_id",
+            "type": "string",
+            "description": "`corridor` for the whole street, or a section id (S1, S2, ...); see that street's sections file."
+          },
+          {
+            "name": "speed_mph",
+            "type": "number",
+            "description": "Average speed over the section in miles per hour, stops and signals included."
+          },
+          {
+            "name": "travel_time_min",
+            "type": "number",
+            "description": "Average minutes to traverse the section. Corridor rows sum the section averages."
+          },
+          {
+            "name": "length_mi",
+            "type": "number",
+            "description": "Section length in miles."
+          },
+          {
+            "name": "n_trips",
+            "type": "integer",
+            "description": "Trips contributing in that hour (corridor rows: the fewest on any section)."
+          },
+          {
+            "name": "source",
+            "type": "string",
+            "description": "`gtfs_schedule` = derived from the published timetable; `gtfs_realtime_observed` = measured from bus GPS (LA Metro's public feed and Swiftly, duplicates removed)."
+          },
+          {
+            "name": "feed_version",
+            "type": "string",
+            "description": "Scheduled rows: publication date and commit of the LACMTA/gtfs_bus version used. Empty for measured rows."
+          }
+        ]
+      },
+      "compression": "gz",
+      "mediatype": "text/csv"
+    },
+    {
+      "name": "vermont-hourly-csv-2026",
+      "title": "Vermont Av: hourly speeds, whole-street rows only (2026)",
+      "path": "data/hourly_csv/vermont_corridor_2026.csv.gz",
+      "format": "csv",
+      "group": "vermont-hourly-csv",
+      "profile": "tabular-data-resource",
+      "schema": {
+        "fields": [
+          {
+            "name": "hour_start_utc",
+            "type": "datetime",
+            "description": "Start of the hour, UTC (ISO 8601)."
+          },
+          {
+            "name": "hour_start_local",
+            "type": "string",
+            "description": "Start of the hour in America/Los_Angeles with UTC offset, e.g. 2024-05-01T17:00:00-0700."
+          },
+          {
+            "name": "route",
+            "type": "string",
+            "description": "LA Metro bus line, e.g. 204, 754, 2, 4, 180, 217."
+          },
+          {
+            "name": "direction",
+            "type": "string",
+            "description": "northbound / southbound on Vermont Av; eastbound / westbound on the other corridors."
+          },
+          {
+            "name": "section_id",
+            "type": "string",
+            "description": "`corridor` for the whole street, or a section id (S1, S2, ...); see that street's sections file."
+          },
+          {
+            "name": "speed_mph",
+            "type": "number",
+            "description": "Average speed over the section in miles per hour, stops and signals included."
+          },
+          {
+            "name": "travel_time_min",
+            "type": "number",
+            "description": "Average minutes to traverse the section. Corridor rows sum the section averages."
+          },
+          {
+            "name": "length_mi",
+            "type": "number",
+            "description": "Section length in miles."
+          },
+          {
+            "name": "n_trips",
+            "type": "integer",
+            "description": "Trips contributing in that hour (corridor rows: the fewest on any section)."
+          },
+          {
+            "name": "source",
+            "type": "string",
+            "description": "`gtfs_schedule` = derived from the published timetable; `gtfs_realtime_observed` = measured from bus GPS (LA Metro's public feed and Swiftly, duplicates removed)."
+          },
+          {
+            "name": "feed_version",
+            "type": "string",
+            "description": "Scheduled rows: publication date and commit of the LACMTA/gtfs_bus version used. Empty for measured rows."
+          }
+        ]
+      },
+      "compression": "gz",
+      "mediatype": "text/csv"
+    },
+    {
+      "name": "vermont-observed",
+      "title": "Vermont Av: measured hourly speeds from bus GPS",
+      "path": "data/observed/vermont_observed_2026-11.csv",
+      "format": "csv",
+      "description": "One file per local month. Measured since November 2026.",
+      "profile": "tabular-data-resource",
+      "schema": {
+        "fields": [
+          {
+            "name": "hour_start_utc",
+            "type": "datetime",
+            "description": "Start of the hour, UTC (ISO 8601)."
+          },
+          {
+            "name": "hour_start_local",
+            "type": "string",
+            "description": "Start of the hour in America/Los_Angeles with UTC offset, e.g. 2024-05-01T17:00:00-0700."
+          },
+          {
+            "name": "route",
+            "type": "string",
+            "description": "LA Metro bus line, e.g. 204, 754, 2, 4, 180, 217."
+          },
+          {
+            "name": "direction",
+            "type": "string",
+            "description": "northbound / southbound on Vermont Av; eastbound / westbound on the other corridors."
+          },
+          {
+            "name": "section_id",
+            "type": "string",
+            "description": "`corridor` for the whole street, or a section id (S1, S2, ...); see that street's sections file."
+          },
+          {
+            "name": "speed_mph",
+            "type": "number",
+            "description": "Average speed over the section in miles per hour, stops and signals included."
+          },
+          {
+            "name": "travel_time_min",
+            "type": "number",
+            "description": "Average minutes to traverse the section. Corridor rows sum the section averages."
+          },
+          {
+            "name": "length_mi",
+            "type": "number",
+            "description": "Section length in miles."
+          },
+          {
+            "name": "n_trips",
+            "type": "integer",
+            "description": "Trips contributing in that hour (corridor rows: the fewest on any section)."
+          },
+          {
+            "name": "source",
+            "type": "string",
+            "description": "`gtfs_schedule` = derived from the published timetable; `gtfs_realtime_observed` = measured from bus GPS (LA Metro's public feed and Swiftly, duplicates removed)."
+          },
+          {
+            "name": "feed_version",
+            "type": "string",
+            "description": "Scheduled rows: publication date and commit of the LACMTA/gtfs_bus version used. Empty for measured rows."
+          }
         ]
       }
     },
     {
-      "name": "observed-hourly",
-      "title": "Observed hourly speeds from live vehicle positions",
-      "format": "csv",
-      "mediatype": "text/csv",
-      "path": [
-        "data/observed/vermont_observed_2026-11.csv"
-      ],
-      "schema": {
-        "fields": [
-          {
-            "name": "hour_start_utc",
-            "type": "datetime",
-            "description": "Start of the hour, UTC (ISO 8601)."
-          },
-          {
-            "name": "hour_start_local",
-            "type": "string",
-            "description": "Start of the hour in America/Los_Angeles with UTC offset, e.g. 2024-05-01T17:00:00-0700."
-          },
-          {
-            "name": "route",
-            "type": "string",
-            "description": "LA Metro line: 204 (Local) or 754 (Rapid)."
-          },
-          {
-            "name": "direction",
-            "type": "string",
-            "description": "northbound or southbound."
-          },
-          {
-            "name": "section_id",
-            "type": "string",
-            "description": "corridor (Sunset Bl to Athens Station) or S1..S6; see sections.csv."
-          },
-          {
-            "name": "speed_mph",
-            "type": "number",
-            "description": "Average speed over the section in miles per hour, stops and signals included (length_mi / travel_time)."
-          },
-          {
-            "name": "travel_time_min",
-            "type": "number",
-            "description": "Average minutes to traverse the section. For corridor rows, the sum of the six section averages."
-          },
-          {
-            "name": "length_mi",
-            "type": "number",
-            "description": "Section length in miles."
-          },
-          {
-            "name": "n_trips",
-            "type": "integer",
-            "description": "Trips contributing in that hour (for corridor rows, the fewest on any section)."
-          },
-          {
-            "name": "source",
-            "type": "string",
-            "description": "gtfs_schedule = derived from the published timetable; gtfs_realtime_observed = measured from vehicle GPS."
-          },
-          {
-            "name": "feed_version",
-            "type": "string",
-            "description": "For gtfs_schedule rows: publication date and commit of the LACMTA/gtfs_bus version used. Empty for observed rows."
-          }
-        ],
-        "primaryKey": [
-          "hour_start_utc",
-          "route",
-          "direction",
-          "section_id",
-          "source"
-        ]
-      },
-      "description": "One file per local month, vermont_observed_YYYY-MM.csv; new months are added as collection continues."
-    },
-    {
-      "name": "sections",
-      "title": "Corridor sections",
-      "format": "csv",
+      "name": "vermont-sections",
+      "title": "Vermont Av: sections",
       "path": "data/sections.csv",
+      "format": "csv",
+      "profile": "tabular-data-resource",
       "schema": {
         "fields": [
           {
             "name": "section_id",
-            "type": "string"
+            "type": "string",
+            "description": "Section id; `corridor` is the whole street."
           },
           {
             "name": "name",
-            "type": "string"
+            "type": "string",
+            "description": "From cross street to cross street."
           },
           {
             "name": "north_lat",
-            "type": "number"
+            "type": "number",
+            "description": "Northern boundary latitude (Vermont Av runs north-south)."
           },
           {
             "name": "south_lat",
-            "type": "number"
+            "type": "number",
+            "description": "Southern boundary latitude."
           },
           {
             "name": "length_mi",
-            "type": "number"
-          }
-        ],
-        "primaryKey": "section_id"
-      }
-    },
-    {
-      "name": "feed-versions",
-      "title": "GTFS version in force for each date range",
-      "format": "csv",
-      "path": "data/feed_versions.csv",
-      "schema": {
-        "fields": [
-          {
-            "name": "feed_version",
-            "type": "string"
-          },
-          {
-            "name": "first_date",
-            "type": "date"
-          },
-          {
-            "name": "last_date",
-            "type": "date"
-          },
-          {
-            "name": "days",
-            "type": "integer"
+            "type": "number",
+            "description": "Section length, miles."
           }
         ]
       }
     },
     {
-      "name": "calitp-reference",
-      "title": "Cal-ITP measured speeds for line 204 rolled up to sections (snapshot)",
+      "name": "vermont-feed-versions",
+      "title": "Vermont Av: timetable version in force for each date range",
+      "path": "data/feed_versions.csv",
       "format": "csv",
+      "profile": "tabular-data-resource",
+      "schema": {
+        "fields": [
+          {
+            "name": "feed_version",
+            "type": "string",
+            "description": "GTFS version: publication date and git commit."
+          },
+          {
+            "name": "first_date",
+            "type": "string",
+            "description": "First service date it covers."
+          },
+          {
+            "name": "last_date",
+            "type": "string",
+            "description": "Last service date it covers."
+          },
+          {
+            "name": "days",
+            "type": "integer",
+            "description": "Number of service days."
+          }
+        ]
+      }
+    },
+    {
+      "name": "vermont-calitp-reference",
+      "title": "Vermont Av: Cal-ITP measured speeds for line 204 (one-day snapshot)",
       "path": "data/reference/calitp_speeds_204.csv",
+      "format": "csv",
+      "description": "20th, 50th and 80th percentile speeds by time of day, rolled up to the sections.",
+      "profile": "tabular-data-resource",
       "schema": {
         "fields": [
           {
@@ -379,7 +1823,7 @@
           },
           {
             "name": "route",
-            "type": "string"
+            "type": "integer"
           },
           {
             "name": "source",
@@ -387,7 +1831,1957 @@
           },
           {
             "name": "retrieved",
-            "type": "date"
+            "type": "string"
+          }
+        ]
+      }
+    },
+    {
+      "name": "fountain-definition",
+      "title": "Fountain Av, La Cienega Bl to Vermont Av (West Hollywood streetscape project: La Cienega Bl to La Brea Av): definition",
+      "path": "corridors/fountain.json",
+      "format": "json",
+      "description": "Street path, section boundaries, bus lines and project dates. No bus data for this street yet.",
+      "mediatype": "application/json"
+    },
+    {
+      "name": "hollywood-definition",
+      "title": "Hollywood Bl, Highland Av to Vermont Av: definition",
+      "path": "corridors/hollywood.json",
+      "format": "json",
+      "description": "Street path, section boundaries, bus lines and project dates.",
+      "mediatype": "application/json"
+    },
+    {
+      "name": "hollywood-hourly-2018",
+      "title": "Hollywood Bl, Highland Av to Vermont Av: hourly scheduled speeds (2018)",
+      "path": "data/corridors/hollywood/hourly/year=2018/hollywood_speeds.parquet",
+      "format": "parquet",
+      "group": "hollywood-hourly",
+      "description": "Scheduled speeds for lines 180, 217, 780. Hive-partitioned by local year.",
+      "profile": "tabular-data-resource",
+      "schema": {
+        "fields": [
+          {
+            "name": "corridor_id",
+            "type": "string",
+            "description": "Street identifier, matching corridors/<corridor_id>.json."
+          },
+          {
+            "name": "hour_start_utc",
+            "type": "datetime",
+            "description": "Start of the hour, UTC (ISO 8601)."
+          },
+          {
+            "name": "hour_start_local",
+            "type": "string",
+            "description": "Start of the hour in America/Los_Angeles with UTC offset, e.g. 2024-05-01T17:00:00-0700."
+          },
+          {
+            "name": "route",
+            "type": "string",
+            "description": "LA Metro bus line, e.g. 204, 754, 2, 4, 180, 217."
+          },
+          {
+            "name": "direction",
+            "type": "string",
+            "description": "northbound / southbound on Vermont Av; eastbound / westbound on the other corridors."
+          },
+          {
+            "name": "section_id",
+            "type": "string",
+            "description": "`corridor` for the whole street, or a section id (S1, S2, ...); see that street's sections file."
+          },
+          {
+            "name": "speed_mph",
+            "type": "number",
+            "description": "Average speed over the section in miles per hour, stops and signals included."
+          },
+          {
+            "name": "travel_time_min",
+            "type": "number",
+            "description": "Average minutes to traverse the section. Corridor rows sum the section averages."
+          },
+          {
+            "name": "length_mi",
+            "type": "number",
+            "description": "Section length in miles."
+          },
+          {
+            "name": "n_trips",
+            "type": "integer",
+            "description": "Trips contributing in that hour (corridor rows: the fewest on any section)."
+          },
+          {
+            "name": "source",
+            "type": "string",
+            "description": "`gtfs_schedule` = derived from the published timetable; `gtfs_realtime_observed` = measured from bus GPS (LA Metro's public feed and Swiftly, duplicates removed)."
+          },
+          {
+            "name": "feed_version",
+            "type": "string",
+            "description": "Scheduled rows: publication date and commit of the LACMTA/gtfs_bus version used. Empty for measured rows."
+          }
+        ],
+        "primaryKey": [
+          "hour_start_utc",
+          "route",
+          "direction",
+          "section_id",
+          "source"
+        ]
+      },
+      "mediatype": "application/vnd.apache.parquet"
+    },
+    {
+      "name": "hollywood-hourly-2019",
+      "title": "Hollywood Bl, Highland Av to Vermont Av: hourly scheduled speeds (2019)",
+      "path": "data/corridors/hollywood/hourly/year=2019/hollywood_speeds.parquet",
+      "format": "parquet",
+      "group": "hollywood-hourly",
+      "description": "Scheduled speeds for lines 180, 217, 780. Hive-partitioned by local year.",
+      "profile": "tabular-data-resource",
+      "schema": {
+        "fields": [
+          {
+            "name": "corridor_id",
+            "type": "string",
+            "description": "Street identifier, matching corridors/<corridor_id>.json."
+          },
+          {
+            "name": "hour_start_utc",
+            "type": "datetime",
+            "description": "Start of the hour, UTC (ISO 8601)."
+          },
+          {
+            "name": "hour_start_local",
+            "type": "string",
+            "description": "Start of the hour in America/Los_Angeles with UTC offset, e.g. 2024-05-01T17:00:00-0700."
+          },
+          {
+            "name": "route",
+            "type": "string",
+            "description": "LA Metro bus line, e.g. 204, 754, 2, 4, 180, 217."
+          },
+          {
+            "name": "direction",
+            "type": "string",
+            "description": "northbound / southbound on Vermont Av; eastbound / westbound on the other corridors."
+          },
+          {
+            "name": "section_id",
+            "type": "string",
+            "description": "`corridor` for the whole street, or a section id (S1, S2, ...); see that street's sections file."
+          },
+          {
+            "name": "speed_mph",
+            "type": "number",
+            "description": "Average speed over the section in miles per hour, stops and signals included."
+          },
+          {
+            "name": "travel_time_min",
+            "type": "number",
+            "description": "Average minutes to traverse the section. Corridor rows sum the section averages."
+          },
+          {
+            "name": "length_mi",
+            "type": "number",
+            "description": "Section length in miles."
+          },
+          {
+            "name": "n_trips",
+            "type": "integer",
+            "description": "Trips contributing in that hour (corridor rows: the fewest on any section)."
+          },
+          {
+            "name": "source",
+            "type": "string",
+            "description": "`gtfs_schedule` = derived from the published timetable; `gtfs_realtime_observed` = measured from bus GPS (LA Metro's public feed and Swiftly, duplicates removed)."
+          },
+          {
+            "name": "feed_version",
+            "type": "string",
+            "description": "Scheduled rows: publication date and commit of the LACMTA/gtfs_bus version used. Empty for measured rows."
+          }
+        ],
+        "primaryKey": [
+          "hour_start_utc",
+          "route",
+          "direction",
+          "section_id",
+          "source"
+        ]
+      },
+      "mediatype": "application/vnd.apache.parquet"
+    },
+    {
+      "name": "hollywood-hourly-2020",
+      "title": "Hollywood Bl, Highland Av to Vermont Av: hourly scheduled speeds (2020)",
+      "path": "data/corridors/hollywood/hourly/year=2020/hollywood_speeds.parquet",
+      "format": "parquet",
+      "group": "hollywood-hourly",
+      "description": "Scheduled speeds for lines 180, 217, 780. Hive-partitioned by local year.",
+      "profile": "tabular-data-resource",
+      "schema": {
+        "fields": [
+          {
+            "name": "corridor_id",
+            "type": "string",
+            "description": "Street identifier, matching corridors/<corridor_id>.json."
+          },
+          {
+            "name": "hour_start_utc",
+            "type": "datetime",
+            "description": "Start of the hour, UTC (ISO 8601)."
+          },
+          {
+            "name": "hour_start_local",
+            "type": "string",
+            "description": "Start of the hour in America/Los_Angeles with UTC offset, e.g. 2024-05-01T17:00:00-0700."
+          },
+          {
+            "name": "route",
+            "type": "string",
+            "description": "LA Metro bus line, e.g. 204, 754, 2, 4, 180, 217."
+          },
+          {
+            "name": "direction",
+            "type": "string",
+            "description": "northbound / southbound on Vermont Av; eastbound / westbound on the other corridors."
+          },
+          {
+            "name": "section_id",
+            "type": "string",
+            "description": "`corridor` for the whole street, or a section id (S1, S2, ...); see that street's sections file."
+          },
+          {
+            "name": "speed_mph",
+            "type": "number",
+            "description": "Average speed over the section in miles per hour, stops and signals included."
+          },
+          {
+            "name": "travel_time_min",
+            "type": "number",
+            "description": "Average minutes to traverse the section. Corridor rows sum the section averages."
+          },
+          {
+            "name": "length_mi",
+            "type": "number",
+            "description": "Section length in miles."
+          },
+          {
+            "name": "n_trips",
+            "type": "integer",
+            "description": "Trips contributing in that hour (corridor rows: the fewest on any section)."
+          },
+          {
+            "name": "source",
+            "type": "string",
+            "description": "`gtfs_schedule` = derived from the published timetable; `gtfs_realtime_observed` = measured from bus GPS (LA Metro's public feed and Swiftly, duplicates removed)."
+          },
+          {
+            "name": "feed_version",
+            "type": "string",
+            "description": "Scheduled rows: publication date and commit of the LACMTA/gtfs_bus version used. Empty for measured rows."
+          }
+        ],
+        "primaryKey": [
+          "hour_start_utc",
+          "route",
+          "direction",
+          "section_id",
+          "source"
+        ]
+      },
+      "mediatype": "application/vnd.apache.parquet"
+    },
+    {
+      "name": "hollywood-hourly-2021",
+      "title": "Hollywood Bl, Highland Av to Vermont Av: hourly scheduled speeds (2021)",
+      "path": "data/corridors/hollywood/hourly/year=2021/hollywood_speeds.parquet",
+      "format": "parquet",
+      "group": "hollywood-hourly",
+      "description": "Scheduled speeds for lines 180, 217, 780. Hive-partitioned by local year.",
+      "profile": "tabular-data-resource",
+      "schema": {
+        "fields": [
+          {
+            "name": "corridor_id",
+            "type": "string",
+            "description": "Street identifier, matching corridors/<corridor_id>.json."
+          },
+          {
+            "name": "hour_start_utc",
+            "type": "datetime",
+            "description": "Start of the hour, UTC (ISO 8601)."
+          },
+          {
+            "name": "hour_start_local",
+            "type": "string",
+            "description": "Start of the hour in America/Los_Angeles with UTC offset, e.g. 2024-05-01T17:00:00-0700."
+          },
+          {
+            "name": "route",
+            "type": "string",
+            "description": "LA Metro bus line, e.g. 204, 754, 2, 4, 180, 217."
+          },
+          {
+            "name": "direction",
+            "type": "string",
+            "description": "northbound / southbound on Vermont Av; eastbound / westbound on the other corridors."
+          },
+          {
+            "name": "section_id",
+            "type": "string",
+            "description": "`corridor` for the whole street, or a section id (S1, S2, ...); see that street's sections file."
+          },
+          {
+            "name": "speed_mph",
+            "type": "number",
+            "description": "Average speed over the section in miles per hour, stops and signals included."
+          },
+          {
+            "name": "travel_time_min",
+            "type": "number",
+            "description": "Average minutes to traverse the section. Corridor rows sum the section averages."
+          },
+          {
+            "name": "length_mi",
+            "type": "number",
+            "description": "Section length in miles."
+          },
+          {
+            "name": "n_trips",
+            "type": "integer",
+            "description": "Trips contributing in that hour (corridor rows: the fewest on any section)."
+          },
+          {
+            "name": "source",
+            "type": "string",
+            "description": "`gtfs_schedule` = derived from the published timetable; `gtfs_realtime_observed` = measured from bus GPS (LA Metro's public feed and Swiftly, duplicates removed)."
+          },
+          {
+            "name": "feed_version",
+            "type": "string",
+            "description": "Scheduled rows: publication date and commit of the LACMTA/gtfs_bus version used. Empty for measured rows."
+          }
+        ],
+        "primaryKey": [
+          "hour_start_utc",
+          "route",
+          "direction",
+          "section_id",
+          "source"
+        ]
+      },
+      "mediatype": "application/vnd.apache.parquet"
+    },
+    {
+      "name": "hollywood-hourly-2022",
+      "title": "Hollywood Bl, Highland Av to Vermont Av: hourly scheduled speeds (2022)",
+      "path": "data/corridors/hollywood/hourly/year=2022/hollywood_speeds.parquet",
+      "format": "parquet",
+      "group": "hollywood-hourly",
+      "description": "Scheduled speeds for lines 180, 217, 780. Hive-partitioned by local year.",
+      "profile": "tabular-data-resource",
+      "schema": {
+        "fields": [
+          {
+            "name": "corridor_id",
+            "type": "string",
+            "description": "Street identifier, matching corridors/<corridor_id>.json."
+          },
+          {
+            "name": "hour_start_utc",
+            "type": "datetime",
+            "description": "Start of the hour, UTC (ISO 8601)."
+          },
+          {
+            "name": "hour_start_local",
+            "type": "string",
+            "description": "Start of the hour in America/Los_Angeles with UTC offset, e.g. 2024-05-01T17:00:00-0700."
+          },
+          {
+            "name": "route",
+            "type": "string",
+            "description": "LA Metro bus line, e.g. 204, 754, 2, 4, 180, 217."
+          },
+          {
+            "name": "direction",
+            "type": "string",
+            "description": "northbound / southbound on Vermont Av; eastbound / westbound on the other corridors."
+          },
+          {
+            "name": "section_id",
+            "type": "string",
+            "description": "`corridor` for the whole street, or a section id (S1, S2, ...); see that street's sections file."
+          },
+          {
+            "name": "speed_mph",
+            "type": "number",
+            "description": "Average speed over the section in miles per hour, stops and signals included."
+          },
+          {
+            "name": "travel_time_min",
+            "type": "number",
+            "description": "Average minutes to traverse the section. Corridor rows sum the section averages."
+          },
+          {
+            "name": "length_mi",
+            "type": "number",
+            "description": "Section length in miles."
+          },
+          {
+            "name": "n_trips",
+            "type": "integer",
+            "description": "Trips contributing in that hour (corridor rows: the fewest on any section)."
+          },
+          {
+            "name": "source",
+            "type": "string",
+            "description": "`gtfs_schedule` = derived from the published timetable; `gtfs_realtime_observed` = measured from bus GPS (LA Metro's public feed and Swiftly, duplicates removed)."
+          },
+          {
+            "name": "feed_version",
+            "type": "string",
+            "description": "Scheduled rows: publication date and commit of the LACMTA/gtfs_bus version used. Empty for measured rows."
+          }
+        ],
+        "primaryKey": [
+          "hour_start_utc",
+          "route",
+          "direction",
+          "section_id",
+          "source"
+        ]
+      },
+      "mediatype": "application/vnd.apache.parquet"
+    },
+    {
+      "name": "hollywood-hourly-2023",
+      "title": "Hollywood Bl, Highland Av to Vermont Av: hourly scheduled speeds (2023)",
+      "path": "data/corridors/hollywood/hourly/year=2023/hollywood_speeds.parquet",
+      "format": "parquet",
+      "group": "hollywood-hourly",
+      "description": "Scheduled speeds for lines 180, 217, 780. Hive-partitioned by local year.",
+      "profile": "tabular-data-resource",
+      "schema": {
+        "fields": [
+          {
+            "name": "corridor_id",
+            "type": "string",
+            "description": "Street identifier, matching corridors/<corridor_id>.json."
+          },
+          {
+            "name": "hour_start_utc",
+            "type": "datetime",
+            "description": "Start of the hour, UTC (ISO 8601)."
+          },
+          {
+            "name": "hour_start_local",
+            "type": "string",
+            "description": "Start of the hour in America/Los_Angeles with UTC offset, e.g. 2024-05-01T17:00:00-0700."
+          },
+          {
+            "name": "route",
+            "type": "string",
+            "description": "LA Metro bus line, e.g. 204, 754, 2, 4, 180, 217."
+          },
+          {
+            "name": "direction",
+            "type": "string",
+            "description": "northbound / southbound on Vermont Av; eastbound / westbound on the other corridors."
+          },
+          {
+            "name": "section_id",
+            "type": "string",
+            "description": "`corridor` for the whole street, or a section id (S1, S2, ...); see that street's sections file."
+          },
+          {
+            "name": "speed_mph",
+            "type": "number",
+            "description": "Average speed over the section in miles per hour, stops and signals included."
+          },
+          {
+            "name": "travel_time_min",
+            "type": "number",
+            "description": "Average minutes to traverse the section. Corridor rows sum the section averages."
+          },
+          {
+            "name": "length_mi",
+            "type": "number",
+            "description": "Section length in miles."
+          },
+          {
+            "name": "n_trips",
+            "type": "integer",
+            "description": "Trips contributing in that hour (corridor rows: the fewest on any section)."
+          },
+          {
+            "name": "source",
+            "type": "string",
+            "description": "`gtfs_schedule` = derived from the published timetable; `gtfs_realtime_observed` = measured from bus GPS (LA Metro's public feed and Swiftly, duplicates removed)."
+          },
+          {
+            "name": "feed_version",
+            "type": "string",
+            "description": "Scheduled rows: publication date and commit of the LACMTA/gtfs_bus version used. Empty for measured rows."
+          }
+        ],
+        "primaryKey": [
+          "hour_start_utc",
+          "route",
+          "direction",
+          "section_id",
+          "source"
+        ]
+      },
+      "mediatype": "application/vnd.apache.parquet"
+    },
+    {
+      "name": "hollywood-hourly-2024",
+      "title": "Hollywood Bl, Highland Av to Vermont Av: hourly scheduled speeds (2024)",
+      "path": "data/corridors/hollywood/hourly/year=2024/hollywood_speeds.parquet",
+      "format": "parquet",
+      "group": "hollywood-hourly",
+      "description": "Scheduled speeds for lines 180, 217, 780. Hive-partitioned by local year.",
+      "profile": "tabular-data-resource",
+      "schema": {
+        "fields": [
+          {
+            "name": "corridor_id",
+            "type": "string",
+            "description": "Street identifier, matching corridors/<corridor_id>.json."
+          },
+          {
+            "name": "hour_start_utc",
+            "type": "datetime",
+            "description": "Start of the hour, UTC (ISO 8601)."
+          },
+          {
+            "name": "hour_start_local",
+            "type": "string",
+            "description": "Start of the hour in America/Los_Angeles with UTC offset, e.g. 2024-05-01T17:00:00-0700."
+          },
+          {
+            "name": "route",
+            "type": "string",
+            "description": "LA Metro bus line, e.g. 204, 754, 2, 4, 180, 217."
+          },
+          {
+            "name": "direction",
+            "type": "string",
+            "description": "northbound / southbound on Vermont Av; eastbound / westbound on the other corridors."
+          },
+          {
+            "name": "section_id",
+            "type": "string",
+            "description": "`corridor` for the whole street, or a section id (S1, S2, ...); see that street's sections file."
+          },
+          {
+            "name": "speed_mph",
+            "type": "number",
+            "description": "Average speed over the section in miles per hour, stops and signals included."
+          },
+          {
+            "name": "travel_time_min",
+            "type": "number",
+            "description": "Average minutes to traverse the section. Corridor rows sum the section averages."
+          },
+          {
+            "name": "length_mi",
+            "type": "number",
+            "description": "Section length in miles."
+          },
+          {
+            "name": "n_trips",
+            "type": "integer",
+            "description": "Trips contributing in that hour (corridor rows: the fewest on any section)."
+          },
+          {
+            "name": "source",
+            "type": "string",
+            "description": "`gtfs_schedule` = derived from the published timetable; `gtfs_realtime_observed` = measured from bus GPS (LA Metro's public feed and Swiftly, duplicates removed)."
+          },
+          {
+            "name": "feed_version",
+            "type": "string",
+            "description": "Scheduled rows: publication date and commit of the LACMTA/gtfs_bus version used. Empty for measured rows."
+          }
+        ],
+        "primaryKey": [
+          "hour_start_utc",
+          "route",
+          "direction",
+          "section_id",
+          "source"
+        ]
+      },
+      "mediatype": "application/vnd.apache.parquet"
+    },
+    {
+      "name": "hollywood-hourly-2025",
+      "title": "Hollywood Bl, Highland Av to Vermont Av: hourly scheduled speeds (2025)",
+      "path": "data/corridors/hollywood/hourly/year=2025/hollywood_speeds.parquet",
+      "format": "parquet",
+      "group": "hollywood-hourly",
+      "description": "Scheduled speeds for lines 180, 217, 780. Hive-partitioned by local year.",
+      "profile": "tabular-data-resource",
+      "schema": {
+        "fields": [
+          {
+            "name": "corridor_id",
+            "type": "string",
+            "description": "Street identifier, matching corridors/<corridor_id>.json."
+          },
+          {
+            "name": "hour_start_utc",
+            "type": "datetime",
+            "description": "Start of the hour, UTC (ISO 8601)."
+          },
+          {
+            "name": "hour_start_local",
+            "type": "string",
+            "description": "Start of the hour in America/Los_Angeles with UTC offset, e.g. 2024-05-01T17:00:00-0700."
+          },
+          {
+            "name": "route",
+            "type": "string",
+            "description": "LA Metro bus line, e.g. 204, 754, 2, 4, 180, 217."
+          },
+          {
+            "name": "direction",
+            "type": "string",
+            "description": "northbound / southbound on Vermont Av; eastbound / westbound on the other corridors."
+          },
+          {
+            "name": "section_id",
+            "type": "string",
+            "description": "`corridor` for the whole street, or a section id (S1, S2, ...); see that street's sections file."
+          },
+          {
+            "name": "speed_mph",
+            "type": "number",
+            "description": "Average speed over the section in miles per hour, stops and signals included."
+          },
+          {
+            "name": "travel_time_min",
+            "type": "number",
+            "description": "Average minutes to traverse the section. Corridor rows sum the section averages."
+          },
+          {
+            "name": "length_mi",
+            "type": "number",
+            "description": "Section length in miles."
+          },
+          {
+            "name": "n_trips",
+            "type": "integer",
+            "description": "Trips contributing in that hour (corridor rows: the fewest on any section)."
+          },
+          {
+            "name": "source",
+            "type": "string",
+            "description": "`gtfs_schedule` = derived from the published timetable; `gtfs_realtime_observed` = measured from bus GPS (LA Metro's public feed and Swiftly, duplicates removed)."
+          },
+          {
+            "name": "feed_version",
+            "type": "string",
+            "description": "Scheduled rows: publication date and commit of the LACMTA/gtfs_bus version used. Empty for measured rows."
+          }
+        ],
+        "primaryKey": [
+          "hour_start_utc",
+          "route",
+          "direction",
+          "section_id",
+          "source"
+        ]
+      },
+      "mediatype": "application/vnd.apache.parquet"
+    },
+    {
+      "name": "hollywood-hourly-2026",
+      "title": "Hollywood Bl, Highland Av to Vermont Av: hourly scheduled speeds (2026)",
+      "path": "data/corridors/hollywood/hourly/year=2026/hollywood_speeds.parquet",
+      "format": "parquet",
+      "group": "hollywood-hourly",
+      "description": "Scheduled speeds for lines 180, 217, 780. Hive-partitioned by local year.",
+      "profile": "tabular-data-resource",
+      "schema": {
+        "fields": [
+          {
+            "name": "corridor_id",
+            "type": "string",
+            "description": "Street identifier, matching corridors/<corridor_id>.json."
+          },
+          {
+            "name": "hour_start_utc",
+            "type": "datetime",
+            "description": "Start of the hour, UTC (ISO 8601)."
+          },
+          {
+            "name": "hour_start_local",
+            "type": "string",
+            "description": "Start of the hour in America/Los_Angeles with UTC offset, e.g. 2024-05-01T17:00:00-0700."
+          },
+          {
+            "name": "route",
+            "type": "string",
+            "description": "LA Metro bus line, e.g. 204, 754, 2, 4, 180, 217."
+          },
+          {
+            "name": "direction",
+            "type": "string",
+            "description": "northbound / southbound on Vermont Av; eastbound / westbound on the other corridors."
+          },
+          {
+            "name": "section_id",
+            "type": "string",
+            "description": "`corridor` for the whole street, or a section id (S1, S2, ...); see that street's sections file."
+          },
+          {
+            "name": "speed_mph",
+            "type": "number",
+            "description": "Average speed over the section in miles per hour, stops and signals included."
+          },
+          {
+            "name": "travel_time_min",
+            "type": "number",
+            "description": "Average minutes to traverse the section. Corridor rows sum the section averages."
+          },
+          {
+            "name": "length_mi",
+            "type": "number",
+            "description": "Section length in miles."
+          },
+          {
+            "name": "n_trips",
+            "type": "integer",
+            "description": "Trips contributing in that hour (corridor rows: the fewest on any section)."
+          },
+          {
+            "name": "source",
+            "type": "string",
+            "description": "`gtfs_schedule` = derived from the published timetable; `gtfs_realtime_observed` = measured from bus GPS (LA Metro's public feed and Swiftly, duplicates removed)."
+          },
+          {
+            "name": "feed_version",
+            "type": "string",
+            "description": "Scheduled rows: publication date and commit of the LACMTA/gtfs_bus version used. Empty for measured rows."
+          }
+        ],
+        "primaryKey": [
+          "hour_start_utc",
+          "route",
+          "direction",
+          "section_id",
+          "source"
+        ]
+      },
+      "mediatype": "application/vnd.apache.parquet"
+    },
+    {
+      "name": "hollywood-observed",
+      "title": "Hollywood Bl, Highland Av to Vermont Av: measured hourly speeds from bus GPS",
+      "path": "data/corridors/hollywood/observed/hollywood_observed_2026-11.csv",
+      "format": "csv",
+      "description": "One file per local month. Measured since November 2026.",
+      "profile": "tabular-data-resource",
+      "schema": {
+        "fields": [
+          {
+            "name": "corridor_id",
+            "type": "string",
+            "description": "Street identifier, matching corridors/<corridor_id>.json."
+          },
+          {
+            "name": "hour_start_utc",
+            "type": "datetime",
+            "description": "Start of the hour, UTC (ISO 8601)."
+          },
+          {
+            "name": "hour_start_local",
+            "type": "string",
+            "description": "Start of the hour in America/Los_Angeles with UTC offset, e.g. 2024-05-01T17:00:00-0700."
+          },
+          {
+            "name": "route",
+            "type": "string",
+            "description": "LA Metro bus line, e.g. 204, 754, 2, 4, 180, 217."
+          },
+          {
+            "name": "direction",
+            "type": "string",
+            "description": "northbound / southbound on Vermont Av; eastbound / westbound on the other corridors."
+          },
+          {
+            "name": "section_id",
+            "type": "string",
+            "description": "`corridor` for the whole street, or a section id (S1, S2, ...); see that street's sections file."
+          },
+          {
+            "name": "speed_mph",
+            "type": "number",
+            "description": "Average speed over the section in miles per hour, stops and signals included."
+          },
+          {
+            "name": "travel_time_min",
+            "type": "number",
+            "description": "Average minutes to traverse the section. Corridor rows sum the section averages."
+          },
+          {
+            "name": "length_mi",
+            "type": "number",
+            "description": "Section length in miles."
+          },
+          {
+            "name": "n_trips",
+            "type": "integer",
+            "description": "Trips contributing in that hour (corridor rows: the fewest on any section)."
+          },
+          {
+            "name": "source",
+            "type": "string",
+            "description": "`gtfs_schedule` = derived from the published timetable; `gtfs_realtime_observed` = measured from bus GPS (LA Metro's public feed and Swiftly, duplicates removed)."
+          },
+          {
+            "name": "feed_version",
+            "type": "string",
+            "description": "Scheduled rows: publication date and commit of the LACMTA/gtfs_bus version used. Empty for measured rows."
+          }
+        ]
+      }
+    },
+    {
+      "name": "hollywood-sections",
+      "title": "Hollywood Bl, Highland Av to Vermont Av: sections",
+      "path": "data/corridors/hollywood/sections.csv",
+      "format": "csv",
+      "profile": "tabular-data-resource",
+      "schema": {
+        "fields": [
+          {
+            "name": "corridor_id",
+            "type": "string",
+            "description": "Street identifier, matching corridors/<corridor_id>.json."
+          },
+          {
+            "name": "section_id",
+            "type": "string",
+            "description": "Section id; `corridor` is the whole street."
+          },
+          {
+            "name": "name",
+            "type": "string",
+            "description": "From cross street to cross street."
+          },
+          {
+            "name": "start_mi",
+            "type": "number",
+            "description": "Distance along the street's path where the section starts, miles."
+          },
+          {
+            "name": "end_mi",
+            "type": "number",
+            "description": "Where it ends, miles."
+          },
+          {
+            "name": "length_mi",
+            "type": "number",
+            "description": "Section length, miles."
+          }
+        ]
+      }
+    },
+    {
+      "name": "hollywood-feed-versions",
+      "title": "Hollywood Bl, Highland Av to Vermont Av: timetable version in force for each date range",
+      "path": "data/corridors/hollywood/feed_versions.csv",
+      "format": "csv",
+      "profile": "tabular-data-resource",
+      "schema": {
+        "fields": [
+          {
+            "name": "feed_version",
+            "type": "string",
+            "description": "GTFS version: publication date and git commit."
+          },
+          {
+            "name": "first_date",
+            "type": "string",
+            "description": "First service date it covers."
+          },
+          {
+            "name": "last_date",
+            "type": "string",
+            "description": "Last service date it covers."
+          },
+          {
+            "name": "days",
+            "type": "integer",
+            "description": "Number of service days."
+          }
+        ]
+      }
+    },
+    {
+      "name": "sunset-definition",
+      "title": "Sunset Bl and Cesar Chavez Av, Western Av to New High St: definition",
+      "path": "corridors/sunset.json",
+      "format": "json",
+      "description": "Street path, section boundaries, bus lines and project dates.",
+      "mediatype": "application/json"
+    },
+    {
+      "name": "sunset-hourly-2018",
+      "title": "Sunset Bl and Cesar Chavez Av, Western Av to New High St: hourly scheduled speeds (2018)",
+      "path": "data/corridors/sunset/hourly/year=2018/sunset_speeds.parquet",
+      "format": "parquet",
+      "group": "sunset-hourly",
+      "description": "Scheduled speeds for lines 2, 4, 704. Hive-partitioned by local year.",
+      "profile": "tabular-data-resource",
+      "schema": {
+        "fields": [
+          {
+            "name": "corridor_id",
+            "type": "string",
+            "description": "Street identifier, matching corridors/<corridor_id>.json."
+          },
+          {
+            "name": "hour_start_utc",
+            "type": "datetime",
+            "description": "Start of the hour, UTC (ISO 8601)."
+          },
+          {
+            "name": "hour_start_local",
+            "type": "string",
+            "description": "Start of the hour in America/Los_Angeles with UTC offset, e.g. 2024-05-01T17:00:00-0700."
+          },
+          {
+            "name": "route",
+            "type": "string",
+            "description": "LA Metro bus line, e.g. 204, 754, 2, 4, 180, 217."
+          },
+          {
+            "name": "direction",
+            "type": "string",
+            "description": "northbound / southbound on Vermont Av; eastbound / westbound on the other corridors."
+          },
+          {
+            "name": "section_id",
+            "type": "string",
+            "description": "`corridor` for the whole street, or a section id (S1, S2, ...); see that street's sections file."
+          },
+          {
+            "name": "speed_mph",
+            "type": "number",
+            "description": "Average speed over the section in miles per hour, stops and signals included."
+          },
+          {
+            "name": "travel_time_min",
+            "type": "number",
+            "description": "Average minutes to traverse the section. Corridor rows sum the section averages."
+          },
+          {
+            "name": "length_mi",
+            "type": "number",
+            "description": "Section length in miles."
+          },
+          {
+            "name": "n_trips",
+            "type": "integer",
+            "description": "Trips contributing in that hour (corridor rows: the fewest on any section)."
+          },
+          {
+            "name": "source",
+            "type": "string",
+            "description": "`gtfs_schedule` = derived from the published timetable; `gtfs_realtime_observed` = measured from bus GPS (LA Metro's public feed and Swiftly, duplicates removed)."
+          },
+          {
+            "name": "feed_version",
+            "type": "string",
+            "description": "Scheduled rows: publication date and commit of the LACMTA/gtfs_bus version used. Empty for measured rows."
+          }
+        ],
+        "primaryKey": [
+          "hour_start_utc",
+          "route",
+          "direction",
+          "section_id",
+          "source"
+        ]
+      },
+      "mediatype": "application/vnd.apache.parquet"
+    },
+    {
+      "name": "sunset-hourly-2019",
+      "title": "Sunset Bl and Cesar Chavez Av, Western Av to New High St: hourly scheduled speeds (2019)",
+      "path": "data/corridors/sunset/hourly/year=2019/sunset_speeds.parquet",
+      "format": "parquet",
+      "group": "sunset-hourly",
+      "description": "Scheduled speeds for lines 2, 4, 704. Hive-partitioned by local year.",
+      "profile": "tabular-data-resource",
+      "schema": {
+        "fields": [
+          {
+            "name": "corridor_id",
+            "type": "string",
+            "description": "Street identifier, matching corridors/<corridor_id>.json."
+          },
+          {
+            "name": "hour_start_utc",
+            "type": "datetime",
+            "description": "Start of the hour, UTC (ISO 8601)."
+          },
+          {
+            "name": "hour_start_local",
+            "type": "string",
+            "description": "Start of the hour in America/Los_Angeles with UTC offset, e.g. 2024-05-01T17:00:00-0700."
+          },
+          {
+            "name": "route",
+            "type": "string",
+            "description": "LA Metro bus line, e.g. 204, 754, 2, 4, 180, 217."
+          },
+          {
+            "name": "direction",
+            "type": "string",
+            "description": "northbound / southbound on Vermont Av; eastbound / westbound on the other corridors."
+          },
+          {
+            "name": "section_id",
+            "type": "string",
+            "description": "`corridor` for the whole street, or a section id (S1, S2, ...); see that street's sections file."
+          },
+          {
+            "name": "speed_mph",
+            "type": "number",
+            "description": "Average speed over the section in miles per hour, stops and signals included."
+          },
+          {
+            "name": "travel_time_min",
+            "type": "number",
+            "description": "Average minutes to traverse the section. Corridor rows sum the section averages."
+          },
+          {
+            "name": "length_mi",
+            "type": "number",
+            "description": "Section length in miles."
+          },
+          {
+            "name": "n_trips",
+            "type": "integer",
+            "description": "Trips contributing in that hour (corridor rows: the fewest on any section)."
+          },
+          {
+            "name": "source",
+            "type": "string",
+            "description": "`gtfs_schedule` = derived from the published timetable; `gtfs_realtime_observed` = measured from bus GPS (LA Metro's public feed and Swiftly, duplicates removed)."
+          },
+          {
+            "name": "feed_version",
+            "type": "string",
+            "description": "Scheduled rows: publication date and commit of the LACMTA/gtfs_bus version used. Empty for measured rows."
+          }
+        ],
+        "primaryKey": [
+          "hour_start_utc",
+          "route",
+          "direction",
+          "section_id",
+          "source"
+        ]
+      },
+      "mediatype": "application/vnd.apache.parquet"
+    },
+    {
+      "name": "sunset-hourly-2020",
+      "title": "Sunset Bl and Cesar Chavez Av, Western Av to New High St: hourly scheduled speeds (2020)",
+      "path": "data/corridors/sunset/hourly/year=2020/sunset_speeds.parquet",
+      "format": "parquet",
+      "group": "sunset-hourly",
+      "description": "Scheduled speeds for lines 2, 4, 704. Hive-partitioned by local year.",
+      "profile": "tabular-data-resource",
+      "schema": {
+        "fields": [
+          {
+            "name": "corridor_id",
+            "type": "string",
+            "description": "Street identifier, matching corridors/<corridor_id>.json."
+          },
+          {
+            "name": "hour_start_utc",
+            "type": "datetime",
+            "description": "Start of the hour, UTC (ISO 8601)."
+          },
+          {
+            "name": "hour_start_local",
+            "type": "string",
+            "description": "Start of the hour in America/Los_Angeles with UTC offset, e.g. 2024-05-01T17:00:00-0700."
+          },
+          {
+            "name": "route",
+            "type": "string",
+            "description": "LA Metro bus line, e.g. 204, 754, 2, 4, 180, 217."
+          },
+          {
+            "name": "direction",
+            "type": "string",
+            "description": "northbound / southbound on Vermont Av; eastbound / westbound on the other corridors."
+          },
+          {
+            "name": "section_id",
+            "type": "string",
+            "description": "`corridor` for the whole street, or a section id (S1, S2, ...); see that street's sections file."
+          },
+          {
+            "name": "speed_mph",
+            "type": "number",
+            "description": "Average speed over the section in miles per hour, stops and signals included."
+          },
+          {
+            "name": "travel_time_min",
+            "type": "number",
+            "description": "Average minutes to traverse the section. Corridor rows sum the section averages."
+          },
+          {
+            "name": "length_mi",
+            "type": "number",
+            "description": "Section length in miles."
+          },
+          {
+            "name": "n_trips",
+            "type": "integer",
+            "description": "Trips contributing in that hour (corridor rows: the fewest on any section)."
+          },
+          {
+            "name": "source",
+            "type": "string",
+            "description": "`gtfs_schedule` = derived from the published timetable; `gtfs_realtime_observed` = measured from bus GPS (LA Metro's public feed and Swiftly, duplicates removed)."
+          },
+          {
+            "name": "feed_version",
+            "type": "string",
+            "description": "Scheduled rows: publication date and commit of the LACMTA/gtfs_bus version used. Empty for measured rows."
+          }
+        ],
+        "primaryKey": [
+          "hour_start_utc",
+          "route",
+          "direction",
+          "section_id",
+          "source"
+        ]
+      },
+      "mediatype": "application/vnd.apache.parquet"
+    },
+    {
+      "name": "sunset-hourly-2021",
+      "title": "Sunset Bl and Cesar Chavez Av, Western Av to New High St: hourly scheduled speeds (2021)",
+      "path": "data/corridors/sunset/hourly/year=2021/sunset_speeds.parquet",
+      "format": "parquet",
+      "group": "sunset-hourly",
+      "description": "Scheduled speeds for lines 2, 4, 704. Hive-partitioned by local year.",
+      "profile": "tabular-data-resource",
+      "schema": {
+        "fields": [
+          {
+            "name": "corridor_id",
+            "type": "string",
+            "description": "Street identifier, matching corridors/<corridor_id>.json."
+          },
+          {
+            "name": "hour_start_utc",
+            "type": "datetime",
+            "description": "Start of the hour, UTC (ISO 8601)."
+          },
+          {
+            "name": "hour_start_local",
+            "type": "string",
+            "description": "Start of the hour in America/Los_Angeles with UTC offset, e.g. 2024-05-01T17:00:00-0700."
+          },
+          {
+            "name": "route",
+            "type": "string",
+            "description": "LA Metro bus line, e.g. 204, 754, 2, 4, 180, 217."
+          },
+          {
+            "name": "direction",
+            "type": "string",
+            "description": "northbound / southbound on Vermont Av; eastbound / westbound on the other corridors."
+          },
+          {
+            "name": "section_id",
+            "type": "string",
+            "description": "`corridor` for the whole street, or a section id (S1, S2, ...); see that street's sections file."
+          },
+          {
+            "name": "speed_mph",
+            "type": "number",
+            "description": "Average speed over the section in miles per hour, stops and signals included."
+          },
+          {
+            "name": "travel_time_min",
+            "type": "number",
+            "description": "Average minutes to traverse the section. Corridor rows sum the section averages."
+          },
+          {
+            "name": "length_mi",
+            "type": "number",
+            "description": "Section length in miles."
+          },
+          {
+            "name": "n_trips",
+            "type": "integer",
+            "description": "Trips contributing in that hour (corridor rows: the fewest on any section)."
+          },
+          {
+            "name": "source",
+            "type": "string",
+            "description": "`gtfs_schedule` = derived from the published timetable; `gtfs_realtime_observed` = measured from bus GPS (LA Metro's public feed and Swiftly, duplicates removed)."
+          },
+          {
+            "name": "feed_version",
+            "type": "string",
+            "description": "Scheduled rows: publication date and commit of the LACMTA/gtfs_bus version used. Empty for measured rows."
+          }
+        ],
+        "primaryKey": [
+          "hour_start_utc",
+          "route",
+          "direction",
+          "section_id",
+          "source"
+        ]
+      },
+      "mediatype": "application/vnd.apache.parquet"
+    },
+    {
+      "name": "sunset-hourly-2022",
+      "title": "Sunset Bl and Cesar Chavez Av, Western Av to New High St: hourly scheduled speeds (2022)",
+      "path": "data/corridors/sunset/hourly/year=2022/sunset_speeds.parquet",
+      "format": "parquet",
+      "group": "sunset-hourly",
+      "description": "Scheduled speeds for lines 2, 4, 704. Hive-partitioned by local year.",
+      "profile": "tabular-data-resource",
+      "schema": {
+        "fields": [
+          {
+            "name": "corridor_id",
+            "type": "string",
+            "description": "Street identifier, matching corridors/<corridor_id>.json."
+          },
+          {
+            "name": "hour_start_utc",
+            "type": "datetime",
+            "description": "Start of the hour, UTC (ISO 8601)."
+          },
+          {
+            "name": "hour_start_local",
+            "type": "string",
+            "description": "Start of the hour in America/Los_Angeles with UTC offset, e.g. 2024-05-01T17:00:00-0700."
+          },
+          {
+            "name": "route",
+            "type": "string",
+            "description": "LA Metro bus line, e.g. 204, 754, 2, 4, 180, 217."
+          },
+          {
+            "name": "direction",
+            "type": "string",
+            "description": "northbound / southbound on Vermont Av; eastbound / westbound on the other corridors."
+          },
+          {
+            "name": "section_id",
+            "type": "string",
+            "description": "`corridor` for the whole street, or a section id (S1, S2, ...); see that street's sections file."
+          },
+          {
+            "name": "speed_mph",
+            "type": "number",
+            "description": "Average speed over the section in miles per hour, stops and signals included."
+          },
+          {
+            "name": "travel_time_min",
+            "type": "number",
+            "description": "Average minutes to traverse the section. Corridor rows sum the section averages."
+          },
+          {
+            "name": "length_mi",
+            "type": "number",
+            "description": "Section length in miles."
+          },
+          {
+            "name": "n_trips",
+            "type": "integer",
+            "description": "Trips contributing in that hour (corridor rows: the fewest on any section)."
+          },
+          {
+            "name": "source",
+            "type": "string",
+            "description": "`gtfs_schedule` = derived from the published timetable; `gtfs_realtime_observed` = measured from bus GPS (LA Metro's public feed and Swiftly, duplicates removed)."
+          },
+          {
+            "name": "feed_version",
+            "type": "string",
+            "description": "Scheduled rows: publication date and commit of the LACMTA/gtfs_bus version used. Empty for measured rows."
+          }
+        ],
+        "primaryKey": [
+          "hour_start_utc",
+          "route",
+          "direction",
+          "section_id",
+          "source"
+        ]
+      },
+      "mediatype": "application/vnd.apache.parquet"
+    },
+    {
+      "name": "sunset-hourly-2023",
+      "title": "Sunset Bl and Cesar Chavez Av, Western Av to New High St: hourly scheduled speeds (2023)",
+      "path": "data/corridors/sunset/hourly/year=2023/sunset_speeds.parquet",
+      "format": "parquet",
+      "group": "sunset-hourly",
+      "description": "Scheduled speeds for lines 2, 4, 704. Hive-partitioned by local year.",
+      "profile": "tabular-data-resource",
+      "schema": {
+        "fields": [
+          {
+            "name": "corridor_id",
+            "type": "string",
+            "description": "Street identifier, matching corridors/<corridor_id>.json."
+          },
+          {
+            "name": "hour_start_utc",
+            "type": "datetime",
+            "description": "Start of the hour, UTC (ISO 8601)."
+          },
+          {
+            "name": "hour_start_local",
+            "type": "string",
+            "description": "Start of the hour in America/Los_Angeles with UTC offset, e.g. 2024-05-01T17:00:00-0700."
+          },
+          {
+            "name": "route",
+            "type": "string",
+            "description": "LA Metro bus line, e.g. 204, 754, 2, 4, 180, 217."
+          },
+          {
+            "name": "direction",
+            "type": "string",
+            "description": "northbound / southbound on Vermont Av; eastbound / westbound on the other corridors."
+          },
+          {
+            "name": "section_id",
+            "type": "string",
+            "description": "`corridor` for the whole street, or a section id (S1, S2, ...); see that street's sections file."
+          },
+          {
+            "name": "speed_mph",
+            "type": "number",
+            "description": "Average speed over the section in miles per hour, stops and signals included."
+          },
+          {
+            "name": "travel_time_min",
+            "type": "number",
+            "description": "Average minutes to traverse the section. Corridor rows sum the section averages."
+          },
+          {
+            "name": "length_mi",
+            "type": "number",
+            "description": "Section length in miles."
+          },
+          {
+            "name": "n_trips",
+            "type": "integer",
+            "description": "Trips contributing in that hour (corridor rows: the fewest on any section)."
+          },
+          {
+            "name": "source",
+            "type": "string",
+            "description": "`gtfs_schedule` = derived from the published timetable; `gtfs_realtime_observed` = measured from bus GPS (LA Metro's public feed and Swiftly, duplicates removed)."
+          },
+          {
+            "name": "feed_version",
+            "type": "string",
+            "description": "Scheduled rows: publication date and commit of the LACMTA/gtfs_bus version used. Empty for measured rows."
+          }
+        ],
+        "primaryKey": [
+          "hour_start_utc",
+          "route",
+          "direction",
+          "section_id",
+          "source"
+        ]
+      },
+      "mediatype": "application/vnd.apache.parquet"
+    },
+    {
+      "name": "sunset-hourly-2024",
+      "title": "Sunset Bl and Cesar Chavez Av, Western Av to New High St: hourly scheduled speeds (2024)",
+      "path": "data/corridors/sunset/hourly/year=2024/sunset_speeds.parquet",
+      "format": "parquet",
+      "group": "sunset-hourly",
+      "description": "Scheduled speeds for lines 2, 4, 704. Hive-partitioned by local year.",
+      "profile": "tabular-data-resource",
+      "schema": {
+        "fields": [
+          {
+            "name": "corridor_id",
+            "type": "string",
+            "description": "Street identifier, matching corridors/<corridor_id>.json."
+          },
+          {
+            "name": "hour_start_utc",
+            "type": "datetime",
+            "description": "Start of the hour, UTC (ISO 8601)."
+          },
+          {
+            "name": "hour_start_local",
+            "type": "string",
+            "description": "Start of the hour in America/Los_Angeles with UTC offset, e.g. 2024-05-01T17:00:00-0700."
+          },
+          {
+            "name": "route",
+            "type": "string",
+            "description": "LA Metro bus line, e.g. 204, 754, 2, 4, 180, 217."
+          },
+          {
+            "name": "direction",
+            "type": "string",
+            "description": "northbound / southbound on Vermont Av; eastbound / westbound on the other corridors."
+          },
+          {
+            "name": "section_id",
+            "type": "string",
+            "description": "`corridor` for the whole street, or a section id (S1, S2, ...); see that street's sections file."
+          },
+          {
+            "name": "speed_mph",
+            "type": "number",
+            "description": "Average speed over the section in miles per hour, stops and signals included."
+          },
+          {
+            "name": "travel_time_min",
+            "type": "number",
+            "description": "Average minutes to traverse the section. Corridor rows sum the section averages."
+          },
+          {
+            "name": "length_mi",
+            "type": "number",
+            "description": "Section length in miles."
+          },
+          {
+            "name": "n_trips",
+            "type": "integer",
+            "description": "Trips contributing in that hour (corridor rows: the fewest on any section)."
+          },
+          {
+            "name": "source",
+            "type": "string",
+            "description": "`gtfs_schedule` = derived from the published timetable; `gtfs_realtime_observed` = measured from bus GPS (LA Metro's public feed and Swiftly, duplicates removed)."
+          },
+          {
+            "name": "feed_version",
+            "type": "string",
+            "description": "Scheduled rows: publication date and commit of the LACMTA/gtfs_bus version used. Empty for measured rows."
+          }
+        ],
+        "primaryKey": [
+          "hour_start_utc",
+          "route",
+          "direction",
+          "section_id",
+          "source"
+        ]
+      },
+      "mediatype": "application/vnd.apache.parquet"
+    },
+    {
+      "name": "sunset-hourly-2025",
+      "title": "Sunset Bl and Cesar Chavez Av, Western Av to New High St: hourly scheduled speeds (2025)",
+      "path": "data/corridors/sunset/hourly/year=2025/sunset_speeds.parquet",
+      "format": "parquet",
+      "group": "sunset-hourly",
+      "description": "Scheduled speeds for lines 2, 4, 704. Hive-partitioned by local year.",
+      "profile": "tabular-data-resource",
+      "schema": {
+        "fields": [
+          {
+            "name": "corridor_id",
+            "type": "string",
+            "description": "Street identifier, matching corridors/<corridor_id>.json."
+          },
+          {
+            "name": "hour_start_utc",
+            "type": "datetime",
+            "description": "Start of the hour, UTC (ISO 8601)."
+          },
+          {
+            "name": "hour_start_local",
+            "type": "string",
+            "description": "Start of the hour in America/Los_Angeles with UTC offset, e.g. 2024-05-01T17:00:00-0700."
+          },
+          {
+            "name": "route",
+            "type": "string",
+            "description": "LA Metro bus line, e.g. 204, 754, 2, 4, 180, 217."
+          },
+          {
+            "name": "direction",
+            "type": "string",
+            "description": "northbound / southbound on Vermont Av; eastbound / westbound on the other corridors."
+          },
+          {
+            "name": "section_id",
+            "type": "string",
+            "description": "`corridor` for the whole street, or a section id (S1, S2, ...); see that street's sections file."
+          },
+          {
+            "name": "speed_mph",
+            "type": "number",
+            "description": "Average speed over the section in miles per hour, stops and signals included."
+          },
+          {
+            "name": "travel_time_min",
+            "type": "number",
+            "description": "Average minutes to traverse the section. Corridor rows sum the section averages."
+          },
+          {
+            "name": "length_mi",
+            "type": "number",
+            "description": "Section length in miles."
+          },
+          {
+            "name": "n_trips",
+            "type": "integer",
+            "description": "Trips contributing in that hour (corridor rows: the fewest on any section)."
+          },
+          {
+            "name": "source",
+            "type": "string",
+            "description": "`gtfs_schedule` = derived from the published timetable; `gtfs_realtime_observed` = measured from bus GPS (LA Metro's public feed and Swiftly, duplicates removed)."
+          },
+          {
+            "name": "feed_version",
+            "type": "string",
+            "description": "Scheduled rows: publication date and commit of the LACMTA/gtfs_bus version used. Empty for measured rows."
+          }
+        ],
+        "primaryKey": [
+          "hour_start_utc",
+          "route",
+          "direction",
+          "section_id",
+          "source"
+        ]
+      },
+      "mediatype": "application/vnd.apache.parquet"
+    },
+    {
+      "name": "sunset-hourly-2026",
+      "title": "Sunset Bl and Cesar Chavez Av, Western Av to New High St: hourly scheduled speeds (2026)",
+      "path": "data/corridors/sunset/hourly/year=2026/sunset_speeds.parquet",
+      "format": "parquet",
+      "group": "sunset-hourly",
+      "description": "Scheduled speeds for lines 2, 4, 704. Hive-partitioned by local year.",
+      "profile": "tabular-data-resource",
+      "schema": {
+        "fields": [
+          {
+            "name": "corridor_id",
+            "type": "string",
+            "description": "Street identifier, matching corridors/<corridor_id>.json."
+          },
+          {
+            "name": "hour_start_utc",
+            "type": "datetime",
+            "description": "Start of the hour, UTC (ISO 8601)."
+          },
+          {
+            "name": "hour_start_local",
+            "type": "string",
+            "description": "Start of the hour in America/Los_Angeles with UTC offset, e.g. 2024-05-01T17:00:00-0700."
+          },
+          {
+            "name": "route",
+            "type": "string",
+            "description": "LA Metro bus line, e.g. 204, 754, 2, 4, 180, 217."
+          },
+          {
+            "name": "direction",
+            "type": "string",
+            "description": "northbound / southbound on Vermont Av; eastbound / westbound on the other corridors."
+          },
+          {
+            "name": "section_id",
+            "type": "string",
+            "description": "`corridor` for the whole street, or a section id (S1, S2, ...); see that street's sections file."
+          },
+          {
+            "name": "speed_mph",
+            "type": "number",
+            "description": "Average speed over the section in miles per hour, stops and signals included."
+          },
+          {
+            "name": "travel_time_min",
+            "type": "number",
+            "description": "Average minutes to traverse the section. Corridor rows sum the section averages."
+          },
+          {
+            "name": "length_mi",
+            "type": "number",
+            "description": "Section length in miles."
+          },
+          {
+            "name": "n_trips",
+            "type": "integer",
+            "description": "Trips contributing in that hour (corridor rows: the fewest on any section)."
+          },
+          {
+            "name": "source",
+            "type": "string",
+            "description": "`gtfs_schedule` = derived from the published timetable; `gtfs_realtime_observed` = measured from bus GPS (LA Metro's public feed and Swiftly, duplicates removed)."
+          },
+          {
+            "name": "feed_version",
+            "type": "string",
+            "description": "Scheduled rows: publication date and commit of the LACMTA/gtfs_bus version used. Empty for measured rows."
+          }
+        ],
+        "primaryKey": [
+          "hour_start_utc",
+          "route",
+          "direction",
+          "section_id",
+          "source"
+        ]
+      },
+      "mediatype": "application/vnd.apache.parquet"
+    },
+    {
+      "name": "sunset-observed",
+      "title": "Sunset Bl and Cesar Chavez Av, Western Av to New High St: measured hourly speeds from bus GPS",
+      "path": "data/corridors/sunset/observed/sunset_observed_2026-11.csv",
+      "format": "csv",
+      "description": "One file per local month. Measured since November 2026.",
+      "profile": "tabular-data-resource",
+      "schema": {
+        "fields": [
+          {
+            "name": "corridor_id",
+            "type": "string",
+            "description": "Street identifier, matching corridors/<corridor_id>.json."
+          },
+          {
+            "name": "hour_start_utc",
+            "type": "datetime",
+            "description": "Start of the hour, UTC (ISO 8601)."
+          },
+          {
+            "name": "hour_start_local",
+            "type": "string",
+            "description": "Start of the hour in America/Los_Angeles with UTC offset, e.g. 2024-05-01T17:00:00-0700."
+          },
+          {
+            "name": "route",
+            "type": "string",
+            "description": "LA Metro bus line, e.g. 204, 754, 2, 4, 180, 217."
+          },
+          {
+            "name": "direction",
+            "type": "string",
+            "description": "northbound / southbound on Vermont Av; eastbound / westbound on the other corridors."
+          },
+          {
+            "name": "section_id",
+            "type": "string",
+            "description": "`corridor` for the whole street, or a section id (S1, S2, ...); see that street's sections file."
+          },
+          {
+            "name": "speed_mph",
+            "type": "number",
+            "description": "Average speed over the section in miles per hour, stops and signals included."
+          },
+          {
+            "name": "travel_time_min",
+            "type": "number",
+            "description": "Average minutes to traverse the section. Corridor rows sum the section averages."
+          },
+          {
+            "name": "length_mi",
+            "type": "number",
+            "description": "Section length in miles."
+          },
+          {
+            "name": "n_trips",
+            "type": "integer",
+            "description": "Trips contributing in that hour (corridor rows: the fewest on any section)."
+          },
+          {
+            "name": "source",
+            "type": "string",
+            "description": "`gtfs_schedule` = derived from the published timetable; `gtfs_realtime_observed` = measured from bus GPS (LA Metro's public feed and Swiftly, duplicates removed)."
+          },
+          {
+            "name": "feed_version",
+            "type": "string",
+            "description": "Scheduled rows: publication date and commit of the LACMTA/gtfs_bus version used. Empty for measured rows."
+          }
+        ]
+      }
+    },
+    {
+      "name": "sunset-sections",
+      "title": "Sunset Bl and Cesar Chavez Av, Western Av to New High St: sections",
+      "path": "data/corridors/sunset/sections.csv",
+      "format": "csv",
+      "profile": "tabular-data-resource",
+      "schema": {
+        "fields": [
+          {
+            "name": "corridor_id",
+            "type": "string",
+            "description": "Street identifier, matching corridors/<corridor_id>.json."
+          },
+          {
+            "name": "section_id",
+            "type": "string",
+            "description": "Section id; `corridor` is the whole street."
+          },
+          {
+            "name": "name",
+            "type": "string",
+            "description": "From cross street to cross street."
+          },
+          {
+            "name": "start_mi",
+            "type": "number",
+            "description": "Distance along the street's path where the section starts, miles."
+          },
+          {
+            "name": "end_mi",
+            "type": "number",
+            "description": "Where it ends, miles."
+          },
+          {
+            "name": "length_mi",
+            "type": "number",
+            "description": "Section length, miles."
+          }
+        ]
+      }
+    },
+    {
+      "name": "sunset-feed-versions",
+      "title": "Sunset Bl and Cesar Chavez Av, Western Av to New High St: timetable version in force for each date range",
+      "path": "data/corridors/sunset/feed_versions.csv",
+      "format": "csv",
+      "profile": "tabular-data-resource",
+      "schema": {
+        "fields": [
+          {
+            "name": "feed_version",
+            "type": "string",
+            "description": "GTFS version: publication date and git commit."
+          },
+          {
+            "name": "first_date",
+            "type": "string",
+            "description": "First service date it covers."
+          },
+          {
+            "name": "last_date",
+            "type": "string",
+            "description": "Last service date it covers."
+          },
+          {
+            "name": "days",
+            "type": "integer",
+            "description": "Number of service days."
+          }
+        ]
+      }
+    },
+    {
+      "name": "sunset-focus-sections",
+      "title": "Sunset Bl and Cesar Chavez Av, Western Av to New High St: short segments timed bus by bus",
+      "path": "data/corridors/sunset/focus_sections.csv",
+      "format": "csv",
+      "profile": "tabular-data-resource",
+      "schema": {
+        "fields": [
+          {
+            "name": "corridor_id",
+            "type": "string",
+            "description": "Street identifier, matching corridors/<corridor_id>.json."
+          },
+          {
+            "name": "focus_id",
+            "type": "string",
+            "description": "Short segment id (F1, F1a, ...), timed bus by bus."
+          },
+          {
+            "name": "name",
+            "type": "string",
+            "description": "From cross street to cross street."
+          },
+          {
+            "name": "start_mi",
+            "type": "number",
+            "description": "Distance along the street's path where the section starts, miles."
+          },
+          {
+            "name": "end_mi",
+            "type": "number",
+            "description": "Where it ends, miles."
+          },
+          {
+            "name": "length_mi",
+            "type": "number",
+            "description": "Section length, miles."
+          }
+        ]
+      }
+    },
+    {
+      "name": "sunset-focus-traversals",
+      "title": "Sunset Bl and Cesar Chavez Av, Western Av to New High St: every bus timed through the short segments",
+      "path": "data/corridors/sunset/observed/sunset_focus_traversals_2026-11.csv",
+      "format": "csv",
+      "description": "One file per local month.",
+      "profile": "tabular-data-resource",
+      "schema": {
+        "fields": [
+          {
+            "name": "corridor_id",
+            "type": "string",
+            "description": "Street identifier, matching corridors/<corridor_id>.json."
+          },
+          {
+            "name": "focus_id",
+            "type": "string",
+            "description": "Short segment id (F1, F1a, ...), timed bus by bus."
+          },
+          {
+            "name": "entered_utc",
+            "type": "string",
+            "description": "When the bus entered the segment, UTC."
+          },
+          {
+            "name": "entered_local",
+            "type": "string",
+            "description": "Same, Los Angeles time with offset."
+          },
+          {
+            "name": "route",
+            "type": "integer",
+            "description": "LA Metro bus line."
+          },
+          {
+            "name": "direction",
+            "type": "string",
+            "description": "Direction of travel."
+          },
+          {
+            "name": "vehicle_id",
+            "type": "integer",
+            "description": "Vehicle number from the GPS feed."
+          },
+          {
+            "name": "trip_id",
+            "type": "string",
+            "description": "GTFS trip id."
+          },
+          {
+            "name": "seconds",
+            "type": "number",
+            "description": "Seconds to cross the segment."
+          },
+          {
+            "name": "speed_mph",
+            "type": "number",
+            "description": "Segment length divided by crossing time, mph."
+          },
+          {
+            "name": "length_mi",
+            "type": "number",
+            "description": "Segment length, miles."
+          }
+        ]
+      }
+    },
+    {
+      "name": "sunset-focus-hourly",
+      "title": "Sunset Bl and Cesar Chavez Av, Western Av to New High St: short-segment crossing times by hour",
+      "path": "data/corridors/sunset/observed/sunset_focus_hourly_2026-11.csv",
+      "format": "csv",
+      "description": "One file per local month.",
+      "profile": "tabular-data-resource",
+      "schema": {
+        "fields": [
+          {
+            "name": "corridor_id",
+            "type": "string",
+            "description": "Street identifier, matching corridors/<corridor_id>.json."
+          },
+          {
+            "name": "focus_id",
+            "type": "string",
+            "description": "Short segment id (F1, F1a, ...), timed bus by bus."
+          },
+          {
+            "name": "hour_start_utc",
+            "type": "string",
+            "description": "Start of the hour, UTC (ISO 8601)."
+          },
+          {
+            "name": "hour_start_local",
+            "type": "string",
+            "description": "Start of the hour in America/Los_Angeles with UTC offset, e.g. 2024-05-01T17:00:00-0700."
+          },
+          {
+            "name": "route",
+            "type": "integer",
+            "description": "LA Metro bus line."
+          },
+          {
+            "name": "direction",
+            "type": "string",
+            "description": "Direction of travel."
+          },
+          {
+            "name": "length_mi",
+            "type": "number",
+            "description": "Segment length, miles."
+          },
+          {
+            "name": "n_trips",
+            "type": "integer",
+            "description": "Buses timed through the segment that hour."
+          },
+          {
+            "name": "median_s",
+            "type": "number",
+            "description": "Middle crossing time, seconds."
+          },
+          {
+            "name": "p20_s",
+            "type": "number",
+            "description": "20th percentile crossing time, seconds (faster buses)."
+          },
+          {
+            "name": "p80_s",
+            "type": "number",
+            "description": "80th percentile crossing time, seconds (slower buses)."
+          },
+          {
+            "name": "speed_mph_median",
+            "type": "number",
+            "description": "Segment length over the middle crossing time, mph."
           }
         ]
       }

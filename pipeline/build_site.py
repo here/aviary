@@ -124,8 +124,12 @@ if __name__ == "__main__":
     shutil.rmtree(site_data, ignore_errors=True)
     shutil.copytree(a.data, site_data, ignore=shutil.ignore_patterns("raw", "mds_telemetry_*", "vehicle_positions_*"))
     shutil.copy(a.data.parent / "datapackage.json", a.out.parent / "datapackage.json")
+    # Street definitions, referenced from datapackage.json as corridors/<id>.json
+    shutil.rmtree(a.out.parent / "corridors", ignore_errors=True)
+    shutil.copytree(a.data.parent / "corridors", a.out.parent / "corridors")
     files = sorted(f.relative_to(a.out.parent).as_posix() for f in site_data.rglob("*") if f.is_file())
-    listing = "".join(f'<li><a href="../{f}">{f}</a></li>' for f in ["datapackage.json"] + files)
+    defs = sorted(f"corridors/{q.name}" for q in (a.out.parent / "corridors").glob("*.json"))
+    listing = "".join(f'<li><a href="../{f}">{f}</a></li>' for f in ["datapackage.json"] + defs + files)
     (site_data / "index.html").write_text(
         '<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">'
         "<title>Vermont Av bus speeds: files</title><body style=\"font:15px/1.6 system-ui;max-width:60ch;margin:2rem auto;padding:0 16px\">"

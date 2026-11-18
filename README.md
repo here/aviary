@@ -44,7 +44,7 @@ summaries and need re-checking before publication.
 
 - **Page:** `python pipeline/build_site.py` writes a self-contained `_site/index.html` plus the downloadable archive. The workflow publishes it to GitHub Pages and Cloudflare.
 - **Archive:** `data/`, described by `datapackage.json`.
-- **Handoff notes for agents:** `AGENTS.md`. **Open work and next data sources:** `docs/ROADMAP.md`.
+- **Handoff notes for agents:** `AGENTS.md`. **Open work and next data sources:** `docs/ROADMAP.md`. **Crowdsourced data:** `docs/CROWDSOURCED_DATA.md`.
 
 ## What is in the archive
 

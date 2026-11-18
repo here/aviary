@@ -19,6 +19,7 @@ upcoming project gets a measured "before".
 |---|---|
 | `docs/ROADMAP.md` | Task tracker and the ordered list of data sources to explore |
 | `docs/EXPANSION_PLAN.md` | Before/after method and project status notes |
+| `docs/CROWDSOURCED_DATA.md` | Community-collected data (Telraam first) and why it matters here |
 | `docs/projects/` | Sourced research notes per project (Hollywood Bl, Fountain Av) and per data source being explored (Telraam) |
 | `corridors/*.json` | Street definitions: path, sections, bus lines, project dates, focus segments |
 | `pipeline/` | Backfills, roll-ups, data package and site builders (see each file's docstring) |

@@ -39,8 +39,7 @@ that makes a case visible, alongside official data rather than in place of it.
 monitoring sensors across the San Francisco Bay Area", showing active counters in San Francisco and Berkeley coloured
 by average daily vehicle volume, with counts of pedestrians, bikes and vehicles and the speed 85% of vehicles stay
 under. It pulls from Telraam's API and is a fiscally sponsored project of the nonprofit Community Streets. It does not
-cover Los Angeles, but it shows the kind of public view a set of LA counters could feed, and how little code that
-takes on top of Telraam's open data.
+cover Los Angeles, but it shows the kind of public view a set of LA counters could feed.
 
 ### Plan for Los Angeles
 

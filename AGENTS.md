@@ -94,9 +94,11 @@ from a local machine. The owner could not approve environment changes from a pho
 - **The hourly workflow works with R2.** Run 7 (manual, 2026-11-18 00:18 UTC) downloaded the minute files from R2,
   rolled them up, committed observed speeds, and wrote permanent daily files to R2 (`daily/` and `mds/` for
   2026-11-17 and 2026-11-18). The 7-day expiry on `raw/` is now safe as long as the workflow keeps running.
-- **Cloudflare deploy from CI fails**: the `CLOUDFLARE_API_TOKEN` secret (and the token saved in the cloud
-  environment) has zone permissions only, not account-level Workers Scripts / R2 edit. The step is now
-  `continue-on-error`, so it no longer blocks the GitHub Pages deploy. Fix by adding account permissions to the token.
+- **Full Cloudflare deploy from CI works** (run 9, 2026-11-18 00:54 UTC) after the owner added account-level Workers
+  Scripts and R2 edit permissions to the token. Both Workers (`aviary-vermont-speeds`, `aviary-gbfs-collector`) were
+  redeployed from `main`, replacing the interim bundled-page Worker. `aviary.herebox.org/data/` and
+  `/datapackage.json` now serve the archive. The deploy step stays `continue-on-error` so a future token problem
+  cannot block collection or Pages; check that step's result, not just the run's.
 - **Default branch is `main`**; Actions is enabled.
 - **GitHub Pages**: the workflow's Pages job deployed once (run 6). A separate `pages-build-deployment` workflow
   also runs, which means Pages may be set to "Deploy from a branch". It should be set to "GitHub Actions"

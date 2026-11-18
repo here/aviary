@@ -3,7 +3,7 @@
 Hourly bus speeds on Los Angeles streets being redesigned, starting with Vermont Avenue (LA Metro lines 204 and 754,
 2016 to today), with live GPS collection so each project has a measured "before". Built as a demo for CoMotion LA.
 
-**Outputs:** [aviary.herebox.org](https://aviary.herebox.org) (live charts) · [here.github.io/aviary](https://here.github.io/aviary/) (GitHub Pages mirror with data downloads; not live until Pages and Actions are enabled)
+**Outputs:** [aviary.herebox.org](https://aviary.herebox.org) (live charts) · [here.github.io/aviary](https://here.github.io/aviary/) (GitHub Pages mirror)
 
 **LADOT and Metro projects:** [Hollywood Blvd Safety and Mobility](https://ladotlivablestreets.org/projects/hollywood-blvd) · [Sunset Blvd / Cesar Chavez (Sunset East)](https://ladotlivablestreets.org/projects/sunset) · [Fountain Av Streetscape (City of West Hollywood, not LADOT)](docs/projects/fountain-av.md) · [Vermont Transit Corridor BRT](https://boardagendas.metro.net/board-report/2026-0025/) · [LADOT Livable Streets](https://ladotlivablestreets.org) · [LADOT news](https://ladot.lacity.gov/dotnews)
 
@@ -29,7 +29,8 @@ Formats: Parquet and CSV described by a Frictionless `datapackage.json`; GPS pin
 | Bus collector status | https://aviary.herebox.org/api/status | Live, every minute (lines 204, 754, 2, 4) |
 | Archived bus pings | https://aviary.herebox.org/api/files?prefix=raw/ | Live |
 | Bike and scooter collector status | https://aviary.herebox.org/gbfs/status | Live, every 10 minutes |
-| GitHub Pages mirror | https://here.github.io/aviary/ | Not live until Pages and Actions are enabled |
+| Archive downloads | https://aviary.herebox.org/data/ and https://aviary.herebox.org/datapackage.json | Live, rebuilt hourly |
+| GitHub Pages mirror | https://here.github.io/aviary/ | Deployed by the hourly workflow |
 
 ## Project notes
 

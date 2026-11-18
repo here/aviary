@@ -105,9 +105,20 @@ before/after is not bus-only. Facts about programs, prices and terms below are f
 |---|---|---|
 | C1 | Verify project facts (extents, dates) against LADOT, West Hollywood and Metro pages | next (sources in `docs/projects/`, `docs/EXPANSION_PLAN.md`) |
 | C2 | Correct `corridors/fountain.json` coordinates (currently approximate) | next |
-| C3 | Collisions before/after for each street (LAPD open data, SWITRS/TIMS) | next (data.lacity.org is now reachable from the session) |
+| C3 | Collisions before/after for each street | moved to E1 (CCRS replaces the LAPD file, which stopped in March 2025) |
 | C4 | Before/after panel on the page (treated versus control) | later |
 | C5 | Lane-closure data (WZDx-style) from BOE / LADOT permits to flag hours affected by work zones | later |
+
+## E. Safety, incidents and conditions (queued 2026-11-18)
+
+Assessment, with sources checked: [`docs/projects/safety_and_incident_data.md`](projects/safety_and_incident_data.md).
+
+| # | Item | Source | Status |
+|---|---|---|---|
+| E1 | Collisions per section and year (severity, weather, lighting, road surface) | CCRS on data.ca.gov: open, 2016 to present, includes LAPD, lat/lon. First check why LAPD counts drop from 2016 to 2024 | queued |
+| E2 | Traffic incidents (accidents, closures, roadworks) as an hourly flag per section | TomTom Incident Details v5 with the existing key; present-only, so collect every 15 minutes from now on | queued (do soon: history is not recoverable) |
+| E3 | Hourly weather and daylight to compare speeds under different conditions | NOAA ASOS (downtown USC, LAX); host to be allowed | queued |
+| E4 | Emergency response travel time near each corridor | LAFD Station Response Metrics (monthly per station, 2016 to 2026-09); LA County Fire for Fountain Av needs a request | queued |
 
 ## D. Operations
 

@@ -41,3 +41,4 @@ hollywood,2026-11-18T03:00:00Z,2026-11-17T19:00:00-0800,217,westbound,S1,7.4,5.5
 hollywood,2026-11-18T03:00:00Z,2026-11-17T19:00:00-0800,217,westbound,S2,8.88,1.62,0.24,3,gtfs_realtime_observed,
 hollywood,2026-11-18T03:00:00Z,2026-11-17T19:00:00-0800,217,westbound,S3,11.42,3.99,0.759,4,gtfs_realtime_observed,
 hollywood,2026-11-18T03:00:00Z,2026-11-17T19:00:00-0800,217,westbound,S4,6.84,8.81,1.004,3,gtfs_realtime_observed,
+hollywood,2026-11-18T04:00:00Z,2026-11-17T20:00:00-0800,180,eastbound,S4,3.88,15.53,1.004,1,gtfs_realtime_observed,

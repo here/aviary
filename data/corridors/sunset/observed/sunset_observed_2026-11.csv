@@ -294,3 +294,5 @@ sunset,2026-11-18T03:00:00Z,2026-11-17T19:00:00-0800,4,westbound,S3,10.92,8.26,1
 sunset,2026-11-18T03:00:00Z,2026-11-17T19:00:00-0800,4,westbound,S4,7.82,5.71,0.744,3,gtfs_realtime_observed,
 sunset,2026-11-18T03:00:00Z,2026-11-17T19:00:00-0800,4,westbound,S5,11.7,4.55,0.887,3,gtfs_realtime_observed,
 sunset,2026-11-18T03:00:00Z,2026-11-17T19:00:00-0800,4,westbound,S6,4.15,7.19,0.497,2,gtfs_realtime_observed,
+sunset,2026-11-18T04:00:00Z,2026-11-17T20:00:00-0800,2,eastbound,S3,7.64,11.81,1.504,3,gtfs_realtime_observed,
+sunset,2026-11-18T04:00:00Z,2026-11-17T20:00:00-0800,4,westbound,S6,6.83,4.37,0.497,2,gtfs_realtime_observed,

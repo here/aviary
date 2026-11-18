@@ -16,7 +16,7 @@ before/after is not bus-only. Facts about programs, prices and terms below are f
 
 | # | Source | What it adds | Access | Status |
 |---|---|---|---|---|
-| A1 | **Live traffic speed API (HERE or TomTom)** | General-traffic speed on each street segment, collected from now on, beside the bus data | Free developer tier; key goes in the URL | **in progress**: HERE collector built (`worker/traffic.js`); TomTom key requested by the owner (pending), plan below. Both need a check of the storage terms. See "A1 details" |
+| A1 | **Live traffic speed API (HERE or TomTom)** | General-traffic speed on each street segment, collected from now on, beside the bus data | Free developer tier; key goes in the URL | **in progress**: **TomTom collecting since 2026-11-18 04:55 UTC** (22 tiles every 15 minutes). Next: roll-up into hourly general-traffic speeds per section, then the page. Storage terms still to check. HERE built but unused. See "A1 details" |
 | A2 | Strava Metro | Bike and run counts by street segment, history | Free for agencies and approved researchers; apply | next (owner applies) |
 | A3 | LADOT data request: Waze for Cities speeds and jams, MDS scooter trips, speed surveys for the study streets | Waze history (LADOT is a partner), scooter trips before/after, measured car speeds | Request to LADOT | next (owner sends) |
 | A4 | Metro Bike Share trip history | Station-to-station trips near the corridors, since 2016 | Open CSV | later |
@@ -51,7 +51,19 @@ before/after is not bus-only. Facts about programs, prices and terms below are f
   15 minutes is about 1,000 to 2,100 requests a day. Unknowns to settle with the first key test: which zoom includes
   arterials like Vermont and Sunset, the exact `attributes` syntax for `absolute_speed`, the free tile quota for
   Orbis, and the storage terms.
-- **Plan once the TomTom key arrives**: (1) store it with the secure form as header `TomTom-Api-Key` for host
+- **TomTom working (2026-11-18)**: key tested from this session (header `TomTom-Api-Key`, saved on the `aviary`
+  environment) and from the Worker (secret `TOMTOM_API_KEY` from the repository secret). Arterials appear at zooms 12
+  to 14. `attributes=tags(absolute_speed,relative_speed,road_category,road_closure,part_of_two_way_road,openlr),roadCategories(primary,secondary,tertiary)`
+  works (a `;` separator is rejected). First stored run: 22 of 22 tiles, 3,079 road pieces (primary, secondary,
+  tertiary), median 25 km/h at 20:55 local, about 150 KB gzipped per run, about 14 MB a day. Vermont shows as many
+  short pieces in both directions (for example 20 to 35 km/h around Wilshire Bl at 20:00).
+- **Roll-up to build next**: decode with `mapbox-vector-tile` (pass `y_coord_down=True`, convert tile pixels with
+  extent 4096 to longitude and latitude), keep pieces whose shape lies along a corridor path (`polyline.py`
+  `locate()`, within about 25 m, direction from the order of points), and write hourly length-weighted speeds per
+  section and direction with `source = tomtom_traffic_flow`. **Package conflict**: `mapbox-vector-tile` pulled
+  protobuf down to 6.x while `gtfs-realtime-bindings` 3.0 needs protobuf 7.34 or later; pin compatible versions (or
+  run the two decoders in separate steps) before adding it to `requirements.txt`.
+- **Original plan, for reference**: (1) store it with the secure form as header `TomTom-Api-Key` for host
   `api.tomtom.com` and test zooms 12 to 14 on one Vermont tile; (2) add a TomTom path to `worker/traffic.js` that
   fetches the tile list every 15 minutes and stores the raw tiles in R2 under `traffic/tomtom/` (decoding happens
   later in Python, not in the Worker, to stay inside its CPU limit); (3) repository secret `TOMTOM_API_KEY` for the

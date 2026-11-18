@@ -1,0 +1,46 @@
+# Weekly: refresh the measured bus speed history from Cal-ITP's public speed maps (bucket calitp-map-tiles).
+# Cal-ITP adds a new analysis day roughly once a month; the hourly workflow then puts it on the page.
+name: Refresh Cal-ITP history
+on:
+  schedule:
+    - cron: "37 9 * * 4"   # Thursdays
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: aviary-vermont-speeds-publish   # same group as the hourly workflow, so the two never push at once
+  cancel-in-progress: false
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 20
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: Cache downloaded speed maps
+        uses: actions/cache@v5
+        with:
+          path: run/calitp
+          key: calitp-maps-${{ github.run_id }}
+          restore-keys: calitp-maps-
+      - name: Download LA Metro speed maps and roll up to street sections
+        run: python pipeline/fetch_calitp_history.py
+      - name: Commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          python pipeline/build_datapackage.py
+          git add data/calitp data/corridors datapackage.json
+          git diff --cached --quiet && exit 0
+          git commit -m "Cal-ITP speed history $(date -u +%F)"
+          for attempt in 1 2 3 4; do
+            git push && break
+            sleep $((attempt * 5))
+            git pull --rebase -X theirs origin main
+          done

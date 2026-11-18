@@ -32,6 +32,22 @@ HOURLY_FIELDS = [
     ("feed_version", "string", "Scheduled rows: publication date and commit of the LACMTA/gtfs_bus version used. Empty for measured rows."),
 ]
 CORRIDOR_ID = ("corridor_id", "string", "Street identifier, matching corridors/<corridor_id>.json.")
+HISTORY_FIELDS = [
+    ("corridor_id", "string", "Street identifier."),
+    ("analysis_date", "date", "Day Cal-ITP analysed (a Wednesday)."),
+    ("period", "string", "Cal-ITP time of day: Owl, Early AM, AM Peak, Midday, PM Peak, Evening (All day in early files)."),
+    ("hours", "string", "Clock hours of the period, local time."),
+    ("route", "string", "LA Metro bus line."),
+    ("direction", "string", "Direction of travel along the street, from the order of the segment's two stops."),
+    ("section_id", "string", "Section id; see that street's sections file."),
+    ("p20_mph", "number", "20th percentile measured bus speed over the section (distance over summed segment travel time)."),
+    ("p50_mph", "number", "Median measured bus speed over the section."),
+    ("p80_mph", "number", "80th percentile measured bus speed over the section."),
+    ("length_mi", "number", "Section length in miles."),
+    ("coverage", "number", "Share of the section covered by matched stop-to-stop segments."),
+    ("n_trips", "integer", "Fewest trips on any contributing segment."),
+    ("source", "string", "`calitp_segment_speeds` = Cal-ITP public speed maps (bucket calitp-map-tiles)."),
+]
 TRAFFIC_FIELDS = [
     ("corridor_id", "string", "Street identifier (`vermont`, or matching corridors/<corridor_id>.json)."),
     ("hour_start_utc", "datetime", "Start of the hour, UTC (ISO 8601)."),
@@ -134,6 +150,9 @@ def main() -> None:
         "csv", None, schema(HOURLY_FIELDS), compression="gz", mediatype="text/csv")
     add("vermont-observed", "Vermont Av: measured hourly speeds from bus GPS", paths(root, "data/observed/vermont_observed_*.csv"), "csv",
         "One file per local month. Measured since November 2026.", schema(HOURLY_FIELDS))
+    add("vermont-calitp-history", "Vermont Av: measured bus speed history from Cal-ITP, by date and time of day", "data/calitp/vermont_calitp_history.csv"
+        if (root / "data/calitp/vermont_calitp_history.csv").exists() else None, "csv",
+        "Roughly monthly Wednesdays since October 2024, from Cal-ITP's public speed maps.", schema(HISTORY_FIELDS))
     add("vermont-traffic", "Vermont Av: hourly general-traffic speeds (TomTom)", paths(root, "data/traffic/vermont_traffic_*.csv"), "csv",
         "One file per local month. Collected since November 2026.", schema(TRAFFIC_FIELDS))
     if (root / "data/sections.csv").exists():
@@ -153,6 +172,9 @@ def main() -> None:
         cid, name = cfg["corridor_id"], cfg["name"]
         d = root / "data" / "corridors" / cid
         has_bus = (d / "hourly").exists()
+        hist = d / "calitp" / f"{cid}_calitp_history.csv"
+        add(f"{cid}-calitp-history", f"{name}: measured bus speed history from Cal-ITP", hist.as_posix() if hist.exists() else None, "csv",
+            "Roughly monthly Wednesdays since October 2024, from Cal-ITP's public speed maps.", schema(HISTORY_FIELDS))
         add(f"{cid}-traffic", f"{name}: hourly general-traffic speeds (TomTom)", paths(root, f"data/corridors/{cid}/traffic/{cid}_traffic_*.csv"),
             "csv", "One file per local month. Collected since November 2026.", schema(TRAFFIC_FIELDS))
         add(f"{cid}-definition", f"{name}: definition", cfg_path.as_posix(), "json",
@@ -203,6 +225,7 @@ def main() -> None:
             {"title": "LA Metro realtime API (GTFS-realtime vehicle positions)", "path": "https://api.metro.net"},
             {"title": "Swiftly realtime API for LA Metro (GTFS-realtime vehicle positions)", "path": "https://api.goswift.ly"},
             {"title": "Cal-ITP / Caltrans Average Transit Speeds by Stop", "path": "https://data.ca.gov/dataset/average-transit-speeds-by-stop"},
+            {"title": "Cal-ITP public speed maps (Google Cloud Storage bucket calitp-map-tiles)", "path": "https://storage.googleapis.com/storage/v1/b/calitp-map-tiles/o?prefix=segment_speeds_"},
             {"title": "TomTom Orbis Traffic API v2 (traffic flow tiles)", "path": "https://docs.tomtom.com/traffic-api/documentation/tomtom-orbis-maps/v2/product-information/introduction"},
         ],
         "resources": resources,

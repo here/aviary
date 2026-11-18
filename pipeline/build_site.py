@@ -70,6 +70,15 @@ def traffic_rows(files: list) -> list:
              "mph": round(float(r.speed_mph), 2), "day": day(r.t.weekday())} for r in t.itertuples()]
 
 
+def history_rows(path: pathlib.Path) -> list:
+    """Cal-ITP measured segment speeds rolled up to sections, one row per date, period, line, direction, section."""
+    if not path.exists():
+        return []
+    h = pd.read_csv(path, dtype={"route": str}).dropna(subset=["p50_mph"])
+    return [{"date": r.analysis_date, "period": r.period, "route": r.route, "direction": r.direction, "section": r.section_id,
+             "p50": float(r.p50_mph), "len": float(r.length_mi)} for r in h.itertuples()]
+
+
 def focus_rows(root: pathlib.Path, cid: str) -> list:
     """Per focus segment and direction: bus passes timed so far, median and spread in seconds."""
     files = sorted((root / "observed").glob(f"{cid}_focus_traversals_*.csv"))
@@ -106,6 +115,7 @@ if __name__ == "__main__":
                     "end": r.end_hour, "p20": r.p20_mph, "p50": r.p50_mph, "p80": r.p80_mph} for r in calitp.itertuples()],
         "live": live_rows(sorted((a.data / "observed").glob("vermont_observed_*.csv"))),
         "traffic": traffic_rows(sorted((a.data / "traffic").glob("vermont_traffic_*.csv"))),
+        "history": history_rows(a.data / "calitp" / "vermont_calitp_history.csv"),
         "focus": [],
     }}
     planned = []
@@ -125,7 +135,7 @@ if __name__ == "__main__":
                 "name": cfg["name"].split(",")[0], "street": cfg["name"].split(",")[0], "ends": ["West", "East"],
                 "routes": [], "directions": [cfg["directions"]["increasing"], cfg["directions"]["decreasing"]],
                 "sections": [pc.total] + pc.sections, "breakpoints": [b[0] for b in cfg["breakpoints"]],
-                "events": events, "calitp": [], "live": [], "traffic": traffic, "focus": [],
+                "events": events, "calitp": [], "live": [], "traffic": traffic, "history": [], "focus": [],
             }
             continue
         sec = pd.read_csv(root / "sections.csv")
@@ -141,6 +151,7 @@ if __name__ == "__main__":
             "calitp": [],
             "live": live_rows(sorted((root / "observed").glob(f"{cfg['corridor_id']}_observed_*.csv"))),
             "traffic": traffic,
+            "history": history_rows(root / "calitp" / f"{cfg['corridor_id']}_calitp_history.csv"),
             "focus": focus_rows(root, cfg["corridor_id"]),
         }
     order = ["vermont", "hollywood", "sunset", "fountain"]  # street picker order

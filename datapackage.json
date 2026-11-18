@@ -5,7 +5,7 @@
   "profile": "data-package",
   "version": "0.2.0",
   "created": "2026-11-17T00:00:00Z",
-  "updated": "2026-11-18T06:04:45Z",
+  "updated": "2026-11-18T07:18:33Z",
   "homepage": "https://aviary.herebox.org",
   "keywords": [
     "Los Angeles",
@@ -40,6 +40,10 @@
     {
       "title": "Cal-ITP / Caltrans Average Transit Speeds by Stop",
       "path": "https://data.ca.gov/dataset/average-transit-speeds-by-stop"
+    },
+    {
+      "title": "Cal-ITP public speed maps (Google Cloud Storage bucket calitp-map-tiles)",
+      "path": "https://storage.googleapis.com/storage/v1/b/calitp-map-tiles/o?prefix=segment_speeds_"
     },
     {
       "title": "TomTom Orbis Traffic API v2 (traffic flow tiles)",
@@ -1710,6 +1714,88 @@
       }
     },
     {
+      "name": "vermont-calitp-history",
+      "title": "Vermont Av: measured bus speed history from Cal-ITP, by date and time of day",
+      "path": "data/calitp/vermont_calitp_history.csv",
+      "format": "csv",
+      "description": "Roughly monthly Wednesdays since October 2024, from Cal-ITP's public speed maps.",
+      "profile": "tabular-data-resource",
+      "schema": {
+        "fields": [
+          {
+            "name": "corridor_id",
+            "type": "string",
+            "description": "Street identifier."
+          },
+          {
+            "name": "analysis_date",
+            "type": "date",
+            "description": "Day Cal-ITP analysed (a Wednesday)."
+          },
+          {
+            "name": "period",
+            "type": "string",
+            "description": "Cal-ITP time of day: Owl, Early AM, AM Peak, Midday, PM Peak, Evening (All day in early files)."
+          },
+          {
+            "name": "hours",
+            "type": "string",
+            "description": "Clock hours of the period, local time."
+          },
+          {
+            "name": "route",
+            "type": "string",
+            "description": "LA Metro bus line."
+          },
+          {
+            "name": "direction",
+            "type": "string",
+            "description": "Direction of travel along the street, from the order of the segment's two stops."
+          },
+          {
+            "name": "section_id",
+            "type": "string",
+            "description": "Section id; see that street's sections file."
+          },
+          {
+            "name": "p20_mph",
+            "type": "number",
+            "description": "20th percentile measured bus speed over the section (distance over summed segment travel time)."
+          },
+          {
+            "name": "p50_mph",
+            "type": "number",
+            "description": "Median measured bus speed over the section."
+          },
+          {
+            "name": "p80_mph",
+            "type": "number",
+            "description": "80th percentile measured bus speed over the section."
+          },
+          {
+            "name": "length_mi",
+            "type": "number",
+            "description": "Section length in miles."
+          },
+          {
+            "name": "coverage",
+            "type": "number",
+            "description": "Share of the section covered by matched stop-to-stop segments."
+          },
+          {
+            "name": "n_trips",
+            "type": "integer",
+            "description": "Fewest trips on any contributing segment."
+          },
+          {
+            "name": "source",
+            "type": "string",
+            "description": "`calitp_segment_speeds` = Cal-ITP public speed maps (bucket calitp-map-tiles)."
+          }
+        ]
+      }
+    },
+    {
       "name": "vermont-traffic",
       "title": "Vermont Av: hourly general-traffic speeds (TomTom)",
       "path": "data/traffic/vermont_traffic_2026-11.csv",
@@ -2001,6 +2087,88 @@
       "format": "json",
       "description": "Street path, section boundaries, bus lines and project dates. No bus data for this street yet.",
       "mediatype": "application/json"
+    },
+    {
+      "name": "hollywood-calitp-history",
+      "title": "Hollywood Bl, Highland Av to Vermont Av: measured bus speed history from Cal-ITP",
+      "path": "data/corridors/hollywood/calitp/hollywood_calitp_history.csv",
+      "format": "csv",
+      "description": "Roughly monthly Wednesdays since October 2024, from Cal-ITP's public speed maps.",
+      "profile": "tabular-data-resource",
+      "schema": {
+        "fields": [
+          {
+            "name": "corridor_id",
+            "type": "string",
+            "description": "Street identifier."
+          },
+          {
+            "name": "analysis_date",
+            "type": "date",
+            "description": "Day Cal-ITP analysed (a Wednesday)."
+          },
+          {
+            "name": "period",
+            "type": "string",
+            "description": "Cal-ITP time of day: Owl, Early AM, AM Peak, Midday, PM Peak, Evening (All day in early files)."
+          },
+          {
+            "name": "hours",
+            "type": "string",
+            "description": "Clock hours of the period, local time."
+          },
+          {
+            "name": "route",
+            "type": "string",
+            "description": "LA Metro bus line."
+          },
+          {
+            "name": "direction",
+            "type": "string",
+            "description": "Direction of travel along the street, from the order of the segment's two stops."
+          },
+          {
+            "name": "section_id",
+            "type": "string",
+            "description": "Section id; see that street's sections file."
+          },
+          {
+            "name": "p20_mph",
+            "type": "number",
+            "description": "20th percentile measured bus speed over the section (distance over summed segment travel time)."
+          },
+          {
+            "name": "p50_mph",
+            "type": "number",
+            "description": "Median measured bus speed over the section."
+          },
+          {
+            "name": "p80_mph",
+            "type": "number",
+            "description": "80th percentile measured bus speed over the section."
+          },
+          {
+            "name": "length_mi",
+            "type": "number",
+            "description": "Section length in miles."
+          },
+          {
+            "name": "coverage",
+            "type": "number",
+            "description": "Share of the section covered by matched stop-to-stop segments."
+          },
+          {
+            "name": "n_trips",
+            "type": "integer",
+            "description": "Fewest trips on any contributing segment."
+          },
+          {
+            "name": "source",
+            "type": "string",
+            "description": "`calitp_segment_speeds` = Cal-ITP public speed maps (bucket calitp-map-tiles)."
+          }
+        ]
+      }
     },
     {
       "name": "hollywood-traffic",
@@ -2956,6 +3124,88 @@
             "name": "days",
             "type": "integer",
             "description": "Number of service days."
+          }
+        ]
+      }
+    },
+    {
+      "name": "sunset-calitp-history",
+      "title": "Sunset Bl and Cesar Chavez Av, Western Av to New High St: measured bus speed history from Cal-ITP",
+      "path": "data/corridors/sunset/calitp/sunset_calitp_history.csv",
+      "format": "csv",
+      "description": "Roughly monthly Wednesdays since October 2024, from Cal-ITP's public speed maps.",
+      "profile": "tabular-data-resource",
+      "schema": {
+        "fields": [
+          {
+            "name": "corridor_id",
+            "type": "string",
+            "description": "Street identifier."
+          },
+          {
+            "name": "analysis_date",
+            "type": "date",
+            "description": "Day Cal-ITP analysed (a Wednesday)."
+          },
+          {
+            "name": "period",
+            "type": "string",
+            "description": "Cal-ITP time of day: Owl, Early AM, AM Peak, Midday, PM Peak, Evening (All day in early files)."
+          },
+          {
+            "name": "hours",
+            "type": "string",
+            "description": "Clock hours of the period, local time."
+          },
+          {
+            "name": "route",
+            "type": "string",
+            "description": "LA Metro bus line."
+          },
+          {
+            "name": "direction",
+            "type": "string",
+            "description": "Direction of travel along the street, from the order of the segment's two stops."
+          },
+          {
+            "name": "section_id",
+            "type": "string",
+            "description": "Section id; see that street's sections file."
+          },
+          {
+            "name": "p20_mph",
+            "type": "number",
+            "description": "20th percentile measured bus speed over the section (distance over summed segment travel time)."
+          },
+          {
+            "name": "p50_mph",
+            "type": "number",
+            "description": "Median measured bus speed over the section."
+          },
+          {
+            "name": "p80_mph",
+            "type": "number",
+            "description": "80th percentile measured bus speed over the section."
+          },
+          {
+            "name": "length_mi",
+            "type": "number",
+            "description": "Section length in miles."
+          },
+          {
+            "name": "coverage",
+            "type": "number",
+            "description": "Share of the section covered by matched stop-to-stop segments."
+          },
+          {
+            "name": "n_trips",
+            "type": "integer",
+            "description": "Fewest trips on any contributing segment."
+          },
+          {
+            "name": "source",
+            "type": "string",
+            "description": "`calitp_segment_speeds` = Cal-ITP public speed maps (bucket calitp-map-tiles)."
           }
         ]
       }

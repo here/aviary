@@ -94,7 +94,7 @@ before/after is not bus-only. Facts about programs, prices and terms below are f
 | B2 | Swiftly storage plan: roll-up plus expiry rule for `swiftly/`, or accept charges after ~3 months (10 GB free) | later (by February 2027) |
 | B3 | Lateness and bunching from Swiftly trip updates and vehicle positions | later (owner: secondary to travel time) |
 | B4 | Ask Swiftly whether historical exports are included with the key | waiting on owner |
-| B5 | Cal-ITP archived GTFS-realtime (measured history since ~2022) | waiting on owner: warehouse is internal to Caltrans (checked 2026-11-18); ask through a Caltrans or partner contact. Also check the public `calitp-map-tiles` bucket for past speed maps (needs `storage.googleapis.com` allowed). See `AGENTS.md` |
+| B5 | Cal-ITP measured history | **done (2026-11-18)**: Cal-ITP's public bucket `calitp-map-tiles` holds LA Metro speed maps for 14 Wednesdays since October 2024 (no PM peak since September 2025). `pipeline/fetch_calitp_history.py` rolls them up to sections; weekly workflow `calitp-history.yml` refreshes; chart "Measured bus speed over time". Older archive (2022 onward) still internal to Caltrans |
 | B6 | Check line 217's implausible 19.2 mph (Gower St to Western Av, 2021) | next |
 | B7 | Extend the Hollywood corridor east to Hillhurst Av (Phase 1 east end) | next |
 | B8 | Review a full day of focus-segment traversals for bad passes (GPS jumps, layovers) | next |

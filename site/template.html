@@ -164,7 +164,7 @@ code { font: 12.5px ui-monospace, SFMono-Regular, Menlo, monospace; background: 
   </header>
 
   <nav class="toc" aria-label="Page sections">
-    <a href="#measured">Measured</a><a href="#next-site" class="toc-focus">Next project site</a><a href="#projects">Projects</a><a href="#sources">Data sources</a><a href="#crowdsourced">Crowdsourced</a>
+    <a href="#measured">Measured</a><a href="#history" class="toc-history">Over time</a><a href="#next-site" class="toc-focus">Next project site</a><a href="#projects">Projects</a><a href="#sources">Data sources</a><a href="#crowdsourced">Crowdsourced</a>
   </nav>
 
   <section class="controls" aria-label="Filters">
@@ -185,6 +185,13 @@ code { font: 12.5px ui-monospace, SFMono-Regular, Menlo, monospace; background: 
     <p id="obs-sub"></p>
     <div class="legend" id="obs-legend"></div>
     <div class="chart" id="obs"></div>
+  </section>
+
+  <section class="panel" id="history" hidden>
+    <h2>Measured bus speed over time</h2>
+    <p id="hist-sub"></p>
+    <div class="legend" id="hist-legend"></div>
+    <div class="chart" id="hist"></div>
   </section>
 
   <section class="stats" id="stats" aria-live="polite"></section>
@@ -222,7 +229,7 @@ code { font: 12.5px ui-monospace, SFMono-Regular, Menlo, monospace; background: 
       <div><dt><a href="https://developer.metro.net" target="_blank" rel="noopener">LA Metro realtime API</a></dt><dd>Live bus positions every few seconds for lines 204, 754, 2 and 4. Open, no key.</dd></div>
       <div><dt><a href="https://www.goswift.ly" target="_blank" rel="noopener">Swiftly realtime API</a></dt><dd>Metro's realtime data provider: every bus once a minute, plus predicted arrivals. Keyed access.</dd></div>
       <div><dt><a href="https://docs.tomtom.com/traffic-api/documentation/tomtom-orbis-maps/v2/product-information/introduction" target="_blank" rel="noopener">TomTom Traffic API (Orbis v2)</a></dt><dd>General-traffic speed on each piece of road, collected every 15 minutes and matched to each street. Keyed access.</dd></div>
-      <div><dt><a href="https://data.ca.gov/dataset/average-transit-speeds-by-stop" target="_blank" rel="noopener">Cal-ITP average transit speeds</a></dt><dd>Caltrans' measured bus speeds by stop for one recent weekday. A cross-check on the timetable.</dd></div>
+      <div><dt><a href="https://data.ca.gov/dataset/average-transit-speeds-by-stop" target="_blank" rel="noopener">Cal-ITP average transit speeds</a></dt><dd>Caltrans' measured bus speeds by stop: one recent weekday on the open data portal, plus roughly monthly speed maps since October 2024 in a public storage bucket, used for the history chart.</dd></div>
       <div><dt><a href="https://github.com/MobilityData/gbfs/blob/master/systems.csv" target="_blank" rel="noopener">GBFS shared bikes and scooters</a></dt><dd>Public availability feeds from Bird and Metro Bike Share, recorded every 10 minutes. Not yet charted.</dd></div>
       <div><dt><a href="https://github.com/openmobilityfoundation/mobility-data-specification" target="_blank" rel="noopener">Open Mobility Foundation MDS</a></dt><dd>The standard used to export the bus GPS positions as vehicle telemetry.</dd></div>
       <div><dt><a href="#crowdsourced">Crowdsourced (planned)</a></dt><dd>Counts of cars, bikes and people collected by residents and community groups, without identifying anyone. See the options below.</dd></div>
@@ -242,7 +249,7 @@ code { font: 12.5px ui-monospace, SFMono-Regular, Menlo, monospace; background: 
   </section>
 
   <nav class="toc" aria-label="Page sections">
-    <a href="#measured">Measured</a><a href="#next-site" class="toc-focus">Next project site</a><a href="#projects">Projects</a><a href="#sources">Data sources</a><a href="#crowdsourced">Crowdsourced</a>
+    <a href="#measured">Measured</a><a href="#history" class="toc-history">Over time</a><a href="#next-site" class="toc-focus">Next project site</a><a href="#projects">Projects</a><a href="#sources">Data sources</a><a href="#crowdsourced">Crowdsourced</a>
   </nav>
   <footer class="site-foot">
     <a href="https://github.com/here/aviary" target="_blank" rel="noopener"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg><span>Code and documentation on GitHub</span></a>
@@ -382,6 +389,72 @@ function renderStreet() {
   $("#whole").hidden = state.sec === "corridor";
 }
 
+const HIST_PERIODS = { "AM Peak": 0, "Midday": 1, "PM Peak": 2, "Evening": 3 };  // index into BANDS (same clock hours)
+function renderHistory() {
+  const rows = (C.history || []).filter(r => r.route === state.route && r.period in HIST_PERIODS);
+  const dirs = state.dir === "both" ? C.directions : [state.dir];
+  const secIds = C.sections.slice(1).map(x => x.section_id);
+  // speed for one date and period: the chosen section, or the whole street when every section is present
+  const valueFor = (date, period) => {
+    const rs = rows.filter(r => r.date === date && r.period === period && dirs.includes(r.direction));
+    const perDir = dirs.map(d => {
+      const mine = rs.filter(r => r.direction === d);
+      if (state.sec !== "corridor") { const r = mine.find(x => x.section === state.sec); return r ? r.p50 : null; }
+      if (secIds.some(id => !mine.find(x => x.section === id))) return null;
+      return mine.reduce((s, r) => s + r.len, 0) / mine.reduce((s, r) => s + r.len / r.p50, 0);
+    });
+    return perDir.every(v => v) ? perDir.length / perDir.reduce((s, v) => s + 1 / v, 0) : null;
+  };
+  const dates = [...new Set(rows.map(r => r.date))].sort();
+  const ok = hasBus() && dates.length > 0;
+  $("#history").hidden = !ok;
+  document.querySelectorAll(".toc-history").forEach(a => { a.hidden = !ok; });
+  if (!ok) return;
+  const series = Object.entries(HIST_PERIODS).map(([period, bi]) => ({ period, band: BANDS[bi],
+    measured: dates.map(dt => valueFor(dt, period)),
+    sched: dates.map(dt => { const mi = C.months.indexOf(dt.slice(0, 7)); return mi < 0 ? null : avg([mi], BANDS[bi].h); }) }))
+    .filter(sr => sr.measured.some(v => v != null));
+  const d = describe();
+  $("#hist-sub").textContent = `${d.text}, ${d.where}. Median measured bus speed on roughly monthly Wednesdays since ${dates[0]}, from Cal-ITP (Caltrans). Dashed lines: the timetable for the same hours that month. Cal-ITP has published no PM-peak figures since September 2025.`;
+  $("#hist-legend").innerHTML = series.map(sr => `<span><i style="background:var(${sr.band.c})"></i>${sr.band.name}</span>`).join("") +
+    `<span><i style="background:repeating-linear-gradient(90deg,var(--ink-3) 0 4px,transparent 4px 7px)"></i>Timetable, same hours</span>`;
+  const host = $("#hist"), W = Math.max(300, host.clientWidth), H = 300, m = { l: 34, r: 12, t: 26, b: 26 };
+  const svg = svgIn(host, W, H);
+  const vals = series.flatMap(sr => [...sr.measured, ...sr.sched]).filter(v => v != null);
+  if (!vals.length) { el("text", { x: W / 2, y: H / 2, "text-anchor": "middle" }, svg, "No measured history for this selection"); return; }
+  const t0 = Date.parse(dates[0]), t1 = Date.parse(new Date().toISOString().slice(0, 10));
+  const lo = Math.floor(Math.min(...vals) - 0.5), hi = Math.ceil(Math.max(...vals) + 0.5);
+  const x = dt => m.l + (W - m.l - m.r) * (Date.parse(dt) - t0) / (t1 - t0 || 1), y = v => m.t + (H - m.t - m.b) * (1 - (v - lo) / (hi - lo));
+  for (const t of ticks(lo, hi, 6)) { el("line", { x1: m.l, x2: W - m.r, y1: y(t), y2: y(t), stroke: "var(--grid)" }, svg); el("text", { x: m.l - 6, y: y(t) + 4, "text-anchor": "end" }, svg, t); }
+  el("text", { x: 0, y: 10 }, svg, "mph");
+  for (let yr = +dates[0].slice(0, 4); yr <= new Date().getFullYear(); yr++) for (const mo of ["01", "07"]) {
+    const dt = `${yr}-${mo}-01`; if (Date.parse(dt) < t0 || Date.parse(dt) > t1) continue;
+    el("line", { x1: x(dt), x2: x(dt), y1: H - m.b, y2: H - m.b + 4, stroke: "var(--ink-3)" }, svg);
+    el("text", { x: x(dt), y: H - 6, "text-anchor": "middle" }, svg, (mo === "01" ? "Jan " : "Jul ") + yr);
+  }
+  C.events.filter(e => e.date && Date.parse(e.date.slice(0, 7) + "-01") >= t0).forEach(e => {
+    const dt = e.date.slice(0, 7) + "-01";
+    el("line", { x1: x(dt), x2: x(dt), y1: m.t, y2: H - m.b, stroke: "var(--accent)", "stroke-dasharray": "4 3" }, svg);
+    el("text", { x: x(dt) - 4, y: m.t - 8, "text-anchor": "end", class: "lab" }, svg, e.short);
+  });
+  const path = (arr, attrs) => { let p = "", pen = false; arr.forEach((v, i) => { if (v == null) { pen = false; return; } p += (pen ? "L" : "M") + x(dates[i]).toFixed(1) + " " + y(v).toFixed(1); pen = true; }); if (p) el("path", { d: p, fill: "none", "stroke-linejoin": "round", "stroke-linecap": "round", ...attrs }, svg); };
+  for (const sr of series) {
+    path(sr.sched, { stroke: `var(${sr.band.c})`, "stroke-width": 1.5, "stroke-dasharray": "4 3", opacity: .8 });
+    path(sr.measured, { stroke: `var(${sr.band.c})`, "stroke-width": 2 });
+    sr.measured.forEach((v, i) => { if (v != null) el("circle", { cx: x(dates[i]), cy: y(v), r: 3.5, fill: `var(${sr.band.c})`, stroke: "var(--surface)", "stroke-width": 1.5 }, svg); });
+  }
+  const cross = el("line", { y1: m.t, y2: H - m.b, stroke: "var(--ink-2)", visibility: "hidden" }, svg);
+  const hit = el("rect", { x: m.l, y: m.t, width: W - m.l - m.r, height: H - m.t - m.b, fill: "transparent" }, svg);
+  hit.addEventListener("pointermove", ev => {
+    const r = svg.getBoundingClientRect(), px = (ev.clientX - r.left) * W / r.width;
+    let i = 0; dates.forEach((dt, k) => { if (Math.abs(x(dt) - px) < Math.abs(x(dates[i]) - px)) i = k; });
+    cross.setAttribute("x1", x(dates[i])); cross.setAttribute("x2", x(dates[i])); cross.setAttribute("visibility", "visible");
+    showTip(`<b>${new Date(dates[i] + "T12:00").toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</b>` +
+      series.map(sr => row(sr.band.c, sr.band.name, sr.measured[i] == null ? "–" : `${f1(sr.measured[i])} mph` + (sr.sched[i] ? ` (timetable ${f1(sr.sched[i])})` : ""))).join(""), ev.clientX, ev.clientY);
+  });
+  hit.addEventListener("pointerleave", () => { hideTip(); cross.setAttribute("visibility", "hidden"); });
+}
+
 function renderObs() {
   const host = $("#obs"), W = Math.max(300, host.clientWidth), H = 300, m = { l: 34, r: 10, t: 26, b: 26 };
   const recent = Array.from({ length: Math.min(3, M) }, (_, i) => M - 1 - i);
@@ -488,7 +561,7 @@ function renderFocus() {
 }
 function render() {
   useCorridor(); renderControls();
-  renderStats(); renderStreet(); renderObs(); renderFocus();
+  renderStats(); renderStreet(); renderObs(); renderHistory(); renderFocus();
 }
 function set(k, v) { state[k] = v; try { localStorage.setItem("aviary-filters-2", JSON.stringify(state)); } catch (e) {} render(); }
 $("#whole").onclick = () => set("sec", "corridor");

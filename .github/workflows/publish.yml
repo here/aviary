@@ -42,8 +42,10 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 20  # enough history for the commit step to rebase onto a moved main
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
           cache: pip
@@ -103,7 +105,7 @@ jobs:
 
       - name: Or keep them as a workflow artifact
         if: env.AWS_ACCESS_KEY_ID == '' && hashFiles('run/export/*') != ''
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: pings-${{ github.run_id }}
           path: run/export
@@ -116,14 +118,20 @@ jobs:
           python pipeline/build_datapackage.py
           git add data/observed data/corridors data/traffic datapackage.json
           git diff --cached --quiet || git commit -m "Observed speeds $(date -u +%Y-%m-%dT%H:00Z)"
-          git push
+          # main may have moved while this run worked (a code push, another run): rebase onto it and retry.
+          # On a conflict in data files, keep this run's freshly computed version ("theirs" during a rebase).
+          for attempt in 1 2 3 4; do
+            git push && break
+            sleep $((attempt * 5))
+            git pull --rebase -X theirs origin main
+          done
 
       - name: Build the site
         run: |
           python pipeline/build_datapackage.py
           python pipeline/build_site.py
 
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@v5
         with:
           path: _site
 
@@ -155,4 +163,4 @@ jobs:
       url: ${{ steps.deploy.outputs.page_url }}
     steps:
       - id: deploy
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5

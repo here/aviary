@@ -33,6 +33,15 @@ The same coverage noted that San Francisco's transportation agency said it could
 in its own decisions. The lesson for this project: crowdsourced counts are strongest as a transparent public record
 that makes a case visible, alongside official data rather than in place of it.
 
+### Example: a live map of Bay Area counters
+
+[Transpo Maps: Traffic Monitoring](https://transpomaps.org/projects/telraam/) is "a live map of Telraam traffic
+monitoring sensors across the San Francisco Bay Area", showing active counters in San Francisco and Berkeley coloured
+by average daily vehicle volume, with counts of pedestrians, bikes and vehicles and the speed 85% of vehicles stay
+under. It pulls from Telraam's API and is a fiscally sponsored project of the nonprofit Community Streets. It does not
+cover Los Angeles, but it shows the kind of public view a set of LA counters could feed, and how little code that
+takes on top of Telraam's open data.
+
 ### Plan for Los Angeles
 
 Site list, data integration and next steps are in [`docs/projects/telraam.md`](projects/telraam.md). In short:

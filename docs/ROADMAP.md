@@ -16,7 +16,7 @@ before/after is not bus-only. Facts about programs, prices and terms below are f
 
 | # | Source | What it adds | Access | Status |
 |---|---|---|---|---|
-| A1 | **Live traffic speed API (HERE, alternative TomTom)** | General-traffic speed on each street segment, collected from now on, beside the bus data | Free developer tier; key goes in the URL | **in progress**: collector built (`worker/traffic.js`), waiting for the owner's key and a check of the storage terms. See "A1 details" |
+| A1 | **Live traffic speed API (HERE or TomTom)** | General-traffic speed on each street segment, collected from now on, beside the bus data | Free developer tier; key goes in the URL | **in progress**: HERE collector built (`worker/traffic.js`); TomTom key requested by the owner (pending), plan below. Both need a check of the storage terms. See "A1 details" |
 | A2 | Strava Metro | Bike and run counts by street segment, history | Free for agencies and approved researchers; apply | next (owner applies) |
 | A3 | LADOT data request: Waze for Cities speeds and jams, MDS scooter trips, speed surveys for the study streets | Waze history (LADOT is a partner), scooter trips before/after, measured car speeds | Request to LADOT | next (owner sends) |
 | A4 | Metro Bike Share trip history | Station-to-station trips near the corridors, since 2016 | Open CSV | later |
@@ -39,6 +39,25 @@ before/after is not bus-only. Facts about programs, prices and terms below are f
   (Vermont; Hollywood plus Fountain; Sunset / Cesar Chavez), so collecting every 30 minutes is about
   4,300 requests a month, inside the free 5,000 a month listed on HERE's pricing page (verify).
   Alternative: TomTom Flow Segment Data, one request per point, so many more requests.
+- **TomTom option (owner requested a key, 2026-11-18)**: the Orbis Maps Traffic API v2
+  ([docs](https://docs.tomtom.com/traffic-api/documentation/tomtom-orbis-maps/v2/product-information/introduction))
+  serves flow only as **map tiles** (vector tiles in protobuf, or images); the older per-point "Flow Segment Data" is
+  not part of v2. Vector tiles carry, per road piece: `relative_speed` (current over free-flow, 0 to 1),
+  `road_category`, `road_closure`, and on request `absolute_speed` (km/h), `part_of_two_way_road` and `openlr`
+  (a map-independent location reference). Endpoint
+  `https://api.tomtom.com/maps/orbis/traffic/flow/vector/tile/{z}/{x}/{y}?apiVersion=2`, optional `attributes`
+  to choose tags. **Key goes in the `TomTom-Api-Key` header** (preferred) or a `key` parameter, so this session can
+  test it through the secure form. Coverage: 11 tiles at zoom 13 or 22 at zoom 14 cover all study streets, so every
+  15 minutes is about 1,000 to 2,100 requests a day. Unknowns to settle with the first key test: which zoom includes
+  arterials like Vermont and Sunset, the exact `attributes` syntax for `absolute_speed`, the free tile quota for
+  Orbis, and the storage terms.
+- **Plan once the TomTom key arrives**: (1) store it with the secure form as header `TomTom-Api-Key` for host
+  `api.tomtom.com` and test zooms 12 to 14 on one Vermont tile; (2) add a TomTom path to `worker/traffic.js` that
+  fetches the tile list every 15 minutes and stores the raw tiles in R2 under `traffic/tomtom/` (decoding happens
+  later in Python, not in the Worker, to stay inside its CPU limit); (3) repository secret `TOMTOM_API_KEY` for the
+  Worker; (4) a roll-up that decodes tiles (`mapbox-vector-tile`), converts tile coordinates to longitude and
+  latitude, matches road pieces to corridor sections, and writes hourly general-traffic speeds.
+  If both keys arrive, TomTom alone is enough; HERE becomes a cross-check.
 - **Terms to check before turning it on**: both providers restrict storing or caching traffic data. Keeping raw
   responses and publishing derived speeds may need a different plan or permission. The owner should read the
   terms and decide.

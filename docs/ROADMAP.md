@@ -94,7 +94,7 @@ before/after is not bus-only. Facts about programs, prices and terms below are f
 | B2 | Swiftly storage plan: roll-up plus expiry rule for `swiftly/`, or accept charges after ~3 months (10 GB free) | later (by February 2027) |
 | B3 | Lateness and bunching from Swiftly trip updates and vehicle positions | later (owner: secondary to travel time) |
 | B4 | Ask Swiftly whether historical exports are included with the key | waiting on owner |
-| B5 | Cal-ITP archived GTFS-realtime (measured history since ~2022) | waiting on owner (request; see `AGENTS.md` Cal-ITP notes) |
+| B5 | Cal-ITP archived GTFS-realtime (measured history since ~2022) | waiting on owner: warehouse is internal to Caltrans (checked 2026-11-18); ask through a Caltrans or partner contact. Also check the public `calitp-map-tiles` bucket for past speed maps (needs `storage.googleapis.com` allowed). See `AGENTS.md` |
 | B6 | Check line 217's implausible 19.2 mph (Gower St to Western Av, 2021) | next |
 | B7 | Extend the Hollywood corridor east to Hillhurst Av (Phase 1 east end) | next |
 | B8 | Review a full day of focus-segment traversals for bad passes (GPS jumps, layovers) | next |
@@ -105,7 +105,7 @@ before/after is not bus-only. Facts about programs, prices and terms below are f
 |---|---|---|
 | C1 | Verify project facts (extents, dates) against LADOT, West Hollywood and Metro pages | next (sources in `docs/projects/`, `docs/EXPANSION_PLAN.md`) |
 | C2 | Correct `corridors/fountain.json` coordinates (currently approximate) | next |
-| C3 | Collisions before/after for each street (LAPD open data, SWITRS/TIMS) | next (needs data.lacity.org on the environment allowlist, or a local machine) |
+| C3 | Collisions before/after for each street (LAPD open data, SWITRS/TIMS) | next (data.lacity.org is now reachable from the session) |
 | C4 | Before/after panel on the page (treated versus control) | later |
 | C5 | Lane-closure data (WZDx-style) from BOE / LADOT permits to flag hours affected by work zones | later |
 

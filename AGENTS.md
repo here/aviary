@@ -40,7 +40,7 @@ upcoming project gets a measured "before".
 | Measured series | Monthly CSVs: `data/observed/` (Vermont), `data/corridors/<id>/observed/` (with bus-by-bus focus-segment timings for Sunset) |
 | General-traffic series | Monthly CSVs from TomTom flow tiles: `data/traffic/vermont_traffic_YYYY-MM.csv`, `data/corridors/<id>/traffic/<id>_traffic_YYYY-MM.csv` (speed, free-flow speed, coverage, closures per section and direction) |
 | Repository secrets | `CLOUDFLARE_ACCOUNT_ID`, `CLOUDFLARE_API_TOKEN` (account Workers + R2 edit, zone `herebox.org`), `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `SWIFTLY_API_KEY`, `TOMTOM_API_KEY`; `HERE_API_KEY` not set |
-| Cloud session environment `aviary` | Limited network allowlist (Cloudflare API, api.metro.net, gitlab.com, Caltrans GIS, data.ca.gov, aviary.herebox.org). Network secrets for `api.cloudflare.com`, `api.goswift.ly` (bare `Authorization` header) and `api.tomtom.com` (`TomTom-Api-Key` header). data.lacity.org, LADOT, github.io and operator sites are blocked; widen it from the environment settings on a computer (the owner cannot approve changes from the phone app) |
+| Cloud session environment `aviary` | Limited network allowlist (Cloudflare API, api.metro.net, gitlab.com, Caltrans GIS, data.ca.gov, aviary.herebox.org, and since 2026-11-18 docs.calitp.org, www.calitp.org, data.lacity.org, here.github.io). Network secrets for `api.cloudflare.com`, `api.goswift.ly` (bare `Authorization` header) and `api.tomtom.com` (`TomTom-Api-Key` header). LADOT and operator sites are still blocked; widen it from the environment settings on a computer (the owner cannot approve changes from the phone app) |
 
 Cloudflare: account ID `4c63641622d8786f6373a2430b970c25`, which owns the `herebox.org` zone.
 All Cloudflare resource names are prefixed `aviary-`. Use `aviary.herebox.org` for anything needing DNS.
@@ -138,7 +138,19 @@ come from search-result summaries; verify before quoting.
 
 ## Cal-ITP (measured history) notes
 
-*The access process below is from memory and has not been verified against Cal-ITP's site. Check it first.*
+**Checked against Cal-ITP's documentation on 2026-11-18** (`docs.calitp.org/data-infra`):
+- The data warehouse (BigQuery, JupyterHub, Metabase, dbt docs at `dbt-docs.dds.dot.ca.gov`) is **internal**: access
+  comes with Caltrans Division of Data and Digital Services onboarding, and the docs point staff to the Cal-ITP Slack
+  `#services-team` channel for help. There is **no published process for outside requests**, and `www.calitp.org`
+  lists no contact email. A request would go through a Caltrans or partner-agency contact, or as a question on the
+  public GitHub repository `cal-itp/data-infra`.
+- Public outputs: the California Open Data Portal (GTFS schedule data), the Caltrans geoportal (the speeds snapshot
+  this project already uses), the analytics portfolio `analysis.calitp.org` (unreachable from the session), and a
+  **public Google Cloud Storage bucket `calitp-map-tiles`** that holds the rendered speed maps from their realtime
+  analysis tools. That bucket may contain past LA Metro segment speeds by date: a lead worth checking (needs
+  `storage.googleapis.com` on the environment allowlist).
+
+*The notes below were written from memory before that check; where they disagree, the paragraph above wins.*
 
 - **What exists publicly**: "Average Transit Speeds by Stop" and "Average Transit Speeds by Route" on
   data.ca.gov, served from `caltrans-gis.dot.ca.gov` (ArcGIS FeatureServer, layers `Speeds_by_Stop_Segments`

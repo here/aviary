@@ -43,6 +43,8 @@ upcoming project gets a measured "before".
 | Repository secrets | `CLOUDFLARE_ACCOUNT_ID`, `CLOUDFLARE_API_TOKEN` (account Workers + R2 edit, zone `herebox.org`), `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `SWIFTLY_API_KEY`, `TOMTOM_API_KEY`; `HERE_API_KEY` not set |
 | Cloud session environment `aviary` | Limited network allowlist (Cloudflare API, api.metro.net, gitlab.com, Caltrans GIS, data.ca.gov, aviary.herebox.org, and since 2026-11-18 docs.calitp.org, www.calitp.org, data.lacity.org, here.github.io). Network secrets for `api.cloudflare.com`, `api.goswift.ly` (bare `Authorization` header) and `api.tomtom.com` (`TomTom-Api-Key` header). LADOT and operator sites are still blocked; widen it from the environment settings on a computer (the owner cannot approve changes from the phone app) |
 
+Commits: set the repository identity at the start of each session with `git config user.name "mike"` and `git config user.email "mike@herebox.org"`, so the owner is the author and committer; keep the Claude `Co-Authored-By` line in the message. The workflows commit as github-actions[bot].
+
 Cloudflare: account ID `4c63641622d8786f6373a2430b970c25`, which owns the `herebox.org` zone.
 All Cloudflare resource names are prefixed `aviary-`. Use `aviary.herebox.org` for anything needing DNS.
 

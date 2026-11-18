@@ -43,6 +43,20 @@ header { display: flex; flex-direction: column; gap: 10px; }
 .social a:hover { color: var(--ink); border-color: var(--ink-3); }
 .social a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .social svg { width: 18px; height: 18px; fill: currentColor; }
+.toc { display: flex; flex-wrap: wrap; gap: 6px; }
+.toc a { font-size: 13px; color: var(--ink-2); text-decoration: none; padding: 5px 10px; border: 1px solid var(--ring); border-radius: 999px; background: var(--surface); }
+.toc a:hover { color: var(--ink); border-color: var(--ink-3); }
+.toc a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+section[id], .notes[id] { scroll-margin-top: 16px; }
+table.plain td { white-space: normal; text-align: left; vertical-align: top; }
+table.plain th { text-align: left; }
+table.plain td:first-child { min-width: 14em; }
+table.plain a { color: var(--accent); }
+.sources { margin: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 28px; }
+@media (max-width: 760px) { .sources { grid-template-columns: minmax(0, 1fr); } }
+.sources dt { font-weight: 600; font-size: 14px; }
+.sources dt a { color: var(--accent); }
+.sources dd { margin: 2px 0 0; font-size: 13.5px; color: var(--ink-2); }
 .site-foot { display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 8px 14px;
   padding-top: 20px; border-top: 1px solid var(--grid); font-size: 13.5px; }
 .site-foot a { display: inline-flex; align-items: center; gap: 7px; color: var(--ink-2); text-decoration: none; }
@@ -144,6 +158,10 @@ code { font: 12.5px ui-monospace, SFMono-Regular, Menlo, monospace; background: 
     <p class="lede">How traffic moves on Los Angeles streets. Pick a street to see its record and the project dates on it.</p>
   </header>
 
+  <nav class="toc" aria-label="Page sections">
+    <a href="#trends">Trends</a><a href="#hours">By hour</a><a href="#measured">Measured</a><a href="#next-site" class="toc-focus">Next project site</a><a href="#stretches">Stretches</a><a href="#projects">Projects</a><a href="#sources">Data sources</a><a href="#method">Method</a>
+  </nav>
+
   <section class="stats" id="stats" aria-live="polite"></section>
 
   <section class="controls" aria-label="Filters">
@@ -159,7 +177,7 @@ code { font: 12.5px ui-monospace, SFMono-Regular, Menlo, monospace; background: 
     <ul class="events" id="events"></ul>
   </section>
 
-  <section class="panel">
+  <section class="panel" id="trends">
     <h2 id="ts-title">Scheduled speed by time of day, monthly</h2>
     <p id="ts-sub"></p>
     <div class="legend" id="ts-legend"></div>
@@ -167,13 +185,13 @@ code { font: 12.5px ui-monospace, SFMono-Regular, Menlo, monospace; background: 
   </section>
 
   <div class="two">
-    <section class="panel">
+    <section class="panel" id="hours">
       <h2>Every hour of the day, year by year</h2>
       <p>Average scheduled speed for each clock hour. Darker cells are slower hours.</p>
       <div class="chart" id="heat"></div>
       <div class="ramp"><span id="ramp-lo"></span><i></i><span id="ramp-hi"></span></div>
     </section>
-    <section class="panel">
+    <section class="panel" id="measured">
       <h2>Timetable against measured speeds</h2>
       <p id="obs-sub"></p>
       <div class="legend" id="obs-legend"></div>
@@ -181,19 +199,50 @@ code { font: 12.5px ui-monospace, SFMono-Regular, Menlo, monospace; background: 
     </section>
   </div>
 
-  <section class="panel" id="focus-panel" hidden>
+  <section class="panel" id="next-site" hidden>
     <h2>Measured through the next project site</h2>
     <p id="focus-sub"></p>
     <div class="tablewrap"><table id="focus-tbl"></table></div>
   </section>
 
-  <section class="panel">
+  <section class="panel" id="stretches">
     <h2 id="tbl-title">Stretch by stretch</h2>
     <p id="tbl-sub"></p>
     <div class="tablewrap"><table id="tbl"></table></div>
   </section>
 
-  <section class="notes">
+  <section class="panel" id="projects">
+    <h2>Los Angeles street safety projects</h2>
+    <p>The redesigns this page tracks. Dates and status come from agency updates and news coverage; follow the links for the official details.</p>
+    <div class="tablewrap"><table class="plain">
+      <thead><tr><th>Project</th><th>Where</th><th>Agency</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr><td><a href="https://ladotlivablestreets.org/projects/hollywood-blvd" target="_blank" rel="noopener">Hollywood Boulevard Safety and Mobility Project</a></td><td>Hollywood Bl, Gower St to Hillhurst Av</td><td>LADOT</td><td>Built; construction began August 2024</td></tr>
+        <tr><td><a href="https://ladotlivablestreets-cms.org/uploads/c0a97e71b260468c898f0c2094d1692b.pdf" target="_blank" rel="noopener">Hollywood project Phase 2, by the Vista Theatre</a></td><td>Sunset Bl, Lyman Pl and Hillhurst Av to Fountain Av</td><td>LADOT</td><td>Draft design; installation expected early 2027</td></tr>
+        <tr><td><a href="https://cd13.lacity.gov/access-to-hollywood" target="_blank" rel="noopener">Access to Hollywood</a></td><td>Hollywood Bl, Gower St to La Brea Av; Vine St</td><td>Council District 13, Bureau of Engineering</td><td>Announced 2024; current status to confirm</td></tr>
+        <tr><td><a href="https://ladotlivablestreets.org/projects/sunset" target="_blank" rel="noopener">Sunset Boulevard and Cesar Chavez Avenue (Sunset East)</a></td><td>Fountain Av to Alameda St</td><td>LADOT</td><td>In design; outreach 2026</td></tr>
+        <tr><td><a href="https://engage.weho.org/fountain" target="_blank" rel="noopener">Fountain Avenue Streetscape Project</a></td><td>Fountain Av, La Cienega Bl to La Brea Av</td><td>City of West Hollywood</td><td>Phase 1 approved September 2025; construction expected late 2026 to early 2027</td></tr>
+        <tr><td><a href="https://www.metro.net/projects/vermont-corridor/" target="_blank" rel="noopener">Vermont Transit Corridor (bus rapid transit)</a></td><td>Vermont Av, Sunset Bl to 120th St</td><td>LA Metro</td><td>Under construction since October 2026; opening targeted 2028</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <section class="panel" id="sources">
+    <h2>Data sources</h2>
+    <p>Where every number on this page comes from. The archive is <a href="data/">downloadable</a> and described in <a href="datapackage.json">datapackage.json</a>.</p>
+    <dl class="sources">
+      <div><dt><a href="https://gitlab.com/LACMTA/gtfs_bus" target="_blank" rel="noopener">LA Metro bus timetables (GTFS)</a></dt><dd>Every published version of Metro's bus schedule since 2016. Rebuilt into scheduled speeds by hour.</dd></div>
+      <div><dt><a href="https://developer.metro.net" target="_blank" rel="noopener">LA Metro realtime API</a></dt><dd>Live bus positions every few seconds for lines 204, 754, 2 and 4. Open, no key.</dd></div>
+      <div><dt><a href="https://www.goswift.ly" target="_blank" rel="noopener">Swiftly realtime API</a></dt><dd>Metro's realtime data provider: every bus once a minute, plus predicted arrivals. Keyed access.</dd></div>
+      <div><dt><a href="https://docs.tomtom.com/traffic-api/documentation/tomtom-orbis-maps/v2/product-information/introduction" target="_blank" rel="noopener">TomTom Traffic API (Orbis v2)</a></dt><dd>General-traffic speed on each piece of road, collected every 15 minutes and matched to each street. Keyed access.</dd></div>
+      <div><dt><a href="https://data.ca.gov/dataset/average-transit-speeds-by-stop" target="_blank" rel="noopener">Cal-ITP average transit speeds</a></dt><dd>Caltrans' measured bus speeds by stop for one recent weekday. A cross-check on the timetable.</dd></div>
+      <div><dt><a href="https://github.com/MobilityData/gbfs/blob/master/systems.csv" target="_blank" rel="noopener">GBFS shared bikes and scooters</a></dt><dd>Public availability feeds from Bird and Metro Bike Share, recorded every 10 minutes. Not yet charted.</dd></div>
+      <div><dt><a href="https://github.com/openmobilityfoundation/mobility-data-specification" target="_blank" rel="noopener">Open Mobility Foundation MDS</a></dt><dd>The standard used to export the bus GPS positions as vehicle telemetry.</dd></div>
+      <div><dt><a href="https://telraam.net/en/our-traffic-counter" target="_blank" rel="noopener">Telraam counters (planned)</a></dt><dd>Window-mounted counters for cars, bikes and pedestrians, run by residents. No images are kept.</dd></div>
+    </dl>
+  </section>
+
+  <section class="notes" id="method">
     <div><h3>What the long series is</h3>
       <p>LA Metro keeps its bus timetable (GTFS) in a public git repository going back to 2016; <span id="n-feeds"></span> versions cover this street. For each date we take the version in force, find every trip on the street, and time it between cross streets. Metro resets running times at service changes using measured trips, so the timetable follows real conditions with a lag. Stretches where the line stays flat for a year or more are periods when Metro left the running times unchanged; they are not evidence that traffic stood still.</p></div>
     <div><h3>What is measured</h3>
@@ -209,6 +258,9 @@ code { font: 12.5px ui-monospace, SFMono-Regular, Menlo, monospace; background: 
       <li>Project dates come from news coverage and agency updates and should be confirmed with LADOT and Metro.</li></ul>
       <p id="planned" style="margin-top:8px"></p></div>
   </section>
+  <nav class="toc" aria-label="Page sections">
+    <a href="#trends">Trends</a><a href="#hours">By hour</a><a href="#measured">Measured</a><a href="#next-site" class="toc-focus">Next project site</a><a href="#stretches">Stretches</a><a href="#projects">Projects</a><a href="#sources">Data sources</a><a href="#method">Method</a>
+  </nav>
   <footer class="site-foot">
     <a href="https://github.com/here/aviary" target="_blank" rel="noopener"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg><span>Code and documentation on GitHub</span></a>
     <span class="sep" aria-hidden="true">·</span>
@@ -506,7 +558,8 @@ function renderControls() {
   }));
 }
 function renderFocus() {
-  $("#focus-panel").hidden = !C.focus.length;
+  $("#next-site").hidden = !C.focus.length;
+  document.querySelectorAll(".toc-focus").forEach(a => { a.hidden = !C.focus.length; });
   if (!C.focus.length) return;
   const n = Math.max(...C.focus.map(f => f.n)), f0 = C.focus[0];
   $("#focus-sub").textContent = `Every line 2 bus is timed by GPS through the stretch LADOT plans to rebuild next, by the Vista Theatre. This is the record of conditions before the project. Collection began ${f0.first}; the most-sampled row has ${n} bus pass${n === 1 ? "" : "es"} so far, so treat early figures as a test of the method.`;

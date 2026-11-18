@@ -160,7 +160,7 @@ code { font: 12.5px ui-monospace, SFMono-Regular, Menlo, monospace; background: 
   </header>
 
   <nav class="toc" aria-label="Page sections">
-    <a href="#measured">Measured</a><a href="#next-site" class="toc-focus">Next project site</a><a href="#stretches">Stretches</a><a href="#projects">Projects</a><a href="#sources">Data sources</a><a href="#crowdsourced">Crowdsourced</a>
+    <a href="#measured">Measured</a><a href="#next-site" class="toc-focus">Next project site</a><a href="#projects">Projects</a><a href="#sources">Data sources</a><a href="#crowdsourced">Crowdsourced</a>
   </nav>
 
   <section class="controls" aria-label="Filters">
@@ -189,12 +189,6 @@ code { font: 12.5px ui-monospace, SFMono-Regular, Menlo, monospace; background: 
     <h2>Measured through the next project site</h2>
     <p id="focus-sub"></p>
     <div class="tablewrap"><table id="focus-tbl"></table></div>
-  </section>
-
-  <section class="panel" id="stretches">
-    <h2 id="tbl-title">Stretch by stretch</h2>
-    <p id="tbl-sub"></p>
-    <div class="tablewrap"><table id="tbl"></table></div>
   </section>
 
   <section class="panel" id="projects">
@@ -244,7 +238,7 @@ code { font: 12.5px ui-monospace, SFMono-Regular, Menlo, monospace; background: 
   </section>
 
   <nav class="toc" aria-label="Page sections">
-    <a href="#measured">Measured</a><a href="#next-site" class="toc-focus">Next project site</a><a href="#stretches">Stretches</a><a href="#projects">Projects</a><a href="#sources">Data sources</a><a href="#crowdsourced">Crowdsourced</a>
+    <a href="#measured">Measured</a><a href="#next-site" class="toc-focus">Next project site</a><a href="#projects">Projects</a><a href="#sources">Data sources</a><a href="#crowdsourced">Crowdsourced</a>
   </nav>
   <footer class="site-foot">
     <a href="https://github.com/here/aviary" target="_blank" rel="noopener"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg><span>Code and documentation on GitHub</span></a>
@@ -443,28 +437,6 @@ function renderObs() {
   hit.addEventListener("pointerleave", () => { hideTip(); cross.setAttribute("visibility", "hidden"); });
 }
 
-function renderTable() {
-  if (!hasBus()) {
-    const d = describe();
-    $("#tbl-sub").textContent = `${d.text}. General-traffic speed from TomTom, averaged over the hours recorded so far.`;
-    const rows = [...C.sections.slice(1), C.sections[0]].map(s => {
-      const t = trafficSpeed(s.section_id), tot = s.section_id === "corridor";
-      return `<tr${tot ? ' class="total"' : ""}><td>${tot ? "Whole street" : s.name}</td><td>${s.length_mi.toFixed(1)}</td><td>${t ? f1(t.mph) : "–"}</td><td>${t ? (s.length_mi / t.mph * 60).toFixed(1) : "–"}</td><td>${t ? t.n : 0}</td></tr>`;
-    });
-    $("#tbl").innerHTML = `<thead><tr><th>Stretch</th><th>Miles</th><th>Traffic mph</th><th>Minutes</th><th>Hours recorded</th></tr></thead><tbody>${rows.join("")}</tbody>`;
-    return;
-  }
-  const pm = BANDS[2].h, y0 = YEARS[0], y1 = YEARS[YEARS.length - 1], d = describe();
-  $("#tbl-sub").textContent = `${d.text}. PM-peak scheduled speed (3 to 8pm) in ${y0} and ${y1}; a year in brackets marks the nearest year this line served the stretch.`;
-  const rows = [...C.sections.slice(1), C.sections[0]].map(s => {
-    const sp = span(s.section_id), ya = sp ? sp[0] : y0, yb = sp ? sp[1] : y1;
-    const a = avg(yearMonths(ya), pm, s.section_id), b = avg(yearMonths(yb), pm, s.section_id);
-    const tot = s.section_id === "corridor", yr = (v, y, ref) => f1(v) + (v != null && y !== ref ? ` (${y})` : "");
-    return `<tr${tot ? ' class="total"' : ""}><td>${tot ? "Whole corridor" : s.name}</td><td>${s.length_mi.toFixed(1)}</td><td>${yr(a, ya, y0)}</td><td>${yr(b, yb, y1)}</td><td>${a && b ? (b < a ? "−" : "+") + Math.abs((b / a - 1) * 100).toFixed(0) + "%" : "–"}</td><td>${b ? (s.length_mi / b * 60).toFixed(0) : "–"}</td></tr>`;
-  });
-  $("#tbl").innerHTML = `<thead><tr><th>Stretch</th><th>Miles</th><th>${y0} mph</th><th>${y1} mph</th><th>Change</th><th>Minutes now</th></tr></thead><tbody>${rows.join("")}</tbody>`;
-}
-
 const cap = t => t[0].toUpperCase() + t.slice(1);
 const hasBus = () => C.routes.length > 0;
 // general-traffic speed for a section under the current filters, averaged over recorded hours by travel time
@@ -498,7 +470,7 @@ function renderFocus() {
 }
 function render() {
   useCorridor(); renderControls();
-  renderStats(); renderStreet(); renderObs(); renderFocus(); renderTable();
+  renderStats(); renderStreet(); renderObs(); renderFocus();
 }
 function set(k, v) { state[k] = v; try { localStorage.setItem("aviary-filters-2", JSON.stringify(state)); } catch (e) {} render(); }
 $("#whole").onclick = () => set("sec", "corridor");

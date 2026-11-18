@@ -56,3 +56,8 @@ hollywood,2026-11-18T04:00:00Z,2026-11-17T20:00:00-0800,217,westbound,S2,8.79,1.
 hollywood,2026-11-18T04:00:00Z,2026-11-17T20:00:00-0800,217,westbound,S3,15.55,2.93,0.759,2,gtfs_realtime_observed,
 hollywood,2026-11-18T04:00:00Z,2026-11-17T20:00:00-0800,217,westbound,S4,10.68,5.64,1.004,2,gtfs_realtime_observed,
 hollywood,2026-11-18T05:00:00Z,2026-11-17T21:00:00-0800,180,eastbound,S3,10.41,4.37,0.759,1,gtfs_realtime_observed,
+hollywood,2026-11-18T05:00:00Z,2026-11-17T21:00:00-0800,180,eastbound,S4,7.65,7.87,1.004,1,gtfs_realtime_observed,
+hollywood,2026-11-18T05:00:00Z,2026-11-17T21:00:00-0800,180,westbound,S3,9.54,4.77,0.759,1,gtfs_realtime_observed,
+hollywood,2026-11-18T05:00:00Z,2026-11-17T21:00:00-0800,180,westbound,S4,8.4,7.17,1.004,1,gtfs_realtime_observed,
+hollywood,2026-11-18T05:00:00Z,2026-11-17T21:00:00-0800,217,westbound,S3,11.82,3.85,0.759,1,gtfs_realtime_observed,
+hollywood,2026-11-18T05:00:00Z,2026-11-17T21:00:00-0800,217,westbound,S4,9.33,6.46,1.004,1,gtfs_realtime_observed,

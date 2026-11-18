@@ -118,8 +118,19 @@ from a local machine. The owner could not approve environment changes from a pho
   On 2026-11-18 the bus vehicle feed had about 1,700 vehicles (lines 2, 4, 204, 754, 180, 217 all present), 2 s old.
   Route ids match the static GTFS (`204-13201`). Decode with `gtfs-realtime-bindings`.
 - Docs: `https://swiftly-inc.stoplight.io/docs/realtime-standalone/` (JavaScript-rendered; automated fetches get 404).
-- Not done: the Cloudflare collector does not use Swiftly yet. It needs its own copy of the key as a Worker secret
-  (for example `SWIFTLY_API_KEY`, set in the Cloudflare dashboard or pushed by the workflow from a GitHub secret).
+- **Collecting since 2026-11-18 01:28 UTC.** The collector Worker stores Swiftly bus feeds (agency `lametro` only,
+  not rail) in R2, unparsed protobuf, gzipped: vehicle positions every minute (`swiftly/vp/`, about 55 KB each) and
+  trip updates every 15 minutes (`swiftly/tu/`, about 400 KB each). Status: `aviary.herebox.org/api/swiftly`.
+  The workflow sets the Worker secret `SWIFTLY_API_KEY` from the repository secret of the same name on each deploy.
+- **Storage**: roughly 115 MB a day, about 3.5 GB a month. `swiftly/` has **no expiry rule** on purpose, because
+  nothing rolls it up yet. R2's free tier is 10 GB, so after about three months either add a roll-up plus expiry
+  or accept small storage charges.
+- **Not built yet**: a roll-up that decodes `swiftly/vp/` into the same ping columns `build_observed.py` uses
+  (vehicle id, trip id, start date, route, timestamp, lat, lon) so Swiftly feeds the existing hourly speeds and
+  focus-segment traversals. Decode with `gtfs-realtime-bindings`; route ids already match the static GTFS.
+- **Owner's priorities (2026-11-18)**: overall travel time first. Lateness (schedule adherence) and bunching
+  (uneven headways) are secondary, to be kept as possible findings for later. Bunching can be measured from the
+  minute-by-minute vehicle positions; lateness needs trip updates or the scheduled times in the static GTFS.
 
 ## Open work, in order
 

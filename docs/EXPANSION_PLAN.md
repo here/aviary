@@ -155,6 +155,17 @@ It works for every corridor, including Fountain, with no access requests.
 7. **Fountain Av activity** from MDS and counts when LADOT responds.
 8. **Page rebuild** with the corridor picker and before/after panel.
 
+## Possible later findings (owner's note, 2026-11-18)
+
+Travel time is the headline measure. Two secondary findings the archive will support later:
+
+- **Bunching**: buses arriving in pairs after long gaps. Measure headways between consecutive buses of the same
+  line passing a point, from minute-by-minute vehicle positions (Metro feed and Swiftly).
+- **Lateness**: actual minus scheduled time at timepoints, from Swiftly trip updates (every 15 minutes since
+  2026-11-18) or by matching vehicle positions to the static GTFS schedule.
+- Compare both before and after each project; a redesign can leave average travel time unchanged while making
+  service more or less even.
+
 ## 7. Open questions for the owner
 
 - Which exact blocks and dates for each project? Is Sunset east / Cesar Chavez already redesigned, or a

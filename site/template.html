@@ -69,12 +69,16 @@ table.plain tr.group th { text-align: left; padding-top: 16px; font-family: var(
 @media (max-width: 560px) { .site-foot .sep { display: none; } .site-foot { flex-direction: column; } }
 .vh { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
-.stats { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0; border-top: 1px solid var(--grid); border-bottom: 1px solid var(--grid); }
+.stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0; border-top: 1px solid var(--grid); border-bottom: 1px solid var(--grid); }
 .stat { padding: 14px 16px 14px 0; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
 .stat + .stat { padding-left: 16px; border-left: 1px solid var(--grid); }
+.stats-head + .stat { padding-left: 0; border-left: 0; }
 .stat b { font: 600 28px/1.15 var(--display); font-variant-numeric: tabular-nums; }
 .stat b small { font-size: 14px; font-weight: 500; color: var(--ink-2); margin-left: 3px; }
 .stat span { font-size: 12.5px; color: var(--ink-2); }
+.stat .stat-k { font-size: 11.5px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); }
+.stats-head { grid-column: 1 / -1; margin: 0; padding: 12px 0 0; font-size: 13.5px; color: var(--ink-2); }
+@media (max-width: 640px) { .stats { grid-template-columns: minmax(0, 1fr); } .stat + .stat { padding-left: 0; border-left: 0; border-top: 1px solid var(--grid); } }
 
 /* Controls: two aligned columns (Street | Line, Direction | Days) on wide screens, one column on phones. */
 .controls { display: grid; grid-template-columns: max-content max-content; gap: 14px 40px; align-items: start; justify-content: start; }
@@ -332,18 +336,32 @@ function describe() {
   return { where: s.name, text: hasBus() ? `${C.street}, line ${state.route}, ${dir}, ${day}` : `${C.street}, ${dir}, ${day}`, len: s.length_mi };
 }
 
+// Measured speed over chosen clock hours: combine directions within each recorded hour, then average hours by travel time.
+function measuredSpeed(rows, hours) {
+  const dirs = state.dir === "both" ? C.directions : [state.dir], byHr = {};
+  rows.filter(r => r.section === state.sec && r.day === state.day && dirs.includes(r.direction) && hours.includes(r.hour))
+    .forEach(r => (byHr[r.date + "|" + r.hour] ||= []).push(r.mph));
+  const v = Object.values(byHr).filter(a => a.length === dirs.length).map(a => a.length / a.reduce((s, x) => s + 1 / x, 0));
+  const dates = Object.keys(byHr).map(k => k.split("|")[0]).sort();
+  return v.length ? { mph: v.length / v.reduce((s, x) => s + 1 / x, 0), n: v.length, first: dates[0] } : null;
+}
+
 function renderStats() {
-  if (!hasBus()) {
-    const t = trafficSpeed(state.sec), len = secOf(state.sec).length_mi;
-    $("#stats").innerHTML = `<div class="stat"><b>${t ? (len / t.mph * 60).toFixed(0) + "<small>min</small>" : "–"}</b><span>${t ? `To drive this stretch in general traffic (TomTom), average of ${t.n} recorded hour${t.n > 1 ? "s" : ""}. No bus runs on this street.` : "No general-traffic speeds recorded yet for this selection. No bus runs on this street."}</span></div>`;
-    return;
-  }
-  const pm = BANDS[2].h, sp = span(state.sec) || [YEARS[0], YEARS[YEARS.length - 1]], y0 = sp[0], y1 = sp[1];
-  const a = avg(yearMonths(y0), pm), b = avg(yearMonths(y1), pm), len = secOf(state.sec).length_mi;
-  const tile = (a && b)
-    ? [`${(len / b * 60).toFixed(0)}<small>min</small>`, `To ride this stretch by bus at PM peak (3 to 8pm) in ${y1}, ${((len / b - len / a) * 60 >= 0 ? "+" : "−")}${Math.abs((len / b - len / a) * 60).toFixed(0)} min since ${y0}, scheduled`]
-    : ["–", `No line ${state.route} service on this stretch`];
-  $("#stats").innerHTML = `<div class="stat"><b>${tile[0]}</b><span>${tile[1]}</span></div>`;
+  const pm = BANDS[2].h, len = secOf(state.sec).length_mi;
+  const mins = mph => (len / mph * 60).toFixed(0) + "<small>min</small>";
+  const hrs = m => `${m.n} PM-peak hour${m.n > 1 ? "s" : ""} measured since ${m.first}`;
+  let sched = null, schedYear = "";
+  if (hasBus()) { const y = YEARS[YEARS.length - 1]; sched = avg(yearMonths(y), pm); schedYear = y; }
+  const bus = hasBus() ? measuredSpeed(C.live.filter(l => l.route === state.route), pm) : null;
+  const traffic = measuredSpeed(C.traffic || [], pm);
+  const noBus = "No bus runs on this street";
+  const tiles = [
+    ["Bus, scheduled", sched ? mins(sched) : "–", sched ? `Line ${state.route} timetable, ${schedYear}` : (hasBus() ? `No line ${state.route} service on this stretch` : noBus)],
+    ["Bus, actual", bus ? mins(bus.mph) : "–", bus ? `Bus GPS (Metro and Swiftly feeds), ${hrs(bus)}` : (hasBus() ? "No PM-peak bus hours measured yet for this selection" : noBus)],
+    ["Traffic, actual", traffic ? mins(traffic.mph) : "–", traffic ? `General traffic (TomTom), ${hrs(traffic)}` : "No PM-peak traffic hours measured yet; collection started November 17, 2026"],
+  ];
+  $("#stats").innerHTML = `<p class="stats-head">Time to travel ${secOf(state.sec).name} (${len.toFixed(1)} mi) at PM peak, 3 to 8pm, ${state.day === "weekday" ? "weekdays" : state.day + "s"}</p>` +
+    tiles.map(t => `<div class="stat"><span class="stat-k">${t[0]}</span><b>${t[1]}</b><span>${t[2]}</span></div>`).join("");
 }
 
 function renderStreet() {

@@ -143,6 +143,8 @@ It works for every corridor, including Fountain, with no access requests.
 
 ## 6. Order of work
 
+*Superseded as a task list by [`docs/ROADMAP.md`](ROADMAP.md), which tracks status. Kept for the reasoning.*
+
 1. **Verify facts** for each corridor: exact extents, what was installed, opening dates, which bus lines
    run where today (read from the current GTFS, do not assume). About half a day.
 2. **Collisions before/after** for all four corridors from open data. Fastest visible result.

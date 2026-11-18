@@ -1,0 +1,14 @@
+// Cloudflare Worker that archives general-traffic speeds (HERE Traffic API v7 flow) every 30 minutes.
+// Separate from the bus and GBFS collectors so a failure in one cannot stop the others.
+// Deploy with `npx wrangler deploy -c wrangler.traffic.jsonc`; the key is the Worker secret HERE_API_KEY.
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "aviary-traffic-collector",
+  "main": "worker/traffic.js",
+  "compatibility_date": "2026-10-01",
+  "workers_dev": false,
+  "routes": [{ "pattern": "aviary.herebox.org/traffic/*", "zone_name": "herebox.org" }],
+  "triggers": { "crons": ["*/30 * * * *"] },
+  "r2_buckets": [{ "binding": "ARCHIVE", "bucket_name": "aviary-vermont-speeds-bucket" }],
+  "observability": { "enabled": true }
+}

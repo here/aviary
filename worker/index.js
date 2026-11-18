@@ -107,7 +107,7 @@ export default {
     // GET /api/files?prefix=raw/2026-11-17/ -> list archived objects (raw/, daily/, mds/, gbfs/)
     if (url.pathname === "/api/files") {
       const prefix = url.searchParams.get("prefix") || "daily/";
-      if (!/^(raw|daily|mds|gbfs|swiftly)\//.test(prefix)) return json({ error: "prefix must start with raw/, daily/, mds/, gbfs/ or swiftly/" }, 400);
+      if (!/^(raw|daily|mds|gbfs|swiftly|traffic)\//.test(prefix)) return json({ error: "prefix must start with raw/, daily/, mds/, gbfs/, swiftly/ or traffic/" }, 400);
       const page = await env.ARCHIVE.list({ prefix, limit: 1000, cursor: url.searchParams.get("cursor") || undefined });
       return json({
         prefix,
@@ -119,7 +119,7 @@ export default {
     // GET /api/file/<key> -> download one archived object
     if (url.pathname.startsWith("/api/file/")) {
       const key = decodeURIComponent(url.pathname.slice("/api/file/".length));
-      if (!/^(raw|daily|mds|gbfs|swiftly)\//.test(key)) return json({ error: "not found" }, 404);
+      if (!/^(raw|daily|mds|gbfs|swiftly|traffic)\//.test(key)) return json({ error: "not found" }, 404);
       const obj = await env.ARCHIVE.get(key);
       if (!obj) return json({ error: "not found" }, 404);
       return new Response(obj.body, {

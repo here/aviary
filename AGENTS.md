@@ -1,113 +1,54 @@
 # Handoff notes for agents
 
-Read `README.md` first for what the project is, the data layout and the setup commands.
-This file records the current state, what is blocked, and things that are easy to get wrong.
-Update the "Current state" and "Open work" sections when you change either.
+Read `README.md` for what the project is and the published links. This file explains how the system works and
+what is easy to get wrong. **Open work and its status live in [`docs/ROADMAP.md`](docs/ROADMAP.md)**; update that
+file when you finish or start something, and update "Current state" below when the system itself changes.
 
 ## Project in one paragraph
 
-A demo for the CoMotion LA conference: hourly bus speeds on Vermont Av in Los Angeles
-(LA Metro lines 204 Local and 754 Rapid), 2016 to today, as a time-series page plus an
-archive in standard formats (Parquet, CSV, Frictionless data package, OMF MDS 2.0 telemetry).
-The long series is *scheduled* speed rebuilt from LA Metro's GTFS git history. Measured speed
-comes from a live GPS collector that has only just started, and from a Cal-ITP snapshot.
+A demo for the CoMotion LA conference: hourly bus speeds on Los Angeles streets being redesigned (Vermont Av,
+Hollywood Bl, Sunset Bl / Cesar Chavez Av; Fountain Av tracked without bus data), as a time-series page plus an
+archive in standard formats (Parquet, CSV, Frictionless data package, OMF MDS 2.0 telemetry). The long series is
+*scheduled* speed rebuilt from LA Metro's GTFS git history (Vermont since 2016, the others since 2018). Measured
+speed comes from bus GPS collected every minute since November 2026 (LA Metro's public feed and Swiftly), so each
+upcoming project gets a measured "before".
 
-## Current state (2026-11-17)
+## Where things are
+
+| Path | What |
+|---|---|
+| `docs/ROADMAP.md` | Task tracker and the ordered list of data sources to explore |
+| `docs/EXPANSION_PLAN.md` | Before/after method and project status notes |
+| `docs/projects/` | Sourced research notes per project (Hollywood Bl, Fountain Av) |
+| `corridors/*.json` | Street definitions: path, sections, bus lines, project dates, focus segments |
+| `pipeline/` | Backfills, roll-ups, data package and site builders (see each file's docstring) |
+| `worker/` | Cloudflare Workers: bus collector + site + API (`index.js`), GBFS (`gbfs.js`), traffic speeds (`traffic.js`) |
+| `site/template.html` | The charts page (single file; data inlined at build) |
+| `.github/workflows/publish.yml` | Hourly: collect, roll up, commit, rebuild package and site, deploy to Cloudflare and Pages |
+
+## Current state (2026-11-18)
 
 | Item | State |
 |---|---|
-| Hourly schedule archive, 2016-01-31 to 2026-11-16 | Built and committed (`data/hourly/`, about 2.2M rows) |
-| Observed archive | 13 section-hours from one 20-minute sample (`data/observed/vermont_observed_2026-11.csv`) |
-| Charts page | Works; built by `pipeline/build_site.py` into `_site/` (not committed) |
-| `https://aviary.herebox.org` | Live, **interim**: charts page bundled inside the Worker, plus the real collector and `/api` routes. No archive downloads under `/data/` yet |
-| Cloudflare Worker `aviary-vermont-speeds` | Deployed 2026-11-17 from a cloud session: `worker/index.js` wrapped to serve the bundled page instead of static assets. Cron every minute. First capture not yet confirmed at time of writing; check `/api/status` |
-| R2 bucket `aviary-vermont-speeds-bucket` | Created, with a 7-day expiry rule on `raw/` |
-| GitHub Actions workflow `publish.yml` | Written, YAML parses, **never run** |
-| GitHub Pages | Not enabled; URL will be `https://here.github.io/aviary/` |
-| Worker in `worker/index.js` | Tested locally with `wrangler dev` only (collector, R2, routes all worked) |
-
-Added 2026-11-17 (later the same day):
-
-- **Sunset / Cesar Chavez corridor** (`corridors/sunset.json`): scheduled speeds for lines 2, 4 and the former 704,
-  2018-01-01 to 2026-11-15, 1.4M rows in `data/corridors/sunset/hourly/` (Parquet only, extra `corridor_id` column).
-  Built by `pipeline/backfill_corridor.py` using `pipeline/polyline.py` (distance along a path). Not on the page yet.
-  Line 2 left Sunset east of Alvarado around 2021, so sections S4 to S6 have line 2 data only to 2021.
-- **Bus collector** now records lines 2 and 4 as well (`ROUTES`).
-- **GBFS collector**: Worker `aviary-gbfs-collector` (`worker/gbfs.js`, `wrangler.gbfs.jsonc`), every 10 minutes,
-  snapshots to R2 under `gbfs/`. Working: Bird (about 3,100 vehicles in the study box) and Metro Bike Share
-  (145 stations). Returning nothing in the box: Lyft, Spin, Veo. **Lime is missing**: its feed address 404s.
-  Maintenance routes: `aviary.herebox.org/gbfs/status`, `/gbfs/run`, `/gbfs/discover`. No roll-up script yet,
-  and `gbfs/` has no expiry rule or daily compaction yet (about 290 snapshots a day).
-- **Measured roll-up for path corridors**: `pipeline/build_observed_corridor.py` writes hourly section speeds and,
-  for the short focus segments, one row per bus traversal plus an hourly summary, under
-  `data/corridors/sunset/observed/`. Focus segments F1 (Hillhurst / Virgil junction to Fountain Av), F1a (junction
-  zone) and F1b (rest) are defined in `corridors/sunset.json`. Pings arrive about every 6 seconds, so crossing
-  times are well resolved. Only about 20 minutes of late-night data existed when this was written.
-  `pipeline/fetch_archive.py` downloads archived files from the public API without keys. The workflow runs the
-  roll-up for every file in `corridors/`.
-- Project status notes and the priority segment (Lyman Pl to Fountain Av) are in `docs/EXPANSION_PLAN.md`.
+| Site | Live at `https://aviary.herebox.org` (Cloudflare Worker with static assets) and `https://here.github.io/aviary/` (Pages, Source = GitHub Actions). Archive under `/data/`, package at `/datapackage.json`, street definitions at `/corridors/` |
+| Bus collector | Worker `aviary-vermont-speeds`, every minute: Metro websocket (lines 204, 754, 2, 4) into R2 `raw/` (7-day expiry); Swiftly vehicle positions every minute and trip updates every 15 minutes into `swiftly/` (no expiry). Status: `/api/status`, `/api/swiftly` |
+| GBFS collector | Worker `aviary-gbfs-collector`, every 10 minutes into `gbfs/`. Bird and Metro Bike Share working; Lime missing. Status: `/gbfs/status` |
+| Traffic-speed collector | Worker `aviary-traffic-collector` (HERE), every 30 minutes into `traffic/here/`; idle until the `HERE_API_KEY` secret exists. Status: `/traffic/status` |
+| Hourly workflow | Downloads two days of pings from R2 (Metro + Swiftly), rolls up measured speeds for every street, commits them, writes permanent daily raw and MDS files to R2 (`daily/`, `mds/`), regenerates `datapackage.json`, builds the site, deploys Workers (step is `continue-on-error`: check it) and Pages. GitHub drops some scheduled runs |
+| Scheduled series | Vermont 2016-01-31 onward (`data/hourly/`); Hollywood and Sunset 2018 onward (`data/corridors/<id>/hourly/`). Rebuild needs the GTFS clone; not run by the workflow |
+| Measured series | Monthly CSVs: `data/observed/` (Vermont), `data/corridors/<id>/observed/` (with bus-by-bus focus-segment timings for Sunset) |
+| Repository secrets | `CLOUDFLARE_ACCOUNT_ID`, `CLOUDFLARE_API_TOKEN` (account Workers + R2 edit, zone `herebox.org`), `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `SWIFTLY_API_KEY`; `HERE_API_KEY` pending |
+| Cloud session environment `aviary` | Limited network allowlist (Cloudflare API, api.metro.net, gitlab.com, Caltrans GIS, data.ca.gov, aviary.herebox.org). Network secrets for `api.cloudflare.com` and `api.goswift.ly` (bare `Authorization` header). data.lacity.org, LADOT, github.io and operator sites are blocked; widen it from the environment settings on a computer (the owner cannot approve changes from the phone app) |
 
 Cloudflare: account ID `4c63641622d8786f6373a2430b970c25`, which owns the `herebox.org` zone.
 All Cloudflare resource names are prefixed `aviary-`. Use `aviary.herebox.org` for anything needing DNS.
 
-## In flight when the session ended (2026-11-17, about 08:00 UTC)
+Corridor caveats: Fountain Av's road diet is the City of West Hollywood's project (La Cienega Bl to La Brea Av),
+not LADOT's, and LADOT DASH runs on the Hollywood part of Fountain; `corridors/fountain.json` coordinates are
+approximate. The Hollywood corridor ends at Vermont Av, short of Hillhurst Av. Research notes in `docs/projects/`
+come from search-result summaries; verify before quoting.
 
-Three background agents were started just before the owner's usage window closed. Their work may be partial.
-Check `git log` and `git status` first; each was told to commit and push only its own files.
-
-| Agent task | Files it owns | Done when |
-|---|---|---|
-| Hollywood Bl corridor (LADOT Hollywood Blvd Safety and Mobility Project, Gower St to Hillhurst Av) | `corridors/hollywood.json`, `data/corridors/hollywood/` | JSON has path, sections, routes, events; scheduled backfill since 2018 exists |
-| Hollywood project research | `docs/projects/hollywood-blvd.md` | Status, extents, dates, what was built, sources |
-| Fountain Av street safety project research (no bus) | `docs/projects/fountain-av.md`, `corridors/fountain.json` | Status, extents, dates, sources; corridor file has endpoints and events, no routes |
-
-Outcome so far: both research documents are finished and pushed. Findings that change the plan:
-
-- **Fountain Av's road diet is the City of West Hollywood's project** (La Cienega Bl to La Brea Av, 1.8 mi, four lanes
-  to two, approved 2025-09-15), not LADOT's. Construction was expected late 2026 and is not confirmed as started.
-  LADOT's only work found on Fountain is a 2023 westbound bike lane, Vermont Av to Kingsley Dr.
-- **"No bus on Fountain" holds only for the West Hollywood part.** LADOT DASH Hollywood runs on Fountain in Hollywood.
-- **Hollywood Phase 1** opened August 2024; no published before/after data was found. Baseline cited by LADOT:
-  53 severe-injury and fatal collisions in the project area, 2010 to 2019.
-- Both documents are built from search-result summaries only; no source page was opened. Verify before quoting.
-- `corridors/fountain.json` has approximate coordinates (latitude held constant) and must be corrected before use.
-- **Hollywood corridor** (`corridors/hollywood.json`, Highland Av to Vermont Av, four sections): scheduled speeds for
-  lines 180, 217 and 780, 2018-01-01 to 2026-11-16, 1.2M rows in `data/corridors/hollywood/`. The agent building it was
-  cut off by a usage limit after the backfill finished; the output was checked and committed by the main session.
-  Caveats: the corridor stops at Vermont Av, so it does not reach Hillhurst Av (the Phase 1 east end); 780 data ends
-  in 2021; line 217 shows an implausible 19.2 mph on Gower St to Western Av in 2021, worth checking before quoting.
-- **Charts page** now has a Street picker (Vermont, Hollywood, Sunset), project-date markers on the time series, an
-  events list per street, and a "Measured through the next project site" table for the Sunset focus segments.
-  Corridors without bus data (Fountain Av) are listed in the notes.
-
-If any of these is missing or half-done, redo it; nothing else depends on them yet. Owner's reference pages:
-`https://ladotlivablestreets.org/projects/hollywood-blvd` and `/projects/sunset` (JavaScript-rendered; use a
-browser or web search, a plain fetch returns an empty shell).
-
-Session constraints worth knowing: the cloud environment `aviary` has a limited network allowlist
-(Cloudflare API, api.metro.net, gitlab.com, Caltrans GIS, data.ca.gov, aviary.herebox.org). data.lacity.org,
-LADOT sites and operator sites are blocked there; widen the allowlist in the environment settings or work
-from a local machine. The owner could not approve environment changes from a phone.
-
-## Status update 2026-11-18
-
-- **The hourly workflow works with R2.** Run 7 (manual, 2026-11-18 00:18 UTC) downloaded the minute files from R2,
-  rolled them up, committed observed speeds, and wrote permanent daily files to R2 (`daily/` and `mds/` for
-  2026-11-17 and 2026-11-18). The 7-day expiry on `raw/` is now safe as long as the workflow keeps running.
-- **Full Cloudflare deploy from CI works** (run 9, 2026-11-18 00:54 UTC) after the owner added account-level Workers
-  Scripts and R2 edit permissions to the token. Both Workers (`aviary-vermont-speeds`, `aviary-gbfs-collector`) were
-  redeployed from `main`, replacing the interim bundled-page Worker. `aviary.herebox.org/data/` and
-  `/datapackage.json` now serve the archive. The deploy step stays `continue-on-error` so a future token problem
-  cannot block collection or Pages; check that step's result, not just the run's.
-- **Default branch is `main`**; Actions is enabled.
-- **GitHub Pages**: Source set to "GitHub Actions" by the owner on 2026-11-18. Run 13 deployed cleanly. Before that,
-  Pages was on "Deploy from a branch", and GitHub's own `pages-build-deployment` collided with the workflow's Pages
-  job (run 12 failed with "in progress deployment"). If that error returns, check the setting first.
-- **Scheduled runs are sparse**: only a few `schedule` runs fired on 2026-11-17 although the cron is hourly.
-  GitHub delays and drops scheduled runs under load. Each run downloads two days of files, so a missed hour is
-  harmless; a full day without runs is not. Watch it.
-
-## Swiftly (working 2026-11-18)
+## Swiftly
 
 - Key works. Host `api.goswift.ly`; header `Authorization: <key>` with **no** "Bearer" prefix. The session's
   credential form always adds a prefix, so the owner set it as a network secret in the `aviary` environment
@@ -140,7 +81,7 @@ from a local machine. The owner could not approve environment changes from a pho
   (uneven headways) are secondary, to be kept as possible findings for later. Bunching can be measured from the
   minute-by-minute vehicle positions; lateness needs trip updates or the scheduled times in the static GTFS.
 
-## Data package (2026-11-18)
+## Data package
 
 - `datapackage.json` is **generated** by `pipeline/build_datapackage.py` from the files that exist; do not edit it by
   hand. The workflow regenerates and commits it each run, so new monthly observed files and new corridors appear
@@ -149,25 +90,6 @@ from a local machine. The owner could not approve environment changes from a pho
   Frictionless rejects a list of paths for these (it treats a list as parts of one file).
 - Street definitions `corridors/*.json` are listed as JSON resources and published at `/corridors/` on the site.
 - Validated with `frictionless` 2026-11-18: no metadata errors, every CSV matches its schema.
-
-## Open work, in order
-
-1. **Confirm the collector is writing**: `https://aviary.herebox.org/api/status` should show a recent `at`
-   and `/api/files?prefix=raw/` should list minute files.
-2. **Full Worker deploy**: `python pipeline/build_site.py && npx wrangler deploy` from the repo root, or let
-   the workflow do it once the secrets exist. This replaces the interim Worker with the static-assets
-   version, which adds the archive downloads under `/data/`.
-3. `main` exists and is the branch the workflow watches. Keep it the default branch.
-4. **Repository secrets**: `CLOUDFLARE_ACCOUNT_ID`, `CLOUDFLARE_API_TOKEN`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`
-   (see README for where each comes from). Without the R2 pair the workflow falls back to sampling
-   the feed itself for 20 minutes an hour.
-5. **GitHub Pages**: Settings > Pages > Source: GitHub Actions.
-6. **Watch the first workflow runs.** The R2 download/upload steps and the CI Cloudflare deploy are untested.
-7. **Swiftly**: the owner has requested an API key for LA Metro's official GTFS-realtime feed. When it
-   arrives, add Swiftly as a second collector source and ask whether historical exports are included.
-8. **Measured history**: see "Cal-ITP" below.
-9. **Expansion to before/after road-diet corridors** (Fountain, Hollywood, Sunset / Cesar Chavez): plan in
-   `docs/EXPANSION_PLAN.md`. The collector already archives lines 2 and 4 for it.
 
 ## Things that are easy to get wrong
 
@@ -178,8 +100,9 @@ from a local machine. The owner could not approve environment changes from a pho
 - **OMF fit is partial.** MDS has no transit-bus mode and no roadway-speed table. Only the GPS pings use an
   OMF shape (MDS 2.0 Telemetry); `provider_id` is a placeholder because LA Metro is not a registered MDS
   provider. The hourly table is this project's own schema (`datapackage.json`).
-- **Corridor geometry lives in one place**: `pipeline/corridor.py`. Vermont Av runs due north-south, so
-  position along the street is latitude. Changing a boundary means re-running the backfill.
+- **Corridor geometry**: Vermont Av is defined in `pipeline/corridor.py` (it runs due north-south, so position is
+  latitude); every other street is a path in `corridors/<id>.json` read by `pipeline/polyline.py`. Changing a
+  boundary means re-running that street's backfill.
 - **Backfill takes about 10 minutes** and needs a clone of `gitlab.com/LACMTA/gtfs_bus`
   (`--filter=blob:none` is fine). Five of the 130 GTFS commits are unusable and are skipped by design.
 - **Metro realtime**: the REST vehicle endpoints return empty lists; use the websocket
@@ -192,7 +115,8 @@ from a local machine. The owner could not approve environment changes from a pho
 - **Cloudflare free plan** allows 10 ms CPU per cron run, which is tight for gzipping a minute of messages.
 - **Claude cloud sessions cannot upload Worker static assets.** The session proxy overwrites the one-time
   upload authorization with the saved API token, so `wrangler deploy` with an `assets` directory fails with
-  401. Deploy the full Worker from GitHub Actions or a local machine. (That is why the interim Worker exists.)
+  401. Let the workflow deploy anything with static assets. Workers without assets (GBFS, traffic) can be deployed
+  from a session with the saved token.
 - **`wrangler login` needs a local browser.** In a cloud session use an API token; in CI use the secret.
 - **Page conventions**: `site/template.html` is a single self-contained file with the data inlined at
   `/*DATA*/null`. Colors are CSS tokens with light and dark values; the four series colors were checked for

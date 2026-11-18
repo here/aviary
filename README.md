@@ -29,6 +29,8 @@ Formats: Parquet and CSV described by a Frictionless `datapackage.json` (generat
 | Bus collector status | https://aviary.herebox.org/api/status | Live, every minute (lines 204, 754, 2, 4) |
 | Archived bus pings | https://aviary.herebox.org/api/files?prefix=raw/ | Live |
 | Bike and scooter collector status | https://aviary.herebox.org/gbfs/status | Live, every 10 minutes |
+| Traffic-speed collector status | https://aviary.herebox.org/traffic/status | Deployed; waiting for a HERE key |
+| Swiftly capture status | https://aviary.herebox.org/api/swiftly | Live, every minute |
 | Archive downloads | https://aviary.herebox.org/data/ and https://aviary.herebox.org/datapackage.json | Live, rebuilt hourly |
 | GitHub Pages mirror | https://here.github.io/aviary/ | Deployed by the hourly workflow |
 
@@ -42,7 +44,7 @@ summaries and need re-checking before publication.
 
 - **Page:** `python pipeline/build_site.py` writes a self-contained `_site/index.html` plus the downloadable archive. The workflow publishes it to GitHub Pages and Cloudflare.
 - **Archive:** `data/`, described by `datapackage.json`.
-- **Handoff notes for agents:** `AGENTS.md`.
+- **Handoff notes for agents:** `AGENTS.md`. **Open work and next data sources:** `docs/ROADMAP.md`.
 
 ## What is in the archive
 

@@ -31,6 +31,7 @@ env:
   CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
   AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
   AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+  SWIFTLY_API_KEY: ${{ secrets.SWIFTLY_API_KEY }}
   AWS_DEFAULT_REGION: auto
   AWS_REQUEST_CHECKSUM_CALCULATION: when_required
   AWS_RESPONSE_CHECKSUM_VALIDATION: when_required
@@ -106,6 +107,9 @@ jobs:
         run: |
           npx --yes wrangler@4 deploy
           npx --yes wrangler@4 deploy -c wrangler.gbfs.jsonc
+          if [ -n "$SWIFTLY_API_KEY" ]; then
+            printf '%s' "$SWIFTLY_API_KEY" | npx --yes wrangler@4 secret put SWIFTLY_API_KEY
+          fi
 
   github-pages:
     needs: build

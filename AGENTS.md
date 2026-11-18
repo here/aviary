@@ -100,9 +100,9 @@ from a local machine. The owner could not approve environment changes from a pho
   `/datapackage.json` now serve the archive. The deploy step stays `continue-on-error` so a future token problem
   cannot block collection or Pages; check that step's result, not just the run's.
 - **Default branch is `main`**; Actions is enabled.
-- **GitHub Pages**: the workflow's Pages job deployed once (run 6). A separate `pages-build-deployment` workflow
-  also runs, which means Pages may be set to "Deploy from a branch". It should be set to "GitHub Actions"
-  (Settings > Pages) so the built `_site/` is what gets served.
+- **GitHub Pages**: Source set to "GitHub Actions" by the owner on 2026-11-18. Run 13 deployed cleanly. Before that,
+  Pages was on "Deploy from a branch", and GitHub's own `pages-build-deployment` collided with the workflow's Pages
+  job (run 12 failed with "in progress deployment"). If that error returns, check the setting first.
 - **Scheduled runs are sparse**: only a few `schedule` runs fired on 2026-11-17 although the cron is hourly.
   GitHub delays and drops scheduled runs under load. Each run downloads two days of files, so a missed hour is
   harmless; a full day without runs is not. Watch it.

@@ -119,6 +119,10 @@ come from search-result summaries; verify before quoting.
   upload authorization with the saved API token, so `wrangler deploy` with an `assets` directory fails with
   401. Let the workflow deploy anything with static assets. Workers without assets (GBFS, traffic) can be deployed
   from a session with the saved token.
+- **Pushing to `main` while a workflow run is working** used to fail that run's data commit (runs 27 and 28,
+  2026-11-18). The commit step now rebases onto `main` and retries; on a data-file conflict the run's own data wins.
+  Workflow actions are on Node 24 versions (checkout v7, setup-python v7, upload-artifact v7, upload-pages-artifact v5,
+  deploy-pages v5).
 - **`wrangler login` needs a local browser.** In a cloud session use an API token; in CI use the secret.
 - **Traffic tiles are decoded by `pipeline/mvt.py`**, not `mapbox-vector-tile`, which pins an older protobuf than
   `gtfs-realtime-bindings` needs. Tile y runs downwards from the top left; extent is 4096.

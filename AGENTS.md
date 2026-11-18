@@ -34,10 +34,11 @@ upcoming project gets a measured "before".
 | Site | Live at `https://aviary.herebox.org` (Cloudflare Worker with static assets) and `https://here.github.io/aviary/` (Pages, Source = GitHub Actions). Archive under `/data/`, package at `/datapackage.json`, street definitions at `/corridors/` |
 | Bus collector | Worker `aviary-vermont-speeds`, every minute: Metro websocket (lines 204, 754, 2, 4) into R2 `raw/` (7-day expiry); Swiftly vehicle positions every minute and trip updates every 15 minutes into `swiftly/` (no expiry). Status: `/api/status`, `/api/swiftly` |
 | GBFS collector | Worker `aviary-gbfs-collector`, every 10 minutes into `gbfs/`. Bird and Metro Bike Share working; Lime missing. Status: `/gbfs/status` |
-| Traffic-speed collector | Worker `aviary-traffic-collector`, every 15 minutes: TomTom Orbis Traffic API v2 flow tiles (22 zoom-14 tiles, main roads, km/h and OpenLR per road piece) into `traffic/tomtom/`, collecting since 2026-11-18 04:55 UTC. HERE path built but idle (no key). Status: `/traffic/status`; `/traffic/run` collects now. Not yet rolled up or on the page |
+| Traffic-speed collector | Worker `aviary-traffic-collector`, every 15 minutes: TomTom Orbis Traffic API v2 flow tiles (22 zoom-14 tiles, main roads, km/h and OpenLR per road piece) into `traffic/tomtom/`, collecting since 2026-11-18 04:55 UTC. HERE path built but idle (no key). Status: `/traffic/status`; `/traffic/run` collects now. Rolled up hourly by `pipeline/build_traffic.py` into `data/traffic/` (Vermont) and `data/corridors/<id>/traffic/`; shown as the yellow line in the measured-speeds chart |
 | Hourly workflow | Downloads two days of pings from R2 (Metro + Swiftly), rolls up measured speeds for every street, commits them, writes permanent daily raw and MDS files to R2 (`daily/`, `mds/`), regenerates `datapackage.json`, builds the site, deploys Workers (step is `continue-on-error`: check it) and Pages. GitHub drops some scheduled runs |
 | Scheduled series | Vermont 2016-01-31 onward (`data/hourly/`); Hollywood and Sunset 2018 onward (`data/corridors/<id>/hourly/`). Rebuild needs the GTFS clone; not run by the workflow |
 | Measured series | Monthly CSVs: `data/observed/` (Vermont), `data/corridors/<id>/observed/` (with bus-by-bus focus-segment timings for Sunset) |
+| General-traffic series | Monthly CSVs from TomTom flow tiles: `data/traffic/vermont_traffic_YYYY-MM.csv`, `data/corridors/<id>/traffic/<id>_traffic_YYYY-MM.csv` (speed, free-flow speed, coverage, closures per section and direction) |
 | Repository secrets | `CLOUDFLARE_ACCOUNT_ID`, `CLOUDFLARE_API_TOKEN` (account Workers + R2 edit, zone `herebox.org`), `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `SWIFTLY_API_KEY`, `TOMTOM_API_KEY`; `HERE_API_KEY` not set |
 | Cloud session environment `aviary` | Limited network allowlist (Cloudflare API, api.metro.net, gitlab.com, Caltrans GIS, data.ca.gov, aviary.herebox.org). Network secrets for `api.cloudflare.com`, `api.goswift.ly` (bare `Authorization` header) and `api.tomtom.com` (`TomTom-Api-Key` header). data.lacity.org, LADOT, github.io and operator sites are blocked; widen it from the environment settings on a computer (the owner cannot approve changes from the phone app) |
 
@@ -119,6 +120,8 @@ come from search-result summaries; verify before quoting.
   401. Let the workflow deploy anything with static assets. Workers without assets (GBFS, traffic) can be deployed
   from a session with the saved token.
 - **`wrangler login` needs a local browser.** In a cloud session use an API token; in CI use the secret.
+- **Traffic tiles are decoded by `pipeline/mvt.py`**, not `mapbox-vector-tile`, which pins an older protobuf than
+  `gtfs-realtime-bindings` needs. Tile y runs downwards from the top left; extent is 4096.
 - **Page conventions**: `site/template.html` is a single self-contained file with the data inlined at
   `/*DATA*/null`. Colors are CSS tokens with light and dark values; the four series colors were checked for
   colorblind separation, so do not swap them casually. No external requests except Google Fonts.

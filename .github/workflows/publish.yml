@@ -68,6 +68,17 @@ jobs:
             python pipeline/swiftly_to_pings.py --in run/swiftly/vp --out run/raw/swiftly
           fi
 
+      - name: Download TomTom traffic tiles and roll up general-traffic speeds
+        if: env.AWS_ACCESS_KEY_ID != ''
+        run: |
+          for day in "$(date -u +%F)" "$(date -u -d yesterday +%F)"; do
+            aws s3 sync "s3://$R2_BUCKET/traffic/tomtom/$day/" "run/traffic/tomtom/$day/" --only-show-errors \
+              --endpoint-url "https://$CLOUDFLARE_ACCOUNT_ID.r2.cloudflarestorage.com"
+          done
+          if [ -d run/traffic/tomtom ]; then
+            python pipeline/build_traffic.py --raw run/traffic/tomtom
+          fi
+
       - name: Or listen to the feed from here (no Cloudflare storage configured)
         if: env.AWS_ACCESS_KEY_ID == '' && github.event_name != 'push'
         run: python pipeline/collect_realtime.py --routes 204,754,2,4 --minutes 20 --out run/raw
@@ -103,7 +114,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           python pipeline/build_datapackage.py
-          git add data/observed data/corridors datapackage.json
+          git add data/observed data/corridors data/traffic datapackage.json
           git diff --cached --quiet || git commit -m "Observed speeds $(date -u +%Y-%m-%dT%H:00Z)"
           git push
 

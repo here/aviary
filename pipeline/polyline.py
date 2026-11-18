@@ -14,8 +14,9 @@ SNAP_MI = 0.14         # a trip may fall this short of a boundary and still cove
 
 
 class PolylineCorridor:
-    def __init__(self, path: pathlib.Path):
-        cfg = json.loads(pathlib.Path(path).read_text())
+    def __init__(self, path):
+        """`path` is a corridors/<id>.json file, or the same structure as a dict."""
+        cfg = path if isinstance(path, dict) else json.loads(pathlib.Path(path).read_text())
         self.id, self.name, self.routes = cfg["corridor_id"], cfg["name"], tuple(cfg["routes"])
         self.dir_up, self.dir_down = cfg["directions"]["increasing"], cfg["directions"]["decreasing"]
         line = np.array(cfg["line"], dtype=float)

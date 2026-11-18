@@ -54,6 +54,21 @@ def live_rows(files: list) -> list:
              "section": r.section_id, "mph": r.speed_mph, "n": int(r.n_trips), "day": day(r.t.weekday())} for r in obs.itertuples()]
 
 
+def traffic_rows(files: list) -> list:
+    """General-traffic section-hours (TomTom) from the last LIVE_DAYS days."""
+    files = files[-2:]
+    if not files:
+        return []
+    t = pd.concat([pd.read_csv(f) for f in files]).dropna(subset=["speed_mph"])
+    if t.empty:
+        return []
+    t["t"] = pd.to_datetime(t.hour_start_utc, utc=True).dt.tz_convert(TIMEZONE)
+    t = t[t.t >= t.t.max() - pd.Timedelta(days=LIVE_DAYS)]
+    day = lambda wd: "weekday" if wd < 5 else ("saturday" if wd == 5 else "sunday")
+    return [{"date": r.t.strftime("%Y-%m-%d"), "hour": r.t.hour, "direction": r.direction, "section": r.section_id,
+             "mph": round(float(r.speed_mph), 2), "day": day(r.t.weekday())} for r in t.itertuples()]
+
+
 def focus_rows(root: pathlib.Path, cid: str) -> list:
     """Per focus segment and direction: bus passes timed so far, median and spread in seconds."""
     files = sorted((root / "observed").glob(f"{cid}_focus_traversals_*.csv"))
@@ -89,6 +104,7 @@ if __name__ == "__main__":
         "calitp": [{"section": r.section_id, "direction": r.direction, "period": r.time_period, "start": r.start_hour,
                     "end": r.end_hour, "p20": r.p20_mph, "p50": r.p50_mph, "p80": r.p80_mph} for r in calitp.itertuples()],
         "live": live_rows(sorted((a.data / "observed").glob("vermont_observed_*.csv"))),
+        "traffic": traffic_rows(sorted((a.data / "traffic").glob("vermont_traffic_*.csv"))),
         "focus": [],
     }}
     planned = []
@@ -110,6 +126,7 @@ if __name__ == "__main__":
             "events": [{**e, "short": e.get("short") or e["label"].split(" (")[0][:40]} for e in cfg.get("events", [])],
             "calitp": [],
             "live": live_rows(sorted((root / "observed").glob(f"{cfg['corridor_id']}_observed_*.csv"))),
+            "traffic": traffic_rows(sorted((root / "traffic").glob(f"{cfg['corridor_id']}_traffic_*.csv"))),
             "focus": focus_rows(root, cfg["corridor_id"]),
         }
     payload = {"corridors": corridors, "planned": planned, "calitp_retrieved": calitp.retrieved.iloc[0],

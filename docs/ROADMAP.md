@@ -16,7 +16,7 @@ before/after is not bus-only. Facts about programs, prices and terms below are f
 
 | # | Source | What it adds | Access | Status |
 |---|---|---|---|---|
-| A1 | **Live traffic speed API (HERE or TomTom)** | General-traffic speed on each street segment, collected from now on, beside the bus data | Free developer tier; key goes in the URL | **in progress**: **TomTom collecting since 2026-11-18 04:55 UTC** (22 tiles every 15 minutes). Next: roll-up into hourly general-traffic speeds per section, then the page. Storage terms still to check. HERE built but unused. See "A1 details" |
+| A1 | **Live traffic speed API (HERE or TomTom)** | General-traffic speed on each street segment, collected from now on, beside the bus data | Free developer tier; key goes in the URL | **in progress**: **TomTom collecting since 2026-11-18 04:55 UTC** (22 tiles every 15 minutes). Roll-up built 2026-11-18 (`pipeline/build_traffic.py`, run hourly by the workflow; on the page as a yellow line in the measured-speeds chart). Storage terms still to check. HERE built but unused. See "A1 details" |
 | A2 | Strava Metro | Bike and run counts by street segment, history | Free for agencies and approved researchers; apply | next (owner applies) |
 | A3 | LADOT data request: Waze for Cities speeds and jams, MDS scooter trips, speed surveys for the study streets | Waze history (LADOT is a partner), scooter trips before/after, measured car speeds | Request to LADOT | next (owner sends) |
 | A4 | Metro Bike Share trip history | Station-to-station trips near the corridors, since 2016 | Open CSV | later |
@@ -57,7 +57,13 @@ before/after is not bus-only. Facts about programs, prices and terms below are f
   works (a `;` separator is rejected). First stored run: 22 of 22 tiles, 3,079 road pieces (primary, secondary,
   tertiary), median 25 km/h at 20:55 local, about 150 KB gzipped per run, about 14 MB a day. Vermont shows as many
   short pieces in both directions (for example 20 to 35 km/h around Wilshire Bl at 20:00).
-- **Roll-up to build next**: decode with `mapbox-vector-tile` (pass `y_coord_down=True`, convert tile pixels with
+- **Roll-up built (2026-11-18)**: `pipeline/build_traffic.py` with a built-in tile decoder (`pipeline/mvt.py`, checked
+  against `mapbox-vector-tile` on 3,079 features with no differences), so there is no protobuf conflict. Matching: every
+  point within 40 m of the street's path and running along it (at least 80% of its length gained along the path);
+  duplicates on tile borders dropped. First run: Vermont, Hollywood and Sunset fully covered in both directions;
+  Fountain Av misses La Cienega Bl to Crescent Heights Bl until its path is corrected (C2). Output monthly CSVs in
+  `data/traffic/` (Vermont) and `data/corridors/<id>/traffic/`, listed in `datapackage.json`.
+- **Original roll-up notes**: decode with `mapbox-vector-tile` (pass `y_coord_down=True`, convert tile pixels with
   extent 4096 to longitude and latitude), keep pieces whose shape lies along a corridor path (`polyline.py`
   `locate()`, within about 25 m, direction from the order of points), and write hourly length-weighted speeds per
   section and direction with `source = tomtom_traffic_flow`. **Package conflict**: `mapbox-vector-tile` pulled

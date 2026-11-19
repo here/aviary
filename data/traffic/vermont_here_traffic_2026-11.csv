@@ -124,3 +124,17 @@ vermont,2026-11-19T19:00:00Z,2026-11-19T11:00:00-0800,southbound,S4,16.49,25.19,
 vermont,2026-11-19T19:00:00Z,2026-11-19T11:00:00-0800,southbound,S5,19.66,28.62,6.01,1.971,1.0,0.0,1,here_traffic_flow
 vermont,2026-11-19T19:00:00Z,2026-11-19T11:00:00-0800,southbound,S6,26.87,29.97,4.91,2.199,1.0,0.0,1,here_traffic_flow
 vermont,2026-11-19T19:00:00Z,2026-11-19T11:00:00-0800,southbound,corridor,16.01,25.87,43.78,11.682,1.0,0.0,1,here_traffic_flow
+vermont,2026-11-19T22:00:00Z,2026-11-19T14:00:00-0800,northbound,S1,13.55,21.63,10.96,2.474,1.0,0.0,1,here_traffic_flow
+vermont,2026-11-19T22:00:00Z,2026-11-19T14:00:00-0800,northbound,S2,11.05,23.48,8.12,1.496,1.0,0.0,1,here_traffic_flow
+vermont,2026-11-19T22:00:00Z,2026-11-19T14:00:00-0800,northbound,S3,13.56,23.15,6.64,1.502,1.0,0.0,1,here_traffic_flow
+vermont,2026-11-19T22:00:00Z,2026-11-19T14:00:00-0800,northbound,S4,16.18,23.88,7.56,2.04,1.0,0.0,1,here_traffic_flow
+vermont,2026-11-19T22:00:00Z,2026-11-19T14:00:00-0800,northbound,S5,18.74,28.81,6.31,1.971,1.0,0.0,1,here_traffic_flow
+vermont,2026-11-19T22:00:00Z,2026-11-19T14:00:00-0800,northbound,S6,24.43,29.9,5.4,2.199,1.0,0.0,1,here_traffic_flow
+vermont,2026-11-19T22:00:00Z,2026-11-19T14:00:00-0800,northbound,corridor,15.58,24.84,45.0,11.682,1.0,0.0,1,here_traffic_flow
+vermont,2026-11-19T22:00:00Z,2026-11-19T14:00:00-0800,southbound,S1,12.13,23.49,12.24,2.474,1.0,0.0,1,here_traffic_flow
+vermont,2026-11-19T22:00:00Z,2026-11-19T14:00:00-0800,southbound,S2,13.38,25.29,6.71,1.496,1.0,0.0,1,here_traffic_flow
+vermont,2026-11-19T22:00:00Z,2026-11-19T14:00:00-0800,southbound,S3,14.34,23.64,6.28,1.502,1.0,0.0,1,here_traffic_flow
+vermont,2026-11-19T22:00:00Z,2026-11-19T14:00:00-0800,southbound,S4,16.04,25.18,7.63,2.04,1.0,0.0,1,here_traffic_flow
+vermont,2026-11-19T22:00:00Z,2026-11-19T14:00:00-0800,southbound,S5,19.18,28.81,6.17,1.971,1.0,0.0,1,here_traffic_flow
+vermont,2026-11-19T22:00:00Z,2026-11-19T14:00:00-0800,southbound,S6,24.6,29.97,5.36,2.199,1.0,0.0,1,here_traffic_flow
+vermont,2026-11-19T22:00:00Z,2026-11-19T14:00:00-0800,southbound,corridor,15.79,25.91,44.39,11.682,1.0,0.0,1,here_traffic_flow

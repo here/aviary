@@ -1,0 +1,2 @@
+corridor_id,incident_id,section_id,direction,category,description,magnitude,max_delay_s,start_time_utc,end_time_utc,first_seen_utc,last_seen_utc,from_street,to_street,length_on_section_mi,source
+pico,TTI-69906437-7d70-46c7-9fd8-516a31f672e7-TTL16428980640012008,S3,eastbound,jam,Stopped traffic,3,150,2026-11-19T21:16:45Z,2026-11-19T21:38:45Z,2026-11-19T21:20:04Z,2026-11-19T21:20:04Z,S Alvarado St (W Pico Blvd),S Union Ave (W Pico Blvd),0.019,tomtom_incident_details

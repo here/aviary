@@ -1,0 +1,2 @@
+corridor_id,incident_id,section_id,direction,category,description,magnitude,max_delay_s,start_time_utc,end_time_utc,first_seen_utc,last_seen_utc,from_street,to_street,length_on_section_mi,source
+sunset,TTI-69906437-7d70-46c7-9fd8-516a31f672e7-TTL16420324816020000,S3,eastbound,jam,Stopped traffic,3,188,2026-11-19T22:14:45Z,2026-11-19T22:39:45Z,2026-11-19T22:20:04Z,2026-11-19T22:20:04Z,Manzanita St (W Sunset Blvd),Ellett Pl/Silver Lake Blvd (W Sunset Blvd),0.271,tomtom_incident_details

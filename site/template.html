@@ -100,9 +100,9 @@ button:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
 /* The street: Vermont Av drawn north (left) to south (right); each stretch between cross streets is a button. */
 .street { display: flex; flex-direction: column; gap: 6px; }
 .street-row { display: flex; align-items: stretch; overflow-x: auto; padding-bottom: 4px; }
-.street-inner { display: flex; min-width: 640px; flex: 1; }
-.stretch { flex: var(--len) 1 0; min-width: 0; background: none; border: 0; padding: 0; cursor: pointer; text-align: left; color: var(--ink-2); font: 500 12px var(--body); }
-.stretch i { display: block; height: 10px; background: var(--grid); border-left: 2px solid var(--ink-2); margin-bottom: 6px; }
+.street-inner { display: flex; align-items: flex-start; min-width: 640px; flex: 1; }
+.stretch { flex: var(--len) 1 0; min-width: 0; display: flex; flex-direction: column; justify-content: flex-start; align-items: stretch; background: none; border: 0; padding: 0; cursor: pointer; text-align: left; color: var(--ink-2); font: 500 12px var(--body); }
+.stretch i { display: block; flex: none; height: 10px; background: var(--grid); border-left: 2px solid var(--ink-2); margin-bottom: 6px; }
 .stretch:last-child i { border-right: 2px solid var(--ink-2); }
 .stretch[aria-pressed="true"] i { background: var(--accent); }
 .stretch[aria-pressed="true"] { color: var(--ink); }

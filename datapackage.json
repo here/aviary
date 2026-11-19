@@ -5,7 +5,7 @@
   "profile": "data-package",
   "version": "0.2.0",
   "created": "2026-11-17T00:00:00Z",
-  "updated": "2026-11-19T18:39:47Z",
+  "updated": "2026-11-19T19:39:10Z",
   "homepage": "https://aviary.herebox.org",
   "keywords": [
     "Los Angeles",
@@ -48,6 +48,10 @@
     {
       "title": "TomTom Orbis Maps Traffic API v2 (Vector Flow Tiles)",
       "path": "https://docs.tomtom.com/traffic-api/documentation/tomtom-orbis-maps/v2/product-information/introduction"
+    },
+    {
+      "title": "TomTom Traffic API v5 Incident Details",
+      "path": "https://docs.tomtom.com/traffic-api/documentation/traffic-incidents/incident-details"
     },
     {
       "title": "HERE Traffic API v7 (flow, corridor filter)",

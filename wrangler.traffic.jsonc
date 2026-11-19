@@ -1,4 +1,5 @@
-// Cloudflare Worker that archives general-traffic speeds: TomTom flow tiles every 15 minutes, HERE flow every 30.
+// Cloudflare Worker that archives general traffic: TomTom flow tiles every 15 minutes, TomTom incidents every 20,
+// HERE flow every 90. The cron fires every 5 minutes and each job checks the minute.
 // Separate from the bus and GBFS collectors so a failure in one cannot stop the others.
 // Deploy with `npx wrangler deploy -c wrangler.traffic.jsonc`; keys are the Worker secrets TOMTOM_API_KEY and HERE_API_KEY.
 {
@@ -8,7 +9,7 @@
   "compatibility_date": "2026-10-01",
   "workers_dev": false,
   "routes": [{ "pattern": "aviary.herebox.org/traffic/*", "zone_name": "herebox.org" }],
-  "triggers": { "crons": ["*/15 * * * *"] },
+  "triggers": { "crons": ["*/5 * * * *"] },
   "r2_buckets": [{ "binding": "ARCHIVE", "bucket_name": "aviary-vermont-speeds-bucket" }],
   "observability": { "enabled": true }
 }

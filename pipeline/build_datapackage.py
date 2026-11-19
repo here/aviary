@@ -48,6 +48,24 @@ HISTORY_FIELDS = [
     ("n_trips", "integer", "Fewest trips on any contributing segment."),
     ("source", "string", "`calitp_segment_speeds` = Cal-ITP public speed maps (bucket calitp-map-tiles)."),
 ]
+INCIDENT_FIELDS = [
+    ("corridor_id", "string", "Street identifier (`vermont`, or matching corridors/<corridor_id>.json)."),
+    ("incident_id", "string", "TomTom incident id; the same incident keeps its id while it lasts."),
+    ("section_id", "string", "Section the incident covers (an incident spanning two sections has one row for each)."),
+    ("direction", "string", "Direction of travel affected, from the order of the incident's points."),
+    ("category", "string", "TomTom icon category: accident, jam, road works, lane closed, road closed, broken down vehicle, dangerous conditions, flooding, and others."),
+    ("description", "string", "TomTom event descriptions, joined with `; ` (for example `Stopped traffic`)."),
+    ("magnitude", "integer", "Size of delay: 0 unknown, 1 minor, 2 moderate, 3 major, 4 undefined (used for closures)."),
+    ("max_delay_s", "integer", "Largest delay TomTom reported for the incident while it was seen, in seconds."),
+    ("start_time_utc", "string", "Incident start reported by TomTom (ISO 8601, UTC)."),
+    ("end_time_utc", "string", "Expected or reported end (ISO 8601, UTC); empty if unknown."),
+    ("first_seen_utc", "datetime", "First 20-minute poll in which the incident appeared."),
+    ("last_seen_utc", "datetime", "Last poll in which it appeared."),
+    ("from_street", "string", "TomTom's description of where it starts."),
+    ("to_street", "string", "TomTom's description of where it ends."),
+    ("length_on_section_mi", "number", "Miles of the section the incident covers."),
+    ("source", "string", "`tomtom_incident_details` = TomTom Traffic API v5 Incident Details, polled every 20 minutes."),
+]
 TRAFFIC_FIELDS = [
     ("corridor_id", "string", "Street identifier (`vermont`, or matching corridors/<corridor_id>.json)."),
     ("hour_start_utc", "datetime", "Start of the hour, UTC (ISO 8601)."),
@@ -155,6 +173,8 @@ def main() -> None:
         "Roughly monthly Wednesdays since October 2024, from Cal-ITP's public speed maps.", schema(HISTORY_FIELDS))
     add("vermont-traffic", "Vermont Av: hourly general-traffic speeds (TomTom)", paths(root, "data/traffic/vermont_traffic_*.csv"), "csv",
         "One file per local month. Collected since November 2026.", schema(TRAFFIC_FIELDS))
+    add("vermont-incidents", "Vermont Av: traffic incidents by section (TomTom)", paths(root, "data/incidents/vermont_incidents_*.csv"), "csv",
+        "One file per year (by first seen). Polled every 20 minutes since 2026-11-19.", schema(INCIDENT_FIELDS))
     add("vermont-here-traffic", "Vermont Av: hourly general-traffic speeds (HERE)", paths(root, "data/traffic/vermont_here_traffic_*.csv"), "csv",
         "One file per local month. Collected every 90 minutes since 2026-11-19; a cross-check on TomTom.", schema(TRAFFIC_FIELDS))
     if (root / "data/sections.csv").exists():
@@ -179,6 +199,8 @@ def main() -> None:
             "Roughly monthly Wednesdays since October 2024, from Cal-ITP's public speed maps.", schema(HISTORY_FIELDS))
         add(f"{cid}-traffic", f"{name}: hourly general-traffic speeds (TomTom)", paths(root, f"data/corridors/{cid}/traffic/{cid}_traffic_*.csv"),
             "csv", "One file per local month. Collected since November 2026.", schema(TRAFFIC_FIELDS))
+        add(f"{cid}-incidents", f"{name}: traffic incidents by section (TomTom)", paths(root, f"data/corridors/{cid}/incidents/{cid}_incidents_*.csv"),
+            "csv", "One file per year (by first seen). Polled every 20 minutes since 2026-11-19.", schema(INCIDENT_FIELDS))
         add(f"{cid}-here-traffic", f"{name}: hourly general-traffic speeds (HERE)", paths(root, f"data/corridors/{cid}/traffic/{cid}_here_traffic_*.csv"),
             "csv", "One file per local month. Collected every 90 minutes since 2026-11-19; a cross-check on TomTom.", schema(TRAFFIC_FIELDS))
         add(f"{cid}-definition", f"{name}: definition", cfg_path.as_posix(), "json",
@@ -231,6 +253,7 @@ def main() -> None:
             {"title": "Cal-ITP / Caltrans Average Transit Speeds by Stop", "path": "https://data.ca.gov/dataset/average-transit-speeds-by-stop"},
             {"title": "Cal-ITP public speed maps (Google Cloud Storage bucket calitp-map-tiles)", "path": "https://storage.googleapis.com/storage/v1/b/calitp-map-tiles/o?prefix=segment_speeds_"},
             {"title": "TomTom Orbis Maps Traffic API v2 (Vector Flow Tiles)", "path": "https://docs.tomtom.com/traffic-api/documentation/tomtom-orbis-maps/v2/product-information/introduction"},
+            {"title": "TomTom Traffic API v5 Incident Details", "path": "https://docs.tomtom.com/traffic-api/documentation/traffic-incidents/incident-details"},
             {"title": "HERE Traffic API v7 (flow, corridor filter)", "path": "https://docs.here.com/traffic-api/docs/geospatial-filters-here-traffic-api-v7-concepts"},
         ],
         "resources": resources,

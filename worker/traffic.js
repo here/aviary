@@ -19,6 +19,15 @@
 // Routes (on aviary.herebox.org): /traffic/status, /traffic/run (collect now; add ?here=1 to include HERE off-schedule,
 // which costs 7 HERE requests).
 // A provider without a key is skipped.
+//
+// TomTom incidents (Traffic API v5 Incident Details), every 20 minutes: every current incident inside one box that
+// covers all study streets (accidents, jams, roadworks, closures, broken-down vehicles...), with type, size of delay,
+// start and end times, from/to streets and the line it covers. One request per run, about 2,160 a month of the free
+// 2,500. Stored gzipped under traffic/incidents/YYYY-MM-DD/HH/tomtom_incidents_YYYY-MM-DDTHHMM.json.gz and rolled
+// up by pipeline/build_incidents.py. /traffic/run?incidents=1 polls now (one request).
+//
+// The cron fires every 5 minutes and each job checks the minute: flow tiles at :00/:15/:30/:45, incidents at
+// :00/:20/:40, HERE every 90 minutes from 00:00 UTC.
 
 import hollywood from "../corridors/hollywood.json";
 import fountain from "../corridors/fountain.json";
@@ -53,6 +62,15 @@ const BOXES = {
 const HERE_RADIUS_M = 40;
 const HERE_EVERY_MIN = 90;
 const VERMONT_LINE = [[-118.2919, 34.1010], [-118.2917, 33.9235]]; // as VERMONT in pipeline/build_traffic.py
+// One incident box over every study street.
+const INCIDENT_BOX = (() => {
+  const all = [VERMONT_LINE, hollywood.line, fountain.line, sunset.line, pico.line, olympic.line, westwood.line];
+  return bbox(...all).map((v) => Number(v.toFixed(5)));
+})();
+const INCIDENT_EVERY_MIN = 20;
+const INCIDENT_URL = "https://api.tomtom.com/traffic/services/5/incidentDetails";
+const INCIDENT_FIELDS = "{incidents{type,geometry{type,coordinates},properties{id,iconCategory,magnitudeOfDelay,events{description,code,iconCategory},startTime,endTime,from,to,length,delay,roadNumbers,timeValidity,probabilityOfOccurrence,numberOfReports,lastReportTime}}}";
+
 const HERE_CORRIDORS = Object.fromEntries(
   [["vermont", VERMONT_LINE], ...[hollywood, fountain, sunset, pico, olympic, westwood].map((c) => [c.corridor_id, c.line])]
     .map(([id, line]) => [id, encode(simplify(line).map(([lon, lat]) => [lat, lon]))]),
@@ -139,20 +157,50 @@ async function collect(env, when = new Date(), forceHere = false) {
   return status;
 }
 
+async function collectIncidents(env, when = new Date()) {
+  const iso = when.toISOString(), day = iso.slice(0, 10), hour = iso.slice(11, 13), stamp = `${iso.slice(0, 13)}${iso.slice(14, 16)}`;
+  const status = { at: iso, box: INCIDENT_BOX, every_min: INCIDENT_EVERY_MIN };
+  if (!env.TOMTOM_API_KEY) {
+    status.error = "TOMTOM_API_KEY secret not set";
+  } else {
+    const q = new URLSearchParams({ bbox: INCIDENT_BOX.join(","), fields: INCIDENT_FIELDS, language: "en-US", timeValidityFilter: "present" });
+    try {
+      const r = await fetch(`${INCIDENT_URL}?${q}`, { headers: { "TomTom-Api-Key": env.TOMTOM_API_KEY }, signal: AbortSignal.timeout(25000) });
+      const text = await r.text();
+      if (!r.ok) throw new Error(`HTTP ${r.status} ${text.slice(0, 160)}`);
+      const key = `traffic/incidents/${day}/${hour}/tomtom_incidents_${stamp}.json.gz`;
+      await env.ARCHIVE.put(key, await gzip(JSON.stringify({ at: iso, box: INCIDENT_BOX, response: JSON.parse(text) })),
+        { httpMetadata: { contentType: "application/json", contentEncoding: "gzip" } });
+      status.key = key;
+      status.incidents = (JSON.parse(text).incidents || []).length;
+    } catch (e) {
+      status.error = String(e.message || e);
+    }
+  }
+  await env.ARCHIVE.put("status/incidents.json", JSON.stringify(status), { httpMetadata: { contentType: "application/json" } });
+  return status;
+}
+
 const json = (b, s = 200) => new Response(JSON.stringify(b, null, 2), { status: s, headers: { "content-type": "application/json; charset=utf-8", "cache-control": "no-store" } });
 
 export default {
   async scheduled(controller, env, ctx) {
-    ctx.waitUntil(collect(env, new Date(controller.scheduledTime)));
+    const when = new Date(controller.scheduledTime), m = when.getUTCMinutes();
+    if (m % 15 === 0) ctx.waitUntil(collect(env, when));
+    if (m % INCIDENT_EVERY_MIN === 0) ctx.waitUntil(collectIncidents(env, when));
   },
   async fetch(request, env) {
     const url = new URL(request.url);
     const path = url.pathname.replace(/^\/traffic/, "") || "/";
     if (path === "/status") {
-      const o = await env.ARCHIVE.get("status/traffic.json");
-      return json(o ? await o.json() : { at: null, error: "not run yet", tomtom_key: !!env.TOMTOM_API_KEY, here_key: !!env.HERE_API_KEY, tiles: TT_TILES });
+      const o = await env.ARCHIVE.get("status/traffic.json"), i = await env.ARCHIVE.get("status/incidents.json");
+      const base = o ? await o.json() : { at: null, error: "not run yet", tomtom_key: !!env.TOMTOM_API_KEY, here_key: !!env.HERE_API_KEY, tiles: TT_TILES };
+      return json({ ...base, incidents: i ? await i.json() : "not run yet" });
     }
-    if (path === "/run") return json(await collect(env, new Date(), url.searchParams.get("here") === "1"));
+    if (path === "/run") {
+      if (url.searchParams.get("incidents") === "1") return json(await collectIncidents(env));
+      return json(await collect(env, new Date(), url.searchParams.get("here") === "1"));
+    }
     return json({ routes: ["/traffic/status", "/traffic/run"], boxes: BOXES, here_corridors: HERE_CORRIDORS, tomtom_tiles: TT_TILES }, 404);
   },
 };

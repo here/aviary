@@ -10,11 +10,11 @@ Last updated: 2026-11-19.
 
 ## Up next (short list)
 
-1. **E2** TomTom incidents: start collecting now, because history cannot be recovered later (top-level
-   requirement: incidents on every stretch, over time; design in `docs/INCIDENTS.md`).
+1. **E1** Collisions from CCRS (top-level requirement: incidents on every stretch, over time; design in
+   `docs/INCIDENTS.md`). E2 live incidents started 2026-11-19.
 2. **C12** Review Olympic Bl against Pico Bl on **2026-11-26**, then decide on control streets for every project.
 3. **C2 / C13** Fix Fountain Av's path and improve HERE coverage on Fountain Av and Westwood Village.
-4. **E1** Collisions from CCRS.
+4. **E5** Delay columns in the traffic files.
 5. **B2** Swiftly storage plan, due before February 2027 (R2's 10 GB free tier).
 
 ## A. Traffic data for other vehicles
@@ -85,7 +85,7 @@ points and storage design are in [`docs/INCIDENTS.md`](INCIDENTS.md); the source
 | # | Item | Source | Status |
 |---|---|---|---|
 | E1 | Collisions per section: severity (K, A, B, C, O), traveller type, age band, conditions; weekly refresh re-fetching the last 90 days | CCRS on data.ca.gov (open, 2016 to present, includes LAPD). First check why LAPD counts drop from 2016 to 2024 | next |
-| E2 | Live incidents per section (type, size, delay, first and last seen) | TomTom Incident Details: one box over all streets every 20 minutes (~2,160 of the free 2,500 a month) | next (collect soon) |
+| E2 | Live incidents per section (type, size, delay, first and last seen) | TomTom Incident Details: one box over all streets every 20 minutes (~2,160 of the free 2,500 a month) | **in progress**: collecting since 2026-11-19 19:37 UTC, rolled up hourly (`pipeline/build_incidents.py`). Next: show on the page (E6); review matching after a week |
 | E5 | Delay columns: `delay_min` (travel time minus free-flow time) in the traffic CSVs, and bus minutes against the timetable | Existing TomTom, HERE and bus data | next |
 | E6 | Incidents on the page: collisions by severity and traveller type per section and year, incident hours, delay | E1, E2, E5 | later |
 | E3 | Hourly weather and daylight | NOAA ASOS (downtown USC, LAX); host to be allowed | later |

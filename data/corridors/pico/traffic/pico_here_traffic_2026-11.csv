@@ -1,0 +1,8 @@
+corridor_id,hour_start_utc,hour_start_local,direction,section_id,speed_mph,free_flow_mph,travel_time_min,length_mi,coverage,closed_share,n_snapshots,source
+pico,2026-11-19T08:00:00Z,2026-11-19T00:00:00-0800,eastbound,S1,20.02,27.66,2.96,0.989,1.0,0.0,1,here_traffic_flow
+pico,2026-11-19T08:00:00Z,2026-11-19T00:00:00-0800,eastbound,S2,21.8,22.76,2.74,0.994,0.999,0.0,1,here_traffic_flow
+pico,2026-11-19T08:00:00Z,2026-11-19T00:00:00-0800,eastbound,S3,20.33,22.0,1.96,0.664,1.0,0.0,1,here_traffic_flow
+pico,2026-11-19T08:00:00Z,2026-11-19T00:00:00-0800,eastbound,corridor,20.74,24.15,7.66,2.647,1.0,0.0,1,here_traffic_flow
+pico,2026-11-19T08:00:00Z,2026-11-19T00:00:00-0800,westbound,S1,26.72,27.34,2.22,0.989,0.515,0.0,1,here_traffic_flow
+pico,2026-11-19T08:00:00Z,2026-11-19T00:00:00-0800,westbound,S2,,,,0.994,0.498,0.0,1,here_traffic_flow
+pico,2026-11-19T08:00:00Z,2026-11-19T00:00:00-0800,westbound,S3,15.5,22.12,2.57,0.664,1.0,0.0,1,here_traffic_flow

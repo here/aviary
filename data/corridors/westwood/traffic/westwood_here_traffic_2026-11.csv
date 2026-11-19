@@ -1,0 +1,9 @@
+corridor_id,hour_start_utc,hour_start_local,direction,section_id,speed_mph,free_flow_mph,travel_time_min,length_mi,coverage,closed_share,n_snapshots,source
+westwood,2026-11-19T08:00:00Z,2026-11-19T00:00:00-0800,northbound,S1,,,,0.379,0.246,0.0,1,here_traffic_flow
+westwood,2026-11-19T08:00:00Z,2026-11-19T00:00:00-0800,northbound,S2,21.13,26.1,1.91,0.671,1.0,0.0,1,here_traffic_flow
+westwood,2026-11-19T08:00:00Z,2026-11-19T00:00:00-0800,northbound,S3,15.88,25.52,2.09,0.552,1.0,0.0,1,here_traffic_flow
+westwood,2026-11-19T08:00:00Z,2026-11-19T00:00:00-0800,northbound,S4,26.8,25.99,1.18,0.526,1.0,0.0,1,here_traffic_flow
+westwood,2026-11-19T08:00:00Z,2026-11-19T00:00:00-0800,southbound,S1,,,,0.379,0.252,0.0,1,here_traffic_flow
+westwood,2026-11-19T08:00:00Z,2026-11-19T00:00:00-0800,southbound,S2,24.62,26.16,1.64,0.671,1.0,0.0,1,here_traffic_flow
+westwood,2026-11-19T08:00:00Z,2026-11-19T00:00:00-0800,southbound,S3,29.22,26.77,1.13,0.552,1.0,0.0,1,here_traffic_flow
+westwood,2026-11-19T08:00:00Z,2026-11-19T00:00:00-0800,southbound,S4,24.91,24.46,1.27,0.526,1.0,0.0,1,here_traffic_flow

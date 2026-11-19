@@ -1,0 +1,4 @@
+corridor_id,hour_start_utc,hour_start_local,direction,section_id,speed_mph,free_flow_mph,travel_time_min,length_mi,coverage,closed_share,n_snapshots,source
+fountain,2026-11-19T08:00:00Z,2026-11-19T00:00:00-0800,eastbound,S1,,,,0.542,0.118,0.0,1,here_traffic_flow
+fountain,2026-11-19T08:00:00Z,2026-11-19T00:00:00-0800,westbound,S1,,,,0.542,0.118,0.0,1,here_traffic_flow
+fountain,2026-11-19T08:00:00Z,2026-11-19T00:00:00-0800,westbound,S6,,,,1.016,0.05,0.0,1,here_traffic_flow

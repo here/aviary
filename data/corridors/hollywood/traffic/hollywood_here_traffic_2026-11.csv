@@ -1,0 +1,11 @@
+corridor_id,hour_start_utc,hour_start_local,direction,section_id,speed_mph,free_flow_mph,travel_time_min,length_mi,coverage,closed_share,n_snapshots,source
+hollywood,2026-11-19T08:00:00Z,2026-11-19T00:00:00-0800,eastbound,S1,15.54,17.4,2.64,0.684,1.0,0.0,1,here_traffic_flow
+hollywood,2026-11-19T08:00:00Z,2026-11-19T00:00:00-0800,eastbound,S2,13.28,18.44,1.08,0.24,1.0,0.0,1,here_traffic_flow
+hollywood,2026-11-19T08:00:00Z,2026-11-19T00:00:00-0800,eastbound,S3,20.57,24.23,2.21,0.759,1.0,0.0,1,here_traffic_flow
+hollywood,2026-11-19T08:00:00Z,2026-11-19T00:00:00-0800,eastbound,S4,25.17,26.1,2.39,1.004,1.0,0.0,1,here_traffic_flow
+hollywood,2026-11-19T08:00:00Z,2026-11-19T00:00:00-0800,eastbound,corridor,19.35,22.0,8.33,2.687,1.0,0.0,1,here_traffic_flow
+hollywood,2026-11-19T08:00:00Z,2026-11-19T00:00:00-0800,westbound,S1,19.25,18.01,2.13,0.684,1.0,0.0,1,here_traffic_flow
+hollywood,2026-11-19T08:00:00Z,2026-11-19T00:00:00-0800,westbound,S2,14.29,15.53,1.01,0.24,1.0,0.0,1,here_traffic_flow
+hollywood,2026-11-19T08:00:00Z,2026-11-19T00:00:00-0800,westbound,S3,28.48,23.0,1.6,0.759,1.0,0.0,1,here_traffic_flow
+hollywood,2026-11-19T08:00:00Z,2026-11-19T00:00:00-0800,westbound,S4,22.44,24.04,2.68,1.004,1.0,0.0,1,here_traffic_flow
+hollywood,2026-11-19T08:00:00Z,2026-11-19T00:00:00-0800,westbound,corridor,21.72,20.96,7.42,2.687,1.0,0.0,1,here_traffic_flow

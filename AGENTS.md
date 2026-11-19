@@ -2,7 +2,8 @@
 
 Read `README.md` for what the project is and the published links. This file explains how the system works and
 what is easy to get wrong. **Open work and its status live in [`docs/ROADMAP.md`](docs/ROADMAP.md)**; update that
-file when you finish or start something, and update "Current state" below when the system itself changes.
+file when you finish or start something, and update "Current state" below when the system itself changes. At the end
+of a session, add a short summary to `meta/status/` (see `meta/README.md`).
 
 ## Project in one paragraph
 
@@ -17,7 +18,8 @@ upcoming project gets a measured "before".
 
 | Path | What |
 |---|---|
-| `docs/ROADMAP.md` | Task tracker and the ordered list of data sources to explore |
+| `docs/ROADMAP.md` | Task tracker: up-next list, open items by area, done log |
+| `meta/status/` | One short status note per working session (newest last); read the latest first |
 | `docs/EXPANSION_PLAN.md` | Before/after method and project status notes |
 | `docs/FREE_TIERS.md` | Free allowances of every API and service, current usage and headroom; update when adding a street, tile box or collector |
 | `docs/CROWDSOURCED_DATA.md` | Community-collected data (Telraam first) and why it matters here |
@@ -29,19 +31,19 @@ upcoming project gets a measured "before".
 | `.mcp.json` | MCP servers for Claude Code: `here-docs` (HERE documentation, `https://docs.here.com/mcp`, public, no key). Search HERE docs and API specs (tools `search`, `fetch`, `list-specs`, `list-endpoints`, `search-endpoints`, `get-endpoint`, `get-server-variables`); it does not call HERE APIs. `docs.here.com` is on the `aviary` environment allowlist (2026-11-19) and the server answers from the session; its tools load in sessions started after that. Without them, call it with curl: POST JSON-RPC `tools/call` to `https://docs.here.com/mcp` with `Accept: application/json, text/event-stream` (no session needed) |
 | `.github/workflows/publish.yml` | Hourly: collect, roll up, commit, rebuild package and site, deploy to Cloudflare and Pages |
 
-## Current state (2026-11-18)
+## Current state (2026-11-19)
 
 | Item | State |
 |---|---|
 | Site | Live at `https://aviary.herebox.org` (Cloudflare Worker with static assets) and `https://here.github.io/aviary/` (Pages, Source = GitHub Actions). Archive under `/data/`, package at `/datapackage.json`, street definitions at `/corridors/` |
 | Bus collector | Worker `aviary-vermont-speeds`, every minute: Metro websocket (lines 204, 754, 2, 4) into R2 `raw/` (7-day expiry); Swiftly vehicle positions every minute and trip updates every 15 minutes into `swiftly/` (no expiry). Status: `/api/status`, `/api/swiftly` |
 | GBFS collector | Worker `aviary-gbfs-collector`, every 10 minutes into `gbfs/`. Bird and Metro Bike Share working; Lime missing. Status: `/gbfs/status` |
-| Traffic-speed collector | Worker `aviary-traffic-collector`, every 15 minutes: TomTom Orbis Maps Traffic API v2 Vector Flow Tiles (`GET api.tomtom.com/maps/orbis/traffic/flow/vector/tile/14/{x}/{y}?apiVersion=2`; 30 tiles since Pico, Olympic and Westwood were added on 2026-11-19, about 86,000 requests a month against a free 200,000 a month; main roads, km/h and OpenLR per road piece; details in `docs/FREE_TIERS.md`) into `traffic/tomtom/`, collecting since 2026-11-18 04:55 UTC. HERE Traffic API v7 flow every 90 minutes since 2026-11-19, one request per street with the corridor filter (path encoded as Flexible Polyline by `worker/flexpolyline.js`, radius 40 m; ~3,400 of the free 5,000 requests a month), stored under `traffic/here/`, rolled up by `build_traffic.py --provider here` into `*_here_traffic_YYYY-MM.csv` beside the TomTom files (live speeds only, confidence above 0.7). HERE barely covers Fountain Av (minor street; fuller coverage is a paid feature). Status: `/traffic/status`; `/traffic/run` collects now. Rolled up hourly by `pipeline/build_traffic.py` into `data/traffic/` (Vermont) and `data/corridors/<id>/traffic/`; shown in the measured-speeds chart as the yellow line (TomTom) and the dashed yellow line (HERE); the PM-peak traffic figure adds HERE in its note |
+| Traffic-speed collector | Worker `aviary-traffic-collector` (`worker/traffic.js`): TomTom Vector Flow Tiles every 15 minutes (30 zoom-14 tiles) into `traffic/tomtom/` since 2026-11-18 04:55 UTC; HERE flow every 90 minutes (one corridor request per street) into `traffic/here/` since 2026-11-19. Rolled up hourly by `pipeline/build_traffic.py`; on the page as the solid (TomTom) and dashed (HERE) yellow lines. Status `/traffic/status`; `/traffic/run` collects now (`?here=1` adds HERE, 7 requests). Details: "Traffic providers" below |
 | Hourly workflow | Downloads two days of pings from R2 (Metro + Swiftly), rolls up measured speeds for every street, commits them, writes permanent daily raw and MDS files to R2 (`daily/`, `mds/`), regenerates `datapackage.json`, builds the site, deploys Workers (step is `continue-on-error`: check it) and Pages. GitHub drops some scheduled runs |
 | Scheduled series | Vermont 2016-01-31 onward (`data/hourly/`); Hollywood, Sunset, Pico and Olympic 2018 onward, Westwood June 2021 onward (`data/corridors/<id>/hourly/`). Rebuild needs the GTFS clone; not run by the workflow |
 | Measured series | Monthly CSVs: `data/observed/` (Vermont), `data/corridors/<id>/observed/` (with bus-by-bus focus-segment timings for Sunset) |
 | Measured bus history (Cal-ITP) | `data/calitp/vermont_calitp_history.csv`, `data/corridors/<id>/calitp/<id>_calitp_history.csv`: median, 20th and 80th percentile bus speeds per section, line, direction and time of day for 13 analysis Wednesdays from 2024-10 to 2026-07, from Cal-ITP's public speed maps. Built by `pipeline/fetch_calitp_history.py`; refreshed weekly by `.github/workflows/calitp-history.yml`. LA Metro's bus feed is named `recPnGkwdpnr8jmHB` (to 2025-07), then base64 of its GTFS address or `recX8JOPmBQM9aWLC` in the file names. Cal-ITP dropped PM Peak after 2025-07; 2024-10 and 2025-01 are partial |
-| General-traffic series | Monthly CSVs from TomTom flow tiles: `data/traffic/vermont_traffic_YYYY-MM.csv`, `data/corridors/<id>/traffic/<id>_traffic_YYYY-MM.csv` (speed, free-flow speed, coverage, closures per section and direction) |
+| General-traffic series | Monthly CSVs per street: TomTom `data/traffic/vermont_traffic_YYYY-MM.csv`, `data/corridors/<id>/traffic/<id>_traffic_YYYY-MM.csv`; HERE the same with `_here_traffic_` (speed, free-flow speed, coverage, closures per section and direction) |
 | Repository secrets | `CLOUDFLARE_ACCOUNT_ID`, `CLOUDFLARE_API_TOKEN` (account Workers + R2 edit, zone `herebox.org`), `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `SWIFTLY_API_KEY`, `TOMTOM_API_KEY`, `HERE_API_KEY` (added 2026-11-19; only the API key is used, not the app ID) |
 | Cloud session environment `aviary` | Limited network allowlist (Cloudflare API, api.metro.net, gitlab.com, Caltrans GIS, data.ca.gov, aviary.herebox.org, and since 2026-11-18 docs.calitp.org, www.calitp.org, data.lacity.org, here.github.io, storage.googleapis.com, docs.here.com). Network secrets for `api.cloudflare.com`, `api.goswift.ly` (bare `Authorization` header) and `api.tomtom.com` (`TomTom-Api-Key` header). LADOT and operator sites are still blocked; widen it from the environment settings on a computer (the owner cannot approve changes from the phone app) |
 
@@ -90,6 +92,30 @@ come from search-result summaries; verify before quoting.
 - **Owner's priorities (2026-11-18)**: overall travel time first. Lateness (schedule adherence) and bunching
   (uneven headways) are secondary, to be kept as possible findings for later. Bunching can be measured from the
   minute-by-minute vehicle positions; lateness needs trip updates or the scheduled times in the static GTFS.
+
+## Traffic providers
+
+- **TomTom** Orbis Maps Traffic API v2, Vector Flow Tiles:
+  `GET api.tomtom.com/maps/orbis/traffic/flow/vector/tile/14/{x}/{y}?apiVersion=2&attributes=tags(absolute_speed,relative_speed,road_category,road_closure,part_of_two_way_road,openlr),roadCategories(primary,secondary,tertiary)`
+  with header `TomTom-Api-Key`.
+  - The attribute list needs commas: a `;` separator is rejected.
+  - Arterials appear at zooms 12 to 14; zoom 14 is used.
+  - Tiles are stored raw (base64 in one gzipped JSON per run) and decoded later by `pipeline/mvt.py`.
+  - Each new street adds 1 to 4 tiles; the tile list comes from the boxes in `worker/traffic.js`.
+  - Free allowance: 200,000 tile requests a month; we use about 86,000.
+- **HERE** Traffic API v7 flow:
+  `GET data.traffic.hereapi.com/v7/flow?in=corridor:{flexible polyline};r=40&locationReferencing=shape&apiKey=...`
+  - One request per street, made along its own path. The path is simplified, then encoded by
+    `worker/flexpolyline.js`, which reproduces HERE's published examples. URLs must stay under 1,000 characters.
+  - Free allowance: 5,000 requests a month. 7 streets every 90 minutes is about 3,400; hourly would be about 5,000, too close.
+  - The roll-up keeps live speeds only (confidence above 0.7) and matches each HERE file to its own street only.
+  - Coverage is thin on Fountain Av and Westwood Village (roadmap C13).
+- **Matching** (both providers):
+  - A piece counts when every point is within 40 m of the street's path and at least 80% of its length runs along it.
+  - Direction comes from the order of its points.
+  - Section speed is the harmonic, length-weighted average; the hourly value is the harmonic mean of the snapshots.
+- **Terms**: both providers restrict storing traffic data. We keep raw responses and publish derived hourly speeds;
+  the owner still has to read the terms (roadmap A1).
 
 ## Data package
 
@@ -155,35 +181,22 @@ come from search-result summaries; verify before quoting.
 - Public outputs: the California Open Data Portal (GTFS schedule data), the Caltrans geoportal (the speeds snapshot
   this project already uses), the analytics portfolio `analysis.calitp.org` (unreachable from the session), and a
   **public Google Cloud Storage bucket `calitp-map-tiles`** that holds the rendered speed maps from their realtime
-  analysis tools. That bucket may contain past LA Metro segment speeds by date: a lead worth checking (needs
-  `storage.googleapis.com` on the environment allowlist).
+  analysis tools. It holds LA Metro segment speeds for roughly monthly Wednesdays since October 2024, and is what
+  this project uses for measured history.
 
-*The notes below were written from memory before that check; where they disagree, the paragraph above wins.*
-
-- **What exists publicly**: "Average Transit Speeds by Stop" and "Average Transit Speeds by Route" on
-  data.ca.gov, served from `caltrans-gis.dot.ca.gov` (ArcGIS FeatureServer, layers `Speeds_by_Stop_Segments`
-  and `Speeds_by_Route_Time_of_Day`). They give 20th/50th/80th percentile speeds by time-of-day period for
-  a single recent weekday. `pipeline/fetch_calitp.py` pulls line 204 and rolls it up to our sections
-  (`data/reference/calitp_speeds_204.csv`). It is a snapshot, not a history; re-running overwrites it.
-- **Query quirks**: `route_name` is a string (`'204'`); filter the agency with
-  `agency LIKE 'Los Angeles County Metro%'`; some features have no geometry and must be skipped;
-  `direction_id` 0 is northbound for the 204.
-- **Agreement with our series**: on the current timetable, midday is about 8.7 mph measured against
-  8.6 mph scheduled for the corridor. Useful as a sanity check after any method change.
-- **What would give a measured history**: Cal-ITP (California Integrated Travel Project, Caltrans) archives
-  every California agency's GTFS-realtime feeds, including LA Metro vehicle positions, in a BigQuery
-  warehouse. The archive is believed to start around 2022. It is not openly downloadable; access is thought
-  to be by request for Caltrans staff and partners.
-- **Where to ask** (unverified): `hello@calitp.org`; documentation at `docs.calitp.org/data-infra`.
-- **What to ask for**, any one of: read access to the vehicle-position tables; a one-time export for LA
-  Metro routes 204 and 754 as far back as the archive goes; or hourly/daily segment speeds for those routes
-  if already computed.
-- **If access is granted**: write a loader that turns their vehicle positions into the same ping columns
-  `build_observed.py` uses (vehicle id, trip id, start date, route, timestamp, lat, lon), then reuse
-  `hourly()` so historical and live measured rows share one method and one schema
-  (`source = gtfs_realtime_observed`).
-- **Alternatives for the same history**: LA Metro's own vehicle-location archive (ask Metro's data team),
-  or historical exports through Swiftly if the key allows.
+- **Measured history in use**: the `calitp-map-tiles` bucket (see "Current state"). Its folders are
+  `segment_speeds_YYYY-MM-DD/`, and only `new_speedmap` files are used.
+- **One-day snapshot**: `pipeline/fetch_calitp.py` pulls line 204 from the Caltrans geoportal (ArcGIS FeatureServer
+  `Speeds_by_Stop_Segments`) into `data/reference/calitp_speeds_204.csv`. Re-running overwrites it.
+  - `route_name` is a string (`'204'`).
+  - Filter the agency with `agency LIKE 'Los Angeles County Metro%'`.
+  - Skip features without geometry.
+  - `direction_id` 0 is northbound.
+- **Sanity check**: midday on Vermont is about 8.7 mph measured against 8.6 mph scheduled.
+- **If warehouse access is ever granted**:
+  - Write a loader that turns its vehicle positions into the ping columns `build_observed.py` uses (vehicle id, trip
+    id, start date, route, timestamp, lat, lon), and reuse `hourly()` (`source = gtfs_realtime_observed`).
+  - Alternatives for the same history: LA Metro's own vehicle-location archive, or Swiftly exports (roadmap B4).
 
 ## Other sources considered
 

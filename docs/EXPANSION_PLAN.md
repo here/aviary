@@ -1,7 +1,8 @@
 # Expansion plan: before/after road diets and safe-streets projects
 
-Status: plan only, written 2026-11-17. Nothing here is built except item 0.
-Facts marked *(verify)* are from memory and must be checked before they appear on a page.
+Written 2026-11-17 as the plan; kept for its method (sections 1 to 4). Most of it is now built: Hollywood, Sunset, Fountain,
+Pico (with Olympic as control) and Westwood are tracked with timetable, Cal-ITP, bus GPS and traffic data. Current status lives in
+[`ROADMAP.md`](ROADMAP.md), not here. Facts marked *(verify)* are from memory and must be checked before they appear on a page.
 
 ## Goal
 

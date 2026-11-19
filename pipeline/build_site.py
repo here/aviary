@@ -159,7 +159,15 @@ if __name__ == "__main__":
         }
     order = ["vermont", "hollywood", "sunset", "pico", "olympic", "westwood", "fountain"]  # street picker order
     corridors = dict(sorted(corridors.items(), key=lambda kv: order.index(kv[0]) if kv[0] in order else len(order)))
-    payload = {"corridors": corridors, "planned": planned, "calitp_retrieved": calitp.retrieved.iloc[0],
+    deaths = {}
+    fat = a.data / "reference" / "fatalities_ccrs.csv"
+    if fat.exists():
+        f = pd.read_csv(fat)
+        deaths["ccrs"] = f.to_dict("records")
+    nat = a.data / "reference" / "fatalities_national.csv"
+    if nat.exists():
+        deaths["national"] = pd.read_csv(nat).to_dict("records")
+    payload = {"corridors": corridors, "planned": planned, "deaths": deaths, "calitp_retrieved": calitp.retrieved.iloc[0],
                "rows": sum(c["meta"]["rows"] for c in corridors.values())}
     page = a.template.read_text().replace("/*DATA*/null", json.dumps(payload, separators=(",", ":")))
     a.out.parent.mkdir(parents=True, exist_ok=True)

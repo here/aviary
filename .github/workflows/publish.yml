@@ -101,6 +101,12 @@ jobs:
         if: env.AWS_ACCESS_KEY_ID == '' && github.event_name != 'push'
         run: python pipeline/collect_realtime.py --routes 204,754,2,4 --minutes 20 --out run/raw
 
+      - name: Refresh traffic deaths from CCRS (once a day, 15:00 UTC run)
+        run: |
+          if [ "$(date -u +%H)" = "15" ] || [ ! -f data/reference/fatalities_ccrs.csv ]; then
+            python pipeline/fetch_fatalities.py || echo "CCRS fatality refresh failed"
+          fi
+
       - name: Roll up to hourly speeds
         run: |
           if [ -n "$(find run/raw -name 'vehicle_positions_*' 2>/dev/null | head -1)" ]; then
@@ -132,7 +138,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           python pipeline/build_datapackage.py
-          git add data/observed data/corridors data/traffic datapackage.json && { [ -d data/incidents ] && git add data/incidents || true; }
+          git add data/observed data/corridors data/traffic data/reference/fatalities_ccrs.csv datapackage.json && { [ -d data/incidents ] && git add data/incidents || true; }
           git diff --cached --quiet || git commit -m "Observed speeds $(date -u +%Y-%m-%dT%H:00Z)"
           # main may have moved while this run worked (a code push, another run): rebase onto it and retry.
           # On a conflict in data files, keep this run's freshly computed version ("theirs" during a rebase).

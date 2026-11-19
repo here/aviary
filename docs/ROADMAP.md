@@ -86,6 +86,7 @@ points and storage design are in [`docs/INCIDENTS.md`](INCIDENTS.md); the source
 |---|---|---|---|
 | E1 | Collisions per section: severity (K, A, B, C, O), traveller type, age band, conditions; weekly refresh re-fetching the last 90 days | CCRS on data.ca.gov (open, 2016 to present, includes LAPD). First check why LAPD counts drop from 2016 to 2024 | next |
 | E2 | Live incidents per section (type, size, delay, first and last seen) | TomTom Incident Details: one box over all streets every 20 minutes (~2,160 of the free 2,500 a month) | **in progress**: collecting since 2026-11-19 19:37 UTC, rolled up hourly (`pipeline/build_incidents.py`). Next: show on the page (E6); review matching after a week |
+| E7 | Headline fatality numbers (United States, City of Los Angeles by year and year to date) | **done (2026-11-19)**: "Traffic deaths" panel at the top of the page, refreshed daily from CCRS; national from NHTSA by hand. Next: update the national CSV when NHTSA publishes 2025 final figures |
 | E5 | Delay columns: `delay_min` (travel time minus free-flow time) in the traffic CSVs, and bus minutes against the timetable | Existing TomTom, HERE and bus data | next |
 | E6 | Incidents on the page: collisions by severity and traveller type per section and year, incident hours, delay | E1, E2, E5 | later |
 | E3 | Hourly weather and daylight | NOAA ASOS (downtown USC, LAX); host to be allowed | later |
@@ -97,5 +98,6 @@ points and storage design are in [`docs/INCIDENTS.md`](INCIDENTS.md); the source
 |---|---|
 | 2026-11-17 | Vermont Av scheduled speeds from GTFS history (2016 on); Worker collector, R2, hourly workflow, site at aviary.herebox.org and GitHub Pages; Hollywood, Sunset and Fountain added; GBFS collector |
 | 2026-11-18 | Swiftly collected (from 01:28 UTC) and rolled into measured speeds (B1); TomTom flow tiles collected (from 04:55 UTC) with its own tile decoder and roll-up; Cal-ITP measured history from the public speed-map bucket, weekly refresh (B5); crowdsourced-data and safety-data surveys; workflow push race fixed; actions on Node 24; page redesign (menus, projects, data sources) |
+| 2026-11-19 | TomTom incidents collected every 20 minutes and rolled up per section (E2 started); traffic-deaths panel (E7); incident data points designed (`docs/INCIDENTS.md`) |
 | 2026-11-19 | Pico Bl (C6) with Olympic Bl as its control (C7); Westwood Bl (C10); free-tier record (`docs/FREE_TIERS.md`); HERE flow with the corridor filter, rolled up and shown dashed beside TomTom; HERE documentation MCP server; street-strip alignment fix; social links |
 | moved | C3 collisions → E1 |

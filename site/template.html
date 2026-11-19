@@ -78,6 +78,10 @@ table.plain tr.group th { text-align: left; padding-top: 16px; font-family: var(
 .stat b small { font-size: 14px; font-weight: 500; color: var(--ink-2); margin-left: 3px; }
 .stat span { font-size: 12.5px; color: var(--ink-2); }
 .stat .stat-k { font-size: 11.5px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); }
+.deaths { display: flex; flex-direction: column; gap: 8px; }
+.deaths .stat b { color: var(--accent); }
+.deaths-note { margin: 0; font-size: 12.5px; color: var(--ink-3); max-width: 75ch; }
+#deaths-chart svg { width: 100%; height: auto; display: block; }
 .stats-head { grid-column: 1 / -1; margin: 0; padding: 12px 0 0; font-size: 13.5px; color: var(--ink-2); }
 @media (max-width: 640px) { .stats { grid-template-columns: minmax(0, 1fr); } .stat + .stat { padding-left: 0; border-left: 0; border-top: 1px solid var(--grid); } }
 
@@ -179,8 +183,14 @@ code { font: 12.5px ui-monospace, SFMono-Regular, Menlo, monospace; background: 
   </header>
 
   <nav class="toc" aria-label="Page sections">
-    <a href="#measured">Measured</a><a href="#history" class="toc-history">Over time</a><a href="#next-site" class="toc-focus">Next project site</a><a href="#projects">Projects</a><a href="#sources">Data sources</a><a href="#crowdsourced">Crowdsourced</a>
+    <a href="#deaths">Traffic deaths</a><a href="#measured">Measured</a><a href="#history" class="toc-history">Over time</a><a href="#next-site" class="toc-focus">Next project site</a><a href="#projects">Projects</a><a href="#sources">Data sources</a><a href="#crowdsourced">Crowdsourced</a>
   </nav>
+
+  <section class="deaths" id="deaths" aria-label="Traffic deaths">
+    <div class="stats" id="deaths-stats"></div>
+    <div id="deaths-chart"></div>
+    <p class="deaths-note" id="deaths-note"></p>
+  </section>
 
   <section class="controls" aria-label="Filters">
     <div class="ctl"><span>Street</span><div class="seg" data-f="cor" id="seg-cor"></div></div>
@@ -270,7 +280,7 @@ code { font: 12.5px ui-monospace, SFMono-Regular, Menlo, monospace; background: 
   </section>
 
   <nav class="toc" aria-label="Page sections">
-    <a href="#measured">Measured</a><a href="#history" class="toc-history">Over time</a><a href="#next-site" class="toc-focus">Next project site</a><a href="#projects">Projects</a><a href="#sources">Data sources</a><a href="#crowdsourced">Crowdsourced</a>
+    <a href="#deaths">Traffic deaths</a><a href="#measured">Measured</a><a href="#history" class="toc-history">Over time</a><a href="#next-site" class="toc-focus">Next project site</a><a href="#projects">Projects</a><a href="#sources">Data sources</a><a href="#crowdsourced">Crowdsourced</a>
   </nav>
   <footer class="site-foot">
     <a href="https://github.com/here/aviary" target="_blank" rel="noopener"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg><span>Code and documentation on GitHub</span></a>
@@ -596,12 +606,56 @@ function renderFocus() {
   $("#focus-tbl").innerHTML = `<thead><tr><th>Segment</th><th>Direction</th><th>Miles</th><th>Bus passes</th><th>Middle pass, seconds</th><th>20th to 80th percentile</th><th>mph</th></tr></thead><tbody>` +
     C.focus.map(f => `<tr><td>${f.name}</td><td>${cap(f.direction)}</td><td>${f.length_mi.toFixed(2)}</td><td>${f.n}</td><td>${f.median_s.toFixed(0)}</td><td>${f.p20_s.toFixed(0)} to ${f.p80_s.toFixed(0)}</td><td>${(f.length_mi / f.median_s * 3600).toFixed(1)}</td></tr>`).join("") + "</tbody>";
 }
+// Traffic deaths: national (NHTSA) and City of Los Angeles by year (CCRS), drawn once.
+function renderDeaths() {
+  const box = $("#deaths"), d = D.deaths || {};
+  const la = (d.ccrs || []).filter(r => r.area === "los_angeles_city").sort((a, b) => a.year - b.year);
+  const nat = (d.national || []).sort((a, b) => a.year - b.year);
+  if (!la.length && !nat.length) { box.hidden = true; return; }
+  const fmt = n => Math.round(n).toLocaleString("en-US");
+  const daysIn = y => (y % 4 === 0 && (y % 100 !== 0 || y % 400 === 0)) ? 366 : 365;
+  const tiles = [];
+  const n = nat[nat.length - 1], n0 = nat[nat.length - 2];
+  if (n) tiles.push(["United States", `${fmt(n.killed / daysIn(n.year))}<small>a day</small>`,
+    `${fmt(n.killed)} people killed in ${n.year} (NHTSA ${n.kind})` + (n0 ? `; ${fmt(n0.killed)} in ${n0.year} (final), about ${fmt(n0.killed / daysIn(n0.year))} a day` : "")]);
+  const thisYear = la[la.length - 1], last = la[la.length - 2];
+  if (last) tiles.push([`City of Los Angeles, ${last.year}`, `${fmt(last.killed)}<small>killed</small>`,
+    `${(last.killed / daysIn(last.year)).toFixed(2)} a day: nearly one person every day`]);
+  if (thisYear) {
+    const through = new Date(thisYear.through + "T12:00:00Z"), start = new Date(Date.UTC(thisYear.year, 0, 1));
+    const days = Math.round((through - start) / 864e5) + 1, rate = thisYear.killed / days;
+    tiles.push([`Los Angeles, ${thisYear.year} so far`, `${fmt(thisYear.killed)}<small>killed</small>`,
+      `through ${thisYear.through}: ${rate.toFixed(2)} a day, on pace for about ${fmt(rate * daysIn(thisYear.year))} (late reports still arriving)`]);
+  }
+  $("#deaths-stats").innerHTML = `<p class="stats-head"><b>Traffic deaths</b>: what these redesigns are meant to reduce</p>` +
+    tiles.map(t => `<div class="stat"><span class="stat-k">${t[0]}</span><b>${t[1]}</b><span>${t[2]}</span></div>`).join("");
+  const host = $("#deaths-chart");
+  if (la.length) {
+    const W = Math.max(320, host.clientWidth || 640), H = 150, m = { l: 34, r: 8, t: 16, b: 22 };
+    const svg = svgIn(host, W, H), hi = Math.ceil(Math.max(...la.map(r => r.killed)) / 100) * 100;
+    const bw = (W - m.l - m.r) / la.length, y = v => m.t + (H - m.t - m.b) * (1 - v / hi);
+    for (const t of [0, hi / 2, hi]) {
+      el("line", { x1: m.l, x2: W - m.r, y1: y(t), y2: y(t), stroke: "var(--grid)" }, svg);
+      el("text", { x: m.l - 6, y: y(t) + 4, "text-anchor": "end" }, svg, t);
+    }
+    la.forEach((r, i) => {
+      const x = m.l + i * bw + bw * 0.15, partial = r === thisYear;
+      el("rect", { x, y: y(r.killed), width: bw * 0.7, height: y(0) - y(r.killed), fill: "var(--accent)", "fill-opacity": partial ? 0.4 : 0.85, rx: 2 }, svg);
+      el("text", { x: x + bw * 0.35, y: y(r.killed) - 4, "text-anchor": "middle", "font-size": W < 520 ? 9 : 11 }, svg, r.killed);
+      el("text", { x: x + bw * 0.35, y: H - 6, "text-anchor": "middle", "font-size": W < 520 ? 9 : 11 }, svg, W < 520 ? "'" + String(r.year).slice(2) : r.year);
+    });
+  }
+  const lapd = last && (d.ccrs || []).find(r => r.area === "los_angeles_city_lapd" && r.year === last.year);
+  $("#deaths-note").textContent = `Bars: people killed in crashes in the City of Los Angeles each year, from the California Crash Reporting System (CHP), which covers every agency, so freeway crashes inside the city count${thisYear ? `; ${thisYear.year} is partial (lighter)` : ""}. Refreshed daily. LAPD's own reports alone count ${lapd ? fmt(lapd.killed) : "fewer"} for ${last ? last.year : "last year"}, and LAPD's published city total can differ again. National figures: NHTSA.`;
+}
+
 function render() {
   useCorridor(); renderControls();
   renderStats(); renderStreet(); renderObs(); renderHistory(); renderFocus();
 }
 function set(k, v) { state[k] = v; try { localStorage.setItem("aviary-filters-2", JSON.stringify(state)); } catch (e) {} render(); }
 $("#whole").onclick = () => set("sec", "corridor");
+renderDeaths(); addEventListener("resize", () => renderDeaths());
 let rz; addEventListener("resize", () => { clearTimeout(rz); rz = setTimeout(render, 120); });
 addEventListener("scroll", hideTip, { passive: true });
 render();

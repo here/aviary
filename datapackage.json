@@ -5,7 +5,7 @@
   "profile": "data-package",
   "version": "0.2.0",
   "created": "2026-11-17T00:00:00Z",
-  "updated": "2026-11-19T19:39:10Z",
+  "updated": "2026-11-19T19:45:01Z",
   "homepage": "https://aviary.herebox.org",
   "keywords": [
     "Los Angeles",
@@ -48,6 +48,14 @@
     {
       "title": "TomTom Orbis Maps Traffic API v2 (Vector Flow Tiles)",
       "path": "https://docs.tomtom.com/traffic-api/documentation/tomtom-orbis-maps/v2/product-information/introduction"
+    },
+    {
+      "title": "California Crash Reporting System (CCRS), CHP",
+      "path": "https://data.ca.gov/dataset/ccrs"
+    },
+    {
+      "title": "NHTSA traffic fatality estimates",
+      "path": "https://crashstats.nhtsa.dot.gov/Api/Public/ViewPublication/813800"
     },
     {
       "title": "TomTom Traffic API v5 Incident Details",
@@ -2020,6 +2028,78 @@
             "name": "days",
             "type": "integer",
             "description": "Number of service days."
+          }
+        ]
+      }
+    },
+    {
+      "name": "la-fatalities",
+      "title": "Traffic deaths by year: City of Los Angeles (all agencies and LAPD only) and California, from CCRS",
+      "path": "data/reference/fatalities_ccrs.csv",
+      "format": "csv",
+      "description": "Sum of NumberKilled per year from CCRS Crashes tables; the current year is partial. Refreshed daily.",
+      "profile": "tabular-data-resource",
+      "schema": {
+        "fields": [
+          {
+            "name": "year",
+            "type": "integer"
+          },
+          {
+            "name": "area",
+            "type": "string"
+          },
+          {
+            "name": "killed",
+            "type": "integer"
+          },
+          {
+            "name": "crashes",
+            "type": "integer"
+          },
+          {
+            "name": "through",
+            "type": "string"
+          },
+          {
+            "name": "retrieved",
+            "type": "string"
+          },
+          {
+            "name": "source",
+            "type": "string"
+          }
+        ]
+      }
+    },
+    {
+      "name": "us-fatalities",
+      "title": "Traffic deaths in the United States (NHTSA)",
+      "path": "data/reference/fatalities_national.csv",
+      "format": "csv",
+      "description": "Maintained by hand from NHTSA releases.",
+      "profile": "tabular-data-resource",
+      "schema": {
+        "fields": [
+          {
+            "name": "year",
+            "type": "integer"
+          },
+          {
+            "name": "killed",
+            "type": "integer"
+          },
+          {
+            "name": "kind",
+            "type": "string"
+          },
+          {
+            "name": "source",
+            "type": "string"
+          },
+          {
+            "name": "url",
+            "type": "string"
           }
         ]
       }

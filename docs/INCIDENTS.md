@@ -6,6 +6,29 @@ over time, and keep it going, next to the bus and traffic speeds.
 This note decides *what* to record before anything is built. Sources were checked from the session on 2026-11-18
 and 2026-11-19; build steps are roadmap items E1, E2 and E5.
 
+## Headline numbers (checked 2026-11-19)
+
+| Area | Figure | Per day | Source |
+|---|---|---|---|
+| United States, 2024 | 39,254 killed (final) | about 107 | NHTSA annual file |
+| United States, 2025 | 36,640 killed (early estimate, down 6.7%) | about 100 | NHTSA Crash Stats 813800 |
+| City of Los Angeles, 2025 | 342 killed (all agencies; LAPD reports alone: 265) | 0.94 | CCRS |
+| City of Los Angeles, 2026 to Nov 18 | 237 killed | 0.73, on pace for about 268 | CCRS (partial; late reports keep arriving) |
+
+- "40,000 a year, about 100 a day" holds for 2021 to 2024. It is a little high for 2025 (about 36,600, still about
+  100 a day).
+- Los Angeles has stayed between 282 and 368 deaths a year since 2016 (CCRS, all agencies), nearly one a day.
+- LAPD's published 2025 city figure (290, reported by LAist) sits between the CCRS LAPD-only count (265) and the
+  all-agency count (342). Freeway crashes inside the city handled by CHP explain most of the gap.
+- **CCRS crash counts are not comparable across 2020/2021**: LAPD's yearly crash total falls from about 38,000 to
+  about 12,000 while deaths do not, so LAPD stopped sending most non-injury crashes. Use deaths and injury crashes
+  for trends.
+- CCRS's statewide totals for 2025 and 2026 look incomplete (3,458 and 1,731 against about 4,000 a year before),
+  probably because reports arrive late. Do not quote them yet.
+- The page shows these figures in a "Traffic deaths" panel at the top. `pipeline/fetch_fatalities.py` refreshes
+  `data/reference/fatalities_ccrs.csv` once a day (the 15:00 UTC workflow run). National figures are kept by hand in
+  `data/reference/fatalities_national.csv`.
+
 ## The data points
 
 | Data point | Meaning here | Source | History | How often it updates |

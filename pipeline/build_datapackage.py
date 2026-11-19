@@ -182,6 +182,13 @@ def main() -> None:
     if (root / "data/feed_versions.csv").exists():
         add("vermont-feed-versions", "Vermont Av: timetable version in force for each date range", "data/feed_versions.csv", "csv", None,
             csv_schema(root / "data/feed_versions.csv", FEED_DESC))
+    if (root / "data/reference/fatalities_ccrs.csv").exists():
+        add("la-fatalities", "Traffic deaths by year: City of Los Angeles (all agencies and LAPD only) and California, from CCRS",
+            "data/reference/fatalities_ccrs.csv", "csv", "Sum of NumberKilled per year from CCRS Crashes tables; the current year is partial. Refreshed daily.",
+            csv_schema(root / "data/reference/fatalities_ccrs.csv", {}))
+    if (root / "data/reference/fatalities_national.csv").exists():
+        add("us-fatalities", "Traffic deaths in the United States (NHTSA)", "data/reference/fatalities_national.csv", "csv",
+            "Maintained by hand from NHTSA releases.", csv_schema(root / "data/reference/fatalities_national.csv", {}))
     if (root / "data/reference/calitp_speeds_204.csv").exists():
         add("vermont-calitp-reference", "Vermont Av: Cal-ITP measured speeds for line 204 (one-day snapshot)",
             "data/reference/calitp_speeds_204.csv", "csv", "20th, 50th and 80th percentile speeds by time of day, rolled up to the sections.",
@@ -253,6 +260,8 @@ def main() -> None:
             {"title": "Cal-ITP / Caltrans Average Transit Speeds by Stop", "path": "https://data.ca.gov/dataset/average-transit-speeds-by-stop"},
             {"title": "Cal-ITP public speed maps (Google Cloud Storage bucket calitp-map-tiles)", "path": "https://storage.googleapis.com/storage/v1/b/calitp-map-tiles/o?prefix=segment_speeds_"},
             {"title": "TomTom Orbis Maps Traffic API v2 (Vector Flow Tiles)", "path": "https://docs.tomtom.com/traffic-api/documentation/tomtom-orbis-maps/v2/product-information/introduction"},
+            {"title": "California Crash Reporting System (CCRS), CHP", "path": "https://data.ca.gov/dataset/ccrs"},
+            {"title": "NHTSA traffic fatality estimates", "path": "https://crashstats.nhtsa.dot.gov/Api/Public/ViewPublication/813800"},
             {"title": "TomTom Traffic API v5 Incident Details", "path": "https://docs.tomtom.com/traffic-api/documentation/traffic-incidents/incident-details"},
             {"title": "HERE Traffic API v7 (flow, corridor filter)", "path": "https://docs.here.com/traffic-api/docs/geospatial-filters-here-traffic-api-v7-concepts"},
         ],

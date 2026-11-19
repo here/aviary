@@ -1,29 +1,21 @@
-# Hourly: gather the newest bus GPS pings, roll them up to hourly speeds,
-# commit the archive, and publish the site.
+# Hourly data collection: every call to an outside service (R2, CCRS) and every data commit, nothing else.
+#   - downloads the last two UTC days of bus pings, Swiftly snapshots, TomTom/HERE traffic and TomTom incidents from R2
+#   - rolls them up into data/ (observed speeds, traffic, incidents), refreshes CCRS deaths once a day
+#   - stores the permanent daily raw and MDS files back in R2, regenerates datapackage.json, commits data/
+# It does not build or deploy anything: "Build and deploy site" (site.yml) runs after it, and Worker code is deployed
+# by "Deploy collectors" (workers.yml). Commits made with GITHUB_TOKEN do not trigger push workflows, hence the
+# workflow_run hand-off.
 #
-# Two ways to gather pings, chosen automatically:
-#   - Cloudflare (preferred): the Worker in worker/ records the feed every
-#     minute into R2. This job downloads the last two UTC days from R2.
-#     Needs secrets CLOUDFLARE_ACCOUNT_ID, CLOUDFLARE_API_TOKEN,
-#     R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY.
-#   - GitHub only: with no R2 secrets, this job listens to the feed itself
-#     for 20 minutes each hour.
-#
-# Scheduled runs only fire on the repository's default branch.
-name: Collect and publish
+# Without R2 secrets it listens to Metro's feed itself for 20 minutes instead. Scheduled runs fire on main only.
+name: Collect and roll up
 on:
   schedule:
     - cron: "17 * * * *"
-  push:
-    branches: [main]
-    paths: ["site/**", "pipeline/**", "worker/**", "wrangler.jsonc", "data/hourly/**", ".github/workflows/publish.yml"]
   workflow_dispatch:
 permissions:
   contents: write
-  pages: write
-  id-token: write
 concurrency:
-  group: aviary-vermont-speeds-publish
+  group: aviary-data   # shared with calitp-history.yml so data commits never race
   cancel-in-progress: false
 env:
   R2_BUCKET: aviary-vermont-speeds-bucket
@@ -31,16 +23,13 @@ env:
   CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
   AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
   AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
-  SWIFTLY_API_KEY: ${{ secrets.SWIFTLY_API_KEY }}
-  HERE_API_KEY: ${{ secrets.HERE_API_KEY }}
-  TOMTOM_API_KEY: ${{ secrets.TOMTOM_API_KEY }}
   AWS_DEFAULT_REGION: auto
   AWS_REQUEST_CHECKSUM_CALCULATION: when_required
   AWS_RESPONSE_CHECKSUM_VALIDATION: when_required
 jobs:
-  build:
+  collect:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 40
     steps:
       - uses: actions/checkout@v7
         with:
@@ -98,7 +87,7 @@ jobs:
           fi
 
       - name: Or listen to the feed from here (no Cloudflare storage configured)
-        if: env.AWS_ACCESS_KEY_ID == '' && github.event_name != 'push'
+        if: env.AWS_ACCESS_KEY_ID == ''
         run: python pipeline/collect_realtime.py --routes 204,754,2,4 --minutes 20 --out run/raw
 
       - name: Refresh traffic deaths from CCRS (once a day, 15:00 UTC run)
@@ -147,42 +136,3 @@ jobs:
             sleep $((attempt * 5))
             git pull --rebase -X theirs origin main
           done
-
-      - name: Build the site
-        run: |
-          python pipeline/build_datapackage.py
-          python pipeline/build_site.py
-
-      - uses: actions/upload-pages-artifact@v5
-        with:
-          path: _site
-
-      - name: Deploy site, API routes and collector to Cloudflare
-        if: env.CLOUDFLARE_API_TOKEN != ''
-        # A token problem here must not stop data collection or the GitHub Pages deploy.
-        continue-on-error: true
-        run: |
-          npx --yes wrangler@4 deploy
-          npx --yes wrangler@4 deploy -c wrangler.gbfs.jsonc
-          npx --yes wrangler@4 deploy -c wrangler.traffic.jsonc
-          if [ -n "$TOMTOM_API_KEY" ]; then
-            printf '%s' "$TOMTOM_API_KEY" | npx --yes wrangler@4 secret put TOMTOM_API_KEY -c wrangler.traffic.jsonc
-          fi
-          if [ -n "$HERE_API_KEY" ]; then
-            printf '%s' "$HERE_API_KEY" | npx --yes wrangler@4 secret put HERE_API_KEY -c wrangler.traffic.jsonc
-          fi
-          if [ -n "$SWIFTLY_API_KEY" ]; then
-            printf '%s' "$SWIFTLY_API_KEY" | npx --yes wrangler@4 secret put SWIFTLY_API_KEY
-          fi
-
-  github-pages:
-    needs: build
-    runs-on: ubuntu-latest
-    # Needs Settings > Pages > Source set to "GitHub Actions"; until then this job fails without stopping collection.
-    continue-on-error: true
-    environment:
-      name: github-pages
-      url: ${{ steps.deploy.outputs.page_url }}
-    steps:
-      - id: deploy
-        uses: actions/deploy-pages@v5

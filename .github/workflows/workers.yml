@@ -1,0 +1,43 @@
+# Deploy the collector Workers and copy their API keys from repository secrets. Runs only when their code or
+# configuration changes (or by hand), not every hour. The site Worker (wrangler.jsonc) is deployed by site.yml,
+# because it serves the built page; its Swiftly key is set here.
+name: Deploy collectors
+on:
+  push:
+    branches: [main]
+    paths:
+      - "worker/**"
+      - "wrangler.gbfs.jsonc"
+      - "wrangler.traffic.jsonc"
+      - "corridors/**"   # worker/traffic.js builds its tiles, HERE corridors and incident box from the street paths
+      - ".github/workflows/workers.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: aviary-workers
+  cancel-in-progress: false
+env:
+  CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+  CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+  SWIFTLY_API_KEY: ${{ secrets.SWIFTLY_API_KEY }}
+  HERE_API_KEY: ${{ secrets.HERE_API_KEY }}
+  TOMTOM_API_KEY: ${{ secrets.TOMTOM_API_KEY }}
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - name: Deploy the GBFS and traffic collectors
+        if: env.CLOUDFLARE_API_TOKEN != ''
+        run: |
+          npx --yes wrangler@4 deploy -c wrangler.gbfs.jsonc
+          npx --yes wrangler@4 deploy -c wrangler.traffic.jsonc
+      - name: Copy API keys into the Workers
+        if: env.CLOUDFLARE_API_TOKEN != ''
+        run: |
+          put() { [ -n "$2" ] && printf '%s' "$2" | npx --yes wrangler@4 secret put "$1" $3 || true; }
+          put TOMTOM_API_KEY "$TOMTOM_API_KEY" "-c wrangler.traffic.jsonc"
+          put HERE_API_KEY "$HERE_API_KEY" "-c wrangler.traffic.jsonc"
+          put SWIFTLY_API_KEY "$SWIFTLY_API_KEY" ""

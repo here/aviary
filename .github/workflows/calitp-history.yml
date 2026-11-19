@@ -1,5 +1,5 @@
 # Weekly: refresh the measured bus speed history from Cal-ITP's public speed maps (bucket calitp-map-tiles).
-# Cal-ITP adds a new analysis day roughly once a month; the hourly workflow then puts it on the page.
+# Cal-ITP adds a new analysis day roughly once a month. Outside calls and a data commit only; site.yml rebuilds the page after it.
 name: Refresh Cal-ITP history
 on:
   schedule:
@@ -8,7 +8,7 @@ on:
 permissions:
   contents: write
 concurrency:
-  group: aviary-vermont-speeds-publish   # same group as the hourly workflow, so the two never push at once
+  group: aviary-data   # same group as collect.yml, so the two never push at once
   cancel-in-progress: false
 jobs:
   refresh:

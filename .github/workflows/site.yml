@@ -1,0 +1,69 @@
+# Build the page and archive from what is committed, and deploy it. No calls to outside data services.
+# Runs when content changes on main (page, site builder, street definitions, data, Worker serving the site), and after
+# each successful data run ("Collect and roll up", "Refresh Cal-ITP history"), whose commits cannot trigger push events.
+# Only the newest build matters, so a newer run cancels an older one.
+name: Build and deploy site
+on:
+  push:
+    branches: [main]
+    paths:
+      - "site/**"
+      - "pipeline/build_site.py"
+      - "pipeline/build_datapackage.py"
+      - "corridors/**"
+      - "data/**"
+      - "worker/index.js"
+      - "wrangler.jsonc"
+      - ".github/workflows/site.yml"
+  workflow_run:
+    workflows: ["Collect and roll up", "Refresh Cal-ITP history"]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+concurrency:
+  group: aviary-site
+  cancel-in-progress: true
+env:
+  CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+  CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+jobs:
+  build:
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: main   # after a data run, build from the commit it just pushed
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: Build the site
+        run: |
+          python pipeline/build_datapackage.py
+          python pipeline/build_site.py
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: _site
+      - name: Deploy the site Worker (static assets, /api routes, minute collector) to Cloudflare
+        if: env.CLOUDFLARE_API_TOKEN != ''
+        continue-on-error: true   # a token problem must not stop the GitHub Pages deploy
+        run: npx --yes wrangler@4 deploy
+
+  github-pages:
+    needs: build
+    runs-on: ubuntu-latest
+    # Needs Settings > Pages > Source set to "GitHub Actions".
+    continue-on-error: true
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - id: deploy
+        uses: actions/deploy-pages@v5

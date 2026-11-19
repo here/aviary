@@ -123,12 +123,19 @@ for-hire modes. It has no transit-bus mode and no roadway-speed table. So:
 ```
 LA Metro feed ──every minute──> Cloudflare Worker (cron) ──> R2  raw/<day>/<hour>/*.ndjson.gz
                                                                 │
-GitHub Actions, hourly:  download last 2 days ──> hourly speeds ──> commit data/observed/
-                         daily raw + MDS files ──> R2 daily/ and mds/
-                         build site ──> GitHub Pages  and  Cloudflare (site + /api + collector)
+GitHub Actions:
+  collect.yml (hourly)    download last 2 days from R2 ──> hourly speeds, traffic, incidents ──> commit data/
+                          daily raw + MDS files ──> R2 daily/ and mds/
+  site.yml (after data    build site ──> GitHub Pages and Cloudflare (site + /api + minute collector)
+   runs, content pushes)
+  workers.yml (on Worker  deploy GBFS and traffic collectors, copy API keys into Workers
+   code changes)
 ```
 
-One workflow, `.github/workflows/publish.yml`, does everything on GitHub's side. It works in two modes:
+Four workflows split outside calls from content: **`collect.yml`** (hourly) and **`calitp-history.yml`** (weekly) call
+outside services and commit data only; **`site.yml`** builds and deploys the page from what is committed, after each data
+run and on pushes that change content; **`workers.yml`** deploys the collector Workers and their keys only when Worker
+code changes. Collection works in two modes:
 
 | | GitHub only | With Cloudflare (recommended) |
 |---|---|---|

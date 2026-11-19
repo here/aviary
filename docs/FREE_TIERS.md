@@ -77,4 +77,4 @@ For any future street, the TomTom tile count is the only number that grows direc
 - Cloudflare: `developers.cloudflare.com/workers/platform/limits` (cron triggers, requests, CPU) and
   `developers.cloudflare.com/r2/pricing` (storage and operations).
 - Usage figures: tile counts from `/traffic/status`; object counts from the collectors' schedules and the
-  `aws s3 sync` steps in `.github/workflows/publish.yml`.
+  `aws s3 sync` steps in `.github/workflows/collect.yml`.

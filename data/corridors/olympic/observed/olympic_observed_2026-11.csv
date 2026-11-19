@@ -231,3 +231,6 @@ olympic,2026-11-19T07:00:00Z,2026-11-18T23:00:00-0800,28,westbound,S1,10.97,4.42
 olympic,2026-11-19T07:00:00Z,2026-11-18T23:00:00-0800,28,westbound,S2,12.01,4.98,0.997,2,gtfs_realtime_observed,
 olympic,2026-11-19T07:00:00Z,2026-11-18T23:00:00-0800,28,westbound,S3,12.1,3.76,0.758,2,gtfs_realtime_observed,
 olympic,2026-11-19T07:00:00Z,2026-11-18T23:00:00-0800,28,westbound,S4,14.36,3.94,0.944,2,gtfs_realtime_observed,
+olympic,2026-11-19T08:00:00Z,2026-11-19T00:00:00-0800,28,eastbound,S4,27.44,2.06,0.944,1,gtfs_realtime_observed,
+olympic,2026-11-19T08:00:00Z,2026-11-19T00:00:00-0800,28,westbound,S1,19.59,2.47,0.808,1,gtfs_realtime_observed,
+olympic,2026-11-19T08:00:00Z,2026-11-19T00:00:00-0800,28,westbound,S2,30.11,1.99,0.997,1,gtfs_realtime_observed,

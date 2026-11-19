@@ -56,7 +56,7 @@ def live_rows(files: list) -> list:
 
 
 def traffic_rows(files: list) -> list:
-    """General-traffic section-hours (TomTom) from the last LIVE_DAYS days."""
+    """General-traffic section-hours (TomTom or HERE files) from the last LIVE_DAYS days."""
     files = files[-2:]
     if not files:
         return []
@@ -115,6 +115,7 @@ if __name__ == "__main__":
                     "end": r.end_hour, "p20": r.p20_mph, "p50": r.p50_mph, "p80": r.p80_mph} for r in calitp.itertuples()],
         "live": live_rows(sorted((a.data / "observed").glob("vermont_observed_*.csv"))),
         "traffic": traffic_rows(sorted((a.data / "traffic").glob("vermont_traffic_*.csv"))),
+        "here": traffic_rows(sorted((a.data / "traffic").glob("vermont_here_traffic_*.csv"))),
         "history": history_rows(a.data / "calitp" / "vermont_calitp_history.csv"),
         "focus": [],
     }}
@@ -124,6 +125,7 @@ if __name__ == "__main__":
         root = a.data / "corridors" / cfg["corridor_id"]
         events = [{**e, "short": e.get("short") or e["label"].split(" (")[0][:40]} for e in cfg.get("events", [])]
         traffic = traffic_rows(sorted((root / "traffic").glob(f"{cfg['corridor_id']}_traffic_*.csv")))
+        here = traffic_rows(sorted((root / "traffic").glob(f"{cfg['corridor_id']}_here_traffic_*.csv")))
         if not (root / "hourly").exists():
             # No bus data (Fountain Av): offered in the street picker when general-traffic speeds exist.
             if not traffic:
@@ -135,7 +137,7 @@ if __name__ == "__main__":
                 "name": cfg["name"].split(",")[0], "street": cfg["name"].split(",")[0], "ends": cfg.get("ends", ["West", "East"]),
                 "routes": [], "directions": [cfg["directions"]["increasing"], cfg["directions"]["decreasing"]],
                 "sections": [pc.total] + pc.sections, "breakpoints": [b[0] for b in cfg["breakpoints"]],
-                "events": events, "calitp": [], "live": [], "traffic": traffic, "history": [], "focus": [],
+                "events": events, "calitp": [], "live": [], "traffic": traffic, "here": here, "history": [], "focus": [],
             }
             continue
         sec = pd.read_csv(root / "sections.csv")
@@ -151,6 +153,7 @@ if __name__ == "__main__":
             "calitp": [],
             "live": live_rows(sorted((root / "observed").glob(f"{cfg['corridor_id']}_observed_*.csv"))),
             "traffic": traffic,
+            "here": here,
             "history": history_rows(root / "calitp" / f"{cfg['corridor_id']}_calitp_history.csv"),
             "focus": focus_rows(root, cfg["corridor_id"]),
         }

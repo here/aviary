@@ -122,6 +122,7 @@ button:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
 .legend i { width: 14px; height: 3px; border-radius: 2px; display: inline-block; }
 .legend i.band { height: 10px; opacity: .28; }
 .legend i.dot { width: 9px; height: 9px; border-radius: 50%; }
+.legend i.dash { background: repeating-linear-gradient(90deg, var(--s4) 0 5px, transparent 5px 8px) !important; }
 .chart { position: relative; width: 100%; }
 .chart svg { display: block; width: 100%; height: auto; overflow: visible; }
 .chart text { font: 11.5px var(--body); fill: var(--ink-3); font-variant-numeric: tabular-nums; }
@@ -248,6 +249,7 @@ code { font: 12.5px ui-monospace, SFMono-Regular, Menlo, monospace; background: 
       <div><dt><a href="https://developer.metro.net" target="_blank" rel="noopener">LA Metro realtime API</a></dt><dd>Live bus positions every few seconds for lines 204, 754, 2 and 4. Open, no key.</dd></div>
       <div><dt><a href="https://www.goswift.ly" target="_blank" rel="noopener">Swiftly realtime API</a></dt><dd>Metro's realtime data provider: every bus once a minute, plus predicted arrivals. Keyed access.</dd></div>
       <div><dt><a href="https://docs.tomtom.com/traffic-api/documentation/tomtom-orbis-maps/v2/product-information/introduction" target="_blank" rel="noopener">TomTom Orbis Maps Traffic API v2: Vector Flow Tiles</a></dt><dd>Current and free-flow speed for each piece of main road, from TomTom's traffic flow vector tiles at zoom 14, fetched every 15 minutes and matched to each street section. Keyed access; the free plan allows 200,000 tile requests a month.</dd></div>
+      <div><dt><a href="https://docs.here.com/traffic-api/docs/geospatial-filters-here-traffic-api-v7-concepts" target="_blank" rel="noopener">HERE Traffic API v7: flow, corridor filter</a></dt><dd>A second provider of general-traffic speed, used to cross-check TomTom: current and free-flow speed for the roads along each street, requested every 90 minutes with a corridor drawn along the street's own path. Only live speeds are kept (HERE's confidence above 0.7). Keyed access; the free plan allows 5,000 requests a month. Shown as the dashed yellow line.</dd></div>
       <div><dt><a href="https://data.ca.gov/dataset/average-transit-speeds-by-stop" target="_blank" rel="noopener">Cal-ITP average transit speeds</a></dt><dd>Caltrans' measured bus speeds by stop: one recent weekday on the open data portal, plus roughly monthly speed maps since October 2024 in a public storage bucket, used for the history chart.</dd></div>
       <div><dt><a href="https://github.com/MobilityData/gbfs/blob/master/systems.csv" target="_blank" rel="noopener">GBFS shared bikes and scooters</a></dt><dd>Public availability feeds from Bird and Metro Bike Share, recorded every 10 minutes. Not yet charted.</dd></div>
       <div><dt><a href="https://github.com/openmobilityfoundation/mobility-data-specification" target="_blank" rel="noopener">Open Mobility Foundation MDS</a></dt><dd>The standard used to export the bus GPS positions as vehicle telemetry.</dd></div>
@@ -385,12 +387,13 @@ function renderStats() {
   let sched = null, schedYear = "";
   if (hasBus()) { const y = YEARS[YEARS.length - 1]; sched = avg(yearMonths(y), pm); schedYear = y; }
   const bus = hasBus() ? measuredSpeed(C.live.filter(l => l.route === state.route), pm) : null;
-  const traffic = measuredSpeed(C.traffic || [], pm);
+  const traffic = measuredSpeed(C.traffic || [], pm), here = measuredSpeed(C.here || [], pm);
+  const hereNote = here ? `; HERE: ${(len / here.mph * 60).toFixed(0)} min over ${here.n} hour${here.n > 1 ? "s" : ""}` : "";
   const noBus = "No bus runs on this street";
   const tiles = [
     ["Bus, scheduled", sched ? mins(sched) : "–", sched ? `Line ${state.route} timetable, ${schedYear}` : (hasBus() ? `No line ${state.route} service on this stretch` : noBus)],
     ["Bus, actual", bus ? mins(bus.mph) : "–", bus ? `Bus GPS (Metro and Swiftly feeds), ${hrs(bus)}` : (hasBus() ? "No PM-peak bus hours measured yet for this selection" : noBus)],
-    ["Traffic, actual", traffic ? mins(traffic.mph) : "–", traffic ? `General traffic (TomTom), ${hrs(traffic)}` : "No PM-peak traffic hours measured yet; collection started November 17, 2026"],
+    ["Traffic, actual", traffic ? mins(traffic.mph) : "–", traffic ? `General traffic (TomTom), ${hrs(traffic)}${hereNote}` : (here ? `TomTom has no PM-peak hours yet${hereNote}` : "No PM-peak traffic hours measured yet; collection started November 17, 2026")],
   ];
   $("#stats").innerHTML = `<p class="stats-head">Time to travel ${secOf(state.sec).name} (${len.toFixed(1)} mi) at PM peak, 3 to 8pm, ${state.day === "weekday" ? "weekdays" : state.day + "s"}</p>` +
     tiles.map(t => `<div class="stat"><span class="stat-k">${t[0]}</span><b>${t[1]}</b><span>${t[2]}</span></div>`).join("");
@@ -497,25 +500,29 @@ function renderObs() {
   Object.values(liveHours).forEach(rows => { const v = comb(rows, "mph"); if (v) (byHour[rows[0].hour] ||= []).push({ mph: v, date: rows[0].date }); });
   const live = Object.entries(byHour).map(([hour, a]) => ({ hour: +hour, n: a.length, mph: a.length / a.reduce((s, r) => s + 1 / r.mph, 0) }));
   const liveDates = Object.values(byHour).flat().map(r => r.date).sort(), liveN = liveDates.length;
-  // general traffic (TomTom): same treatment, one line by clock hour
-  const trafHours = {};
-  (C.traffic || []).filter(t => t.section === state.sec && t.day === state.day && dirs.includes(t.direction)).forEach(t => (trafHours[t.date + "|" + t.hour] ||= []).push(t));
-  const trafBy = {};
-  Object.values(trafHours).forEach(rows => { const v = comb(rows, "mph"); if (v) (trafBy[rows[0].hour] ||= []).push(v); });
-  const traffic = Array.from({ length: 24 }, (_, h) => trafBy[h] ? trafBy[h].length / trafBy[h].reduce((s, v) => s + 1 / v, 0) : null);
-  const trafN = Object.keys(trafHours).length;
+  // general traffic, TomTom (solid) and HERE (dashed): same treatment, one line by clock hour each
+  const byClock = src => {
+    const hrs = {}, by = {};
+    (src || []).filter(t => t.section === state.sec && t.day === state.day && dirs.includes(t.direction)).forEach(t => (hrs[t.date + "|" + t.hour] ||= []).push(t));
+    Object.values(hrs).forEach(rows => { const v = comb(rows, "mph"); if (v) (by[rows[0].hour] ||= []).push(v); });
+    const dates = Object.keys(hrs).map(k => k.split("|")[0]).sort(), n = dates.length;
+    return { line: Array.from({ length: 24 }, (_, h) => by[h] ? by[h].length / by[h].reduce((s, v) => s + 1 / v, 0) : null), n,
+             span: n && dates[0] !== dates[n - 1] ? `${dates[0]} to ${dates[n - 1]}` : dates[0] };
+  };
+  const tt = byClock(C.traffic), hh = byClock(C.here);
+  const traffic = tt.line, trafN = tt.n, hereLine = hh.line, hereN = hh.n;
   const cal = periods.length ? `Cal-ITP measured one weekday (retrieved ${D.calitp_retrieved}).` : (C.calitp.length && state.route === "204" ? "Cal-ITP has no measurement for this selection." : "Cal-ITP figures are loaded for Vermont line 204 only.");
   const span = liveN && liveDates[0] !== liveDates[liveN - 1] ? `${liveDates[0]} to ${liveDates[liveN - 1]}` : liveDates[0];
   const lv = liveN ? ` Green points: bus GPS, average of ${liveN} measured hour${liveN > 1 ? "s" : ""}, ${span}.` : " No measured hours yet for this selection; the GPS collectors started in November 2026.";
-  const trafDates = Object.keys(trafHours).map(k => k.split("|")[0]).sort();
-  const tspan = trafN && trafDates[0] !== trafDates[trafN - 1] ? `${trafDates[0]} to ${trafDates[trafN - 1]}` : trafDates[0];
-  const tv = trafN ? ` Yellow line: general traffic from TomTom, average of ${trafN} hour${trafN > 1 ? "s" : ""}, ${tspan}.` : "";
-  $("#obs-sub").textContent = !hasBus() ? `General traffic by clock hour, from TomTom.${tv}` : `Current timetable, by clock hour. ${cal}${lv}${tv}` + (state.day !== "weekday" && periods.length ? " Cal-ITP figures are for a weekday." : "");
+  const tv = (trafN ? ` Yellow line: general traffic from TomTom, average of ${trafN} hour${trafN > 1 ? "s" : ""}, ${tt.span}.` : "")
+    + (hereN ? ` Dashed yellow line: the same from HERE, a second provider collected every 90 minutes, ${hereN} hour${hereN > 1 ? "s" : ""}, ${hh.span}.` : "");
+  $("#obs-sub").textContent = !hasBus() ? `General traffic by clock hour, from TomTom and HERE.${tv}` : `Current timetable, by clock hour. ${cal}${lv}${tv}` + (state.day !== "weekday" && periods.length ? " Cal-ITP figures are for a weekday." : "");
   $("#obs-legend").innerHTML = (hasBus() ? `<span><i style="background:var(--s1)"></i>Timetable, last 3 months</span>` : "") +
     (periods.length ? `<span><i style="background:var(--s2)"></i>Cal-ITP measured, middle trip</span><span><i class="band" style="background:var(--s2)"></i>Cal-ITP measured, 20th to 80th percentile</span>` : "") +
     (hasBus() ? `<span><i class="dot" style="background:var(--s3)"></i>Measured by bus GPS (Metro and Swiftly feeds)</span>` : "") +
-    (trafN ? `<span><i style="background:var(--s4)"></i>General traffic (TomTom)</span>` : "");
-  const vals = [...sched, ...periods.flatMap(p => [p.p20, p.p80]), ...live.map(l => l.mph), ...traffic].filter(v => v != null);
+    (trafN ? `<span><i style="background:var(--s4)"></i>General traffic (TomTom)</span>` : "") +
+    (hereN ? `<span><i class="dash"></i>General traffic (HERE)</span>` : "");
+  const vals = [...sched, ...periods.flatMap(p => [p.p20, p.p80]), ...live.map(l => l.mph), ...traffic, ...hereLine].filter(v => v != null);
   const svg = svgIn(host, W, H);
   if (!vals.length) { el("text", { x: W / 2, y: H / 2, "text-anchor": "middle" }, svg, "No data for this selection"); return; }
   const lo = Math.floor(Math.min(...vals) - 0.5), hi = Math.ceil(Math.max(...vals) + 0.5);
@@ -537,6 +544,10 @@ function renderObs() {
   traffic.forEach((v, h) => { if (v == null) { tpen = false; return; } td += (tpen ? "L" : "M") + x(h + .5).toFixed(1) + " " + y(v).toFixed(1); tpen = true; });
   if (td) el("path", { d: td, fill: "none", stroke: "var(--s4)", "stroke-width": 2, "stroke-linejoin": "round", "stroke-linecap": "round" }, svg);
   traffic.forEach((v, h) => { if (v != null && (traffic[h - 1] == null && traffic[h + 1] == null)) el("circle", { cx: x(h + .5), cy: y(v), r: 3.5, fill: "var(--s4)" }, svg); });
+  let hd = "", hpen = false;
+  hereLine.forEach((v, h) => { if (v == null) { hpen = false; return; } hd += (hpen ? "L" : "M") + x(h + .5).toFixed(1) + " " + y(v).toFixed(1); hpen = true; });
+  if (hd) el("path", { d: hd, fill: "none", stroke: "var(--s4)", "stroke-width": 2, "stroke-dasharray": "6 4", "stroke-linejoin": "round", "stroke-linecap": "round" }, svg);
+  hereLine.forEach((v, h) => { if (v != null && (hereLine[h - 1] == null && hereLine[h + 1] == null)) el("circle", { cx: x(h + .5), cy: y(v), r: 3.5, fill: "var(--surface)", stroke: "var(--s4)", "stroke-width": 2 }, svg); });
   for (const l of live) el("circle", { cx: x(l.hour + .5), cy: y(l.mph), r: 5, fill: "var(--s3)", stroke: "var(--surface)", "stroke-width": 2 }, svg);
   const cross = el("line", { y1: m.t, y2: H - m.b, stroke: "var(--ink-2)", visibility: "hidden" }, svg);
   const hit = el("rect", { x: m.l, y: m.t, width: W - m.l - m.r, height: H - m.t - m.b, fill: "transparent" }, svg);
@@ -548,7 +559,8 @@ function renderObs() {
     showTip(`<b>${hourName(h)} to ${hourName(h + 1)}</b>` + row("--s1", "Timetable", sched[h] == null ? "no service" : f1(sched[h]) + " mph")
       + (p ? row("--s2", `Cal-ITP (${p.p})`, f1(p.p50) + " mph") + row("--s2", "Range", `${f1(p.p20)} to ${f1(p.p80)}`) : "")
       + (l ? row("--s3", `Measured (${l.n} hr${l.n > 1 ? "s" : ""})`, f1(l.mph) + " mph") : "")
-      + (traffic[h] != null ? row("--s4", "General traffic", f1(traffic[h]) + " mph") : ""), ev.clientX, ev.clientY);
+      + (traffic[h] != null ? row("--s4", "Traffic (TomTom)", f1(traffic[h]) + " mph") : "")
+      + (hereLine[h] != null ? row("--s4", "Traffic (HERE)", f1(hereLine[h]) + " mph") : ""), ev.clientX, ev.clientY);
   });
   hit.addEventListener("pointerleave", () => { hideTip(); cross.setAttribute("visibility", "hidden"); });
 }

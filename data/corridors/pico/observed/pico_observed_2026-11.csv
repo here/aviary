@@ -178,6 +178,8 @@ pico,2026-11-19T07:00:00Z,2026-11-18T23:00:00-0800,30,westbound,S1,24.61,2.41,0.
 pico,2026-11-19T07:00:00Z,2026-11-18T23:00:00-0800,30,westbound,S2,15.73,3.79,0.994,1,gtfs_realtime_observed,
 pico,2026-11-19T07:00:00Z,2026-11-18T23:00:00-0800,30,westbound,S3,13.53,2.94,0.664,1,gtfs_realtime_observed,
 pico,2026-11-19T08:00:00Z,2026-11-19T00:00:00-0800,30,eastbound,S1,37.37,1.59,0.989,1,gtfs_realtime_observed,
+pico,2026-11-19T08:00:00Z,2026-11-19T00:00:00-0800,30,eastbound,S2,20.77,2.87,0.994,1,gtfs_realtime_observed,
+pico,2026-11-19T08:00:00Z,2026-11-19T00:00:00-0800,30,eastbound,S3,13.14,3.03,0.664,2,gtfs_realtime_observed,
 pico,2026-11-19T08:00:00Z,2026-11-19T00:00:00-0800,30,westbound,S1,30.01,1.98,0.989,1,gtfs_realtime_observed,
 pico,2026-11-19T08:00:00Z,2026-11-19T00:00:00-0800,30,westbound,S2,14.56,4.1,0.994,1,gtfs_realtime_observed,
 pico,2026-11-19T08:00:00Z,2026-11-19T00:00:00-0800,30,westbound,S3,11.52,3.46,0.664,1,gtfs_realtime_observed,

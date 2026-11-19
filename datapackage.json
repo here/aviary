@@ -5,7 +5,7 @@
   "profile": "data-package",
   "version": "0.2.0",
   "created": "2026-11-17T00:00:00Z",
-  "updated": "2026-11-19T22:55:24Z",
+  "updated": "2026-11-19T23:19:18Z",
   "homepage": "https://aviary.herebox.org",
   "keywords": [
     "Los Angeles",
@@ -3694,6 +3694,98 @@
             "name": "source",
             "type": "string",
             "description": "`tomtom_traffic_flow` = TomTom Orbis Maps Traffic API v2 Vector Flow Tiles; `here_traffic_flow` = HERE Traffic API v7 flow (corridor filter, live speeds only: confidence above 0.7)."
+          }
+        ]
+      }
+    },
+    {
+      "name": "olympic-incidents",
+      "title": "Olympic Bl, Crenshaw Bl to Figueroa St (control for Pico Bl): traffic incidents by section (TomTom)",
+      "path": "data/corridors/olympic/incidents/olympic_incidents_2026.csv",
+      "format": "csv",
+      "description": "One file per year (by first seen). Polled every 20 minutes since 2026-11-19.",
+      "profile": "tabular-data-resource",
+      "schema": {
+        "fields": [
+          {
+            "name": "corridor_id",
+            "type": "string",
+            "description": "Street identifier (`vermont`, or matching corridors/<corridor_id>.json)."
+          },
+          {
+            "name": "incident_id",
+            "type": "string",
+            "description": "TomTom incident id; the same incident keeps its id while it lasts."
+          },
+          {
+            "name": "section_id",
+            "type": "string",
+            "description": "Section the incident covers (an incident spanning two sections has one row for each)."
+          },
+          {
+            "name": "direction",
+            "type": "string",
+            "description": "Direction of travel affected, from the order of the incident's points."
+          },
+          {
+            "name": "category",
+            "type": "string",
+            "description": "TomTom icon category: accident, jam, road works, lane closed, road closed, broken down vehicle, dangerous conditions, flooding, and others."
+          },
+          {
+            "name": "description",
+            "type": "string",
+            "description": "TomTom event descriptions, joined with `; ` (for example `Stopped traffic`)."
+          },
+          {
+            "name": "magnitude",
+            "type": "integer",
+            "description": "Size of delay: 0 unknown, 1 minor, 2 moderate, 3 major, 4 undefined (used for closures)."
+          },
+          {
+            "name": "max_delay_s",
+            "type": "integer",
+            "description": "Largest delay TomTom reported for the incident while it was seen, in seconds."
+          },
+          {
+            "name": "start_time_utc",
+            "type": "string",
+            "description": "Incident start reported by TomTom (ISO 8601, UTC)."
+          },
+          {
+            "name": "end_time_utc",
+            "type": "string",
+            "description": "Expected or reported end (ISO 8601, UTC); empty if unknown."
+          },
+          {
+            "name": "first_seen_utc",
+            "type": "datetime",
+            "description": "First 20-minute poll in which the incident appeared."
+          },
+          {
+            "name": "last_seen_utc",
+            "type": "datetime",
+            "description": "Last poll in which it appeared."
+          },
+          {
+            "name": "from_street",
+            "type": "string",
+            "description": "TomTom's description of where it starts."
+          },
+          {
+            "name": "to_street",
+            "type": "string",
+            "description": "TomTom's description of where it ends."
+          },
+          {
+            "name": "length_on_section_mi",
+            "type": "number",
+            "description": "Miles of the section the incident covers."
+          },
+          {
+            "name": "source",
+            "type": "string",
+            "description": "`tomtom_incident_details` = TomTom Traffic API v5 Incident Details, polled every 20 minutes."
           }
         ]
       }

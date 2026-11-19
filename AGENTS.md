@@ -26,6 +26,7 @@ upcoming project gets a measured "before".
 | `pipeline/` | Backfills, roll-ups, data package and site builders (see each file's docstring) |
 | `worker/` | Cloudflare Workers: bus collector + site + API (`index.js`), GBFS (`gbfs.js`), traffic speeds (`traffic.js`) |
 | `site/template.html` | The charts page (single file; data inlined at build) |
+| `.mcp.json` | MCP servers for Claude Code: `here-docs` (HERE documentation, `https://docs.here.com/mcp`, public, no key). Search HERE docs and API specs (tools `search`, `fetch`, `list-specs`, `list-endpoints`, `search-endpoints`, `get-endpoint`, `get-server-variables`); it does not call HERE APIs. Cloud sessions need `docs.here.com` on the environment allowlist |
 | `.github/workflows/publish.yml` | Hourly: collect, roll up, commit, rebuild package and site, deploy to Cloudflare and Pages |
 
 ## Current state (2026-11-18)

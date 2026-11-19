@@ -143,6 +143,10 @@ if __name__ == "__main__":
         "here": traffic_rows(sorted((a.data / "traffic").glob("vermont_here_traffic_*.csv"))),
         "history": history_rows(a.data / "calitp" / "vermont_calitp_history.csv"),
         "incidents": incident_rows(sorted((a.data / "incidents").glob("vermont_incidents_*.csv"))),
+        "project": {"title": "Vermont Transit Corridor (bus rapid transit)", "url": "https://www.metro.net/projects/vermont-corridor/",
+                    "owner": "LA Metro", "maps": [{"src": "maps/vermont-brt-stations.jpg",
+                    "caption": "Vermont Transit Corridor bus rapid transit stations and layovers (subject to change)",
+                    "credit": "LA Metro, 2025 (map 25-1768)", "source": "https://www.metro.net/projects/vermont-corridor/"}]},
         "focus": [],
     }}
     planned = []
@@ -164,7 +168,7 @@ if __name__ == "__main__":
                 "name": cfg["name"].split(",")[0], "street": cfg["name"].split(",")[0], "ends": cfg.get("ends", ["West", "East"]),
                 "routes": [], "directions": [cfg["directions"]["increasing"], cfg["directions"]["decreasing"]],
                 "sections": [pc.total] + pc.sections, "breakpoints": [b[0] for b in cfg["breakpoints"]],
-                "events": events, "calitp": [], "live": [], "traffic": traffic, "here": here, "incidents": incidents, "history": [], "focus": [],
+                "events": events, "calitp": [], "live": [], "traffic": traffic, "here": here, "incidents": incidents, "project": cfg.get("project"), "history": [], "focus": [],
             }
             continue
         sec = pd.read_csv(root / "sections.csv")
@@ -182,6 +186,7 @@ if __name__ == "__main__":
             "traffic": traffic,
             "here": here,
             "incidents": incidents,
+            "project": cfg.get("project"),
             "history": history_rows(root / "calitp" / f"{cfg['corridor_id']}_calitp_history.csv"),
             "focus": focus_rows(root, cfg["corridor_id"]),
         }
@@ -207,6 +212,10 @@ if __name__ == "__main__":
     shutil.rmtree(site_data, ignore_errors=True)
     shutil.copytree(a.data, site_data, ignore=shutil.ignore_patterns("raw", "mds_telemetry_*", "vehicle_positions_*"))
     shutil.copy(a.data.parent / "datapackage.json", a.out.parent / "datapackage.json")
+    # Project map snapshots shown under the street picker (site/maps/, credited on the page)
+    shutil.rmtree(a.out.parent / "maps", ignore_errors=True)
+    if (a.template.parent / "maps").exists():
+        shutil.copytree(a.template.parent / "maps", a.out.parent / "maps")
     # Street definitions, referenced from datapackage.json as corridors/<id>.json
     shutil.rmtree(a.out.parent / "corridors", ignore_errors=True)
     shutil.copytree(a.data.parent / "corridors", a.out.parent / "corridors")

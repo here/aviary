@@ -70,6 +70,31 @@ def traffic_rows(files: list) -> list:
              "mph": round(float(r.speed_mph), 2), "day": day(r.t.weekday())} for r in t.itertuples()]
 
 
+def incident_rows(files: list) -> list:
+    """TomTom incidents seen in the last LIVE_DAYS days: one row per incident, section and direction, with the local
+    clock hours it was active by day type (for the hourly chart) and its type, size and largest delay."""
+    if not files:
+        return []
+    t = pd.concat([pd.read_csv(f, dtype=str, keep_default_na=False) for f in files])
+    if t.empty:
+        return []
+    first = pd.to_datetime(t.first_seen_utc, utc=True).dt.tz_convert(TIMEZONE)
+    last = pd.to_datetime(t.last_seen_utc, utc=True).dt.tz_convert(TIMEZONE)
+    start = last.max() - pd.Timedelta(days=LIVE_DAYS)
+    day = lambda wd: "weekday" if wd < 5 else ("saturday" if wd == 5 else "sunday")
+    out = []
+    for r, f, l in zip(t.itertuples(), first, last):
+        if l < start:
+            continue
+        hours = {}
+        for ts in pd.date_range(max(f, start).floor("h"), l.floor("h"), freq="h"):
+            hours.setdefault(day(ts.weekday()), set()).add(ts.hour)
+        out.append({"id": r.incident_id[-16:], "sec": r.section_id, "dir": r.direction, "cat": r.category, "mag": int(r.magnitude or 0),
+                    "delay": int(r.max_delay_s) if r.max_delay_s else None, "first": f.strftime("%Y-%m-%d"),
+                    "last": l.strftime("%Y-%m-%d"), "hours": {k: sorted(v) for k, v in hours.items()}})
+    return out
+
+
 def history_rows(path: pathlib.Path) -> list:
     """Cal-ITP measured segment speeds rolled up to sections, one row per date, period, line, direction, section."""
     if not path.exists():
@@ -117,6 +142,7 @@ if __name__ == "__main__":
         "traffic": traffic_rows(sorted((a.data / "traffic").glob("vermont_traffic_*.csv"))),
         "here": traffic_rows(sorted((a.data / "traffic").glob("vermont_here_traffic_*.csv"))),
         "history": history_rows(a.data / "calitp" / "vermont_calitp_history.csv"),
+        "incidents": incident_rows(sorted((a.data / "incidents").glob("vermont_incidents_*.csv"))),
         "focus": [],
     }}
     planned = []
@@ -126,6 +152,7 @@ if __name__ == "__main__":
         events = [{**e, "short": e.get("short") or e["label"].split(" (")[0][:40]} for e in cfg.get("events", [])]
         traffic = traffic_rows(sorted((root / "traffic").glob(f"{cfg['corridor_id']}_traffic_*.csv")))
         here = traffic_rows(sorted((root / "traffic").glob(f"{cfg['corridor_id']}_here_traffic_*.csv")))
+        incidents = incident_rows(sorted((root / "incidents").glob(f"{cfg['corridor_id']}_incidents_*.csv")))
         if not (root / "hourly").exists():
             # No bus data (Fountain Av): offered in the street picker when general-traffic speeds exist.
             if not traffic:
@@ -137,7 +164,7 @@ if __name__ == "__main__":
                 "name": cfg["name"].split(",")[0], "street": cfg["name"].split(",")[0], "ends": cfg.get("ends", ["West", "East"]),
                 "routes": [], "directions": [cfg["directions"]["increasing"], cfg["directions"]["decreasing"]],
                 "sections": [pc.total] + pc.sections, "breakpoints": [b[0] for b in cfg["breakpoints"]],
-                "events": events, "calitp": [], "live": [], "traffic": traffic, "here": here, "history": [], "focus": [],
+                "events": events, "calitp": [], "live": [], "traffic": traffic, "here": here, "incidents": incidents, "history": [], "focus": [],
             }
             continue
         sec = pd.read_csv(root / "sections.csv")
@@ -154,6 +181,7 @@ if __name__ == "__main__":
             "live": live_rows(sorted((root / "observed").glob(f"{cfg['corridor_id']}_observed_*.csv"))),
             "traffic": traffic,
             "here": here,
+            "incidents": incidents,
             "history": history_rows(root / "calitp" / f"{cfg['corridor_id']}_calitp_history.csv"),
             "focus": focus_rows(root, cfg["corridor_id"]),
         }

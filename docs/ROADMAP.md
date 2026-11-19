@@ -88,7 +88,7 @@ points and storage design are in [`docs/INCIDENTS.md`](INCIDENTS.md); the source
 | E2 | Live incidents per section (type, size, delay, first and last seen) | TomTom Incident Details: one box over all streets every 20 minutes (~2,160 of the free 2,500 a month) | **in progress**: collecting since 2026-11-19 19:37 UTC, rolled up hourly (`pipeline/build_incidents.py`). Next: show on the page (E6); review matching after a week |
 | E7 | Headline fatality numbers (United States, City of Los Angeles by year and year to date) | **done (2026-11-19)**: "Traffic deaths" panel at the top of the page, refreshed daily from CCRS; national from NHTSA by hand. Next: update the national CSV when NHTSA publishes 2025 final figures |
 | E5 | Delay columns: `delay_min` (travel time minus free-flow time) in the traffic CSVs, and bus minutes against the timetable | Existing TomTom, HERE and bus data | next |
-| E6 | Incidents on the page: collisions by severity and traveller type per section and year, incident hours, delay | E1, E2, E5 | later |
+| E6 | Incidents on the page | **in progress**: TomTom incidents shown as triangles on the hourly chart (with tooltip counts by type) and summarised per street and section in "Traffic incidents and deaths", just above Data sources (2026-11-19). Next: collisions and injuries per street once E1 exists (by severity and traveller type, on the same section) |
 | E3 | Hourly weather and daylight | NOAA ASOS (downtown USC, LAX); host to be allowed | later |
 | E4 | Emergency-response travel time near each street | LAFD Station Response Metrics (monthly per station); LA County Fire for Fountain needs a request | later |
 

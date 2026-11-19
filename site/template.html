@@ -81,6 +81,10 @@ table.plain tr.group th { text-align: left; padding-top: 16px; font-family: var(
 .deaths { display: flex; flex-direction: column; gap: 8px; }
 .deaths .stat b { color: var(--accent); }
 .deaths-note { margin: 0; font-size: 12.5px; color: var(--ink-3); max-width: 75ch; }
+.table-wrap { overflow-x: auto; }
+table.inc { width: auto; min-width: min(100%, 420px); border-collapse: collapse; font-size: 13px; margin: 6px 0 4px; }
+table.inc th, table.inc td { padding: 4px 10px 4px 0; border-bottom: 1px solid var(--grid); text-align: left; }
+table.inc .num { text-align: right; font-variant-numeric: tabular-nums; }
 #deaths-chart svg { width: 100%; height: auto; display: block; }
 .stats-head { grid-column: 1 / -1; margin: 0; padding: 12px 0 0; font-size: 13.5px; color: var(--ink-2); }
 @media (max-width: 640px) { .stats { grid-template-columns: minmax(0, 1fr); } .stat + .stat { padding-left: 0; border-left: 0; border-top: 1px solid var(--grid); } }
@@ -126,6 +130,7 @@ button:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
 .legend i { width: 14px; height: 3px; border-radius: 2px; display: inline-block; }
 .legend i.band { height: 10px; opacity: .28; }
 .legend i.dot { width: 9px; height: 9px; border-radius: 50%; }
+.legend i.tri { width: 0; height: 0; border-radius: 0; background: none !important; border-left: 6px solid transparent; border-right: 6px solid transparent; border-bottom: 10px solid var(--accent); }
 .legend i.dash { background: repeating-linear-gradient(90deg, var(--s4) 0 5px, transparent 5px 8px) !important; }
 .chart { position: relative; width: 100%; }
 .chart svg { display: block; width: 100%; height: auto; overflow: visible; }
@@ -183,14 +188,8 @@ code { font: 12.5px ui-monospace, SFMono-Regular, Menlo, monospace; background: 
   </header>
 
   <nav class="toc" aria-label="Page sections">
-    <a href="#deaths">Traffic deaths</a><a href="#measured">Measured</a><a href="#history" class="toc-history">Over time</a><a href="#next-site" class="toc-focus">Next project site</a><a href="#projects">Projects</a><a href="#sources">Data sources</a><a href="#crowdsourced">Crowdsourced</a>
+    <a href="#measured">Measured</a><a href="#history" class="toc-history">Over time</a><a href="#next-site" class="toc-focus">Next project site</a><a href="#projects">Projects</a><a href="#deaths">Incidents and deaths</a><a href="#sources">Data sources</a><a href="#crowdsourced">Crowdsourced</a>
   </nav>
-
-  <section class="deaths" id="deaths" aria-label="Traffic deaths">
-    <div class="stats" id="deaths-stats"></div>
-    <div id="deaths-chart"></div>
-    <p class="deaths-note" id="deaths-note"></p>
-  </section>
 
   <section class="controls" aria-label="Filters">
     <div class="ctl"><span>Street</span><div class="seg" data-f="cor" id="seg-cor"></div></div>
@@ -251,6 +250,14 @@ code { font: 12.5px ui-monospace, SFMono-Regular, Menlo, monospace; background: 
     </table></div>
   </section>
 
+  <section class="panel deaths" id="deaths" aria-label="Traffic incidents and deaths">
+    <h2>Traffic incidents and deaths</h2>
+    <div id="inc-street"></div>
+    <div class="stats" id="deaths-stats"></div>
+    <div id="deaths-chart"></div>
+    <p class="deaths-note" id="deaths-note"></p>
+  </section>
+
   <section class="panel" id="sources">
     <h2>Data sources</h2>
     <p>Where every number on this page comes from. The archive is <a href="data/">downloadable</a> and described in <a href="datapackage.json">datapackage.json</a>.</p>
@@ -260,6 +267,9 @@ code { font: 12.5px ui-monospace, SFMono-Regular, Menlo, monospace; background: 
       <div><dt><a href="https://www.goswift.ly" target="_blank" rel="noopener">Swiftly realtime API</a></dt><dd>Metro's realtime data provider: every bus once a minute, plus predicted arrivals. Keyed access.</dd></div>
       <div><dt><a href="https://docs.tomtom.com/traffic-api/documentation/tomtom-orbis-maps/v2/product-information/introduction" target="_blank" rel="noopener">TomTom Orbis Maps Traffic API v2: Vector Flow Tiles</a></dt><dd>Current and free-flow speed for each piece of main road, from TomTom's traffic flow vector tiles at zoom 14, fetched every 15 minutes and matched to each street section. Keyed access; the free plan allows 200,000 tile requests a month.</dd></div>
       <div><dt><a href="https://docs.here.com/traffic-api/docs/geospatial-filters-here-traffic-api-v7-concepts" target="_blank" rel="noopener">HERE Traffic API v7: flow, corridor filter</a></dt><dd>A second provider of general-traffic speed, used to cross-check TomTom: current and free-flow speed for the roads along each street, requested every 90 minutes with a corridor drawn along the street's own path. Only live speeds are kept (HERE's confidence above 0.7). Keyed access; the free plan allows 5,000 requests a month. Shown as the dashed yellow line.</dd></div>
+      <div><dt><a href="https://docs.tomtom.com/traffic-api/documentation/traffic-incidents/incident-details" target="_blank" rel="noopener">TomTom Traffic API: Incident Details</a></dt><dd>Live incidents on the study streets (jams, crashes, closures, roadworks, broken-down vehicles) with their size and delay, polled every 20 minutes for one area covering every street and matched to each section. Keyed access; the free plan allows 2,500 requests a month. Shown as markers on the hourly chart and summarised per street below.</dd></div>
+      <div><dt><a href="https://data.ca.gov/dataset/ccrs" target="_blank" rel="noopener">California Crash Reporting System (CCRS)</a></dt><dd>Every reported crash in California since 2016 from the California Highway Patrol and local police including LAPD, with severity, who was involved and road conditions. Open data, updated daily. Used for the Los Angeles traffic-deaths figures; per-street collisions and injuries are next.</dd></div>
+      <div><dt><a href="https://crashstats.nhtsa.dot.gov/Api/Public/ViewPublication/813800" target="_blank" rel="noopener">NHTSA traffic fatality estimates</a></dt><dd>National traffic deaths from the National Highway Traffic Safety Administration: the final count for 2024 (FARS) and the early estimate for 2025. Updated by hand when NHTSA publishes.</dd></div>
       <div><dt><a href="https://data.ca.gov/dataset/average-transit-speeds-by-stop" target="_blank" rel="noopener">Cal-ITP average transit speeds</a></dt><dd>Caltrans' measured bus speeds by stop: one recent weekday on the open data portal, plus roughly monthly speed maps since October 2024 in a public storage bucket, used for the history chart.</dd></div>
       <div><dt><a href="https://github.com/MobilityData/gbfs/blob/master/systems.csv" target="_blank" rel="noopener">GBFS shared bikes and scooters</a></dt><dd>Public availability feeds from Bird and Metro Bike Share, recorded every 10 minutes. Not yet charted.</dd></div>
       <div><dt><a href="https://github.com/openmobilityfoundation/mobility-data-specification" target="_blank" rel="noopener">Open Mobility Foundation MDS</a></dt><dd>The standard used to export the bus GPS positions as vehicle telemetry.</dd></div>
@@ -280,7 +290,7 @@ code { font: 12.5px ui-monospace, SFMono-Regular, Menlo, monospace; background: 
   </section>
 
   <nav class="toc" aria-label="Page sections">
-    <a href="#deaths">Traffic deaths</a><a href="#measured">Measured</a><a href="#history" class="toc-history">Over time</a><a href="#next-site" class="toc-focus">Next project site</a><a href="#projects">Projects</a><a href="#sources">Data sources</a><a href="#crowdsourced">Crowdsourced</a>
+    <a href="#measured">Measured</a><a href="#history" class="toc-history">Over time</a><a href="#next-site" class="toc-focus">Next project site</a><a href="#projects">Projects</a><a href="#deaths">Incidents and deaths</a><a href="#sources">Data sources</a><a href="#crowdsourced">Crowdsourced</a>
   </nav>
   <footer class="site-foot">
     <a href="https://github.com/here/aviary" target="_blank" rel="noopener"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg><span>Code and documentation on GitHub</span></a>
@@ -520,18 +530,26 @@ function renderObs() {
              span: n && dates[0] !== dates[n - 1] ? `${dates[0]} to ${dates[n - 1]}` : dates[0] };
   };
   const tt = byClock(C.traffic), hh = byClock(C.here);
+  // TomTom incidents active in each clock hour on this stretch (distinct incidents over the last four weeks)
+  const incAt = Array.from({ length: 24 }, () => new Map());
+  (C.incidents || []).filter(r => (state.sec === "corridor" || r.sec === state.sec) && dirs.includes(r.dir))
+    .forEach(r => (r.hours[state.day] || []).forEach(h => incAt[h].set(r.id, r.cat)));
+  const incN = incAt.reduce((s, m) => s + m.size, 0);
+  const incText = h => { const c = {}; incAt[h].forEach(v => c[v] = (c[v] || 0) + 1); return Object.entries(c).map(([k, v]) => `${v} ${k}`).join(", "); };
   const traffic = tt.line, trafN = tt.n, hereLine = hh.line, hereN = hh.n;
   const cal = periods.length ? `Cal-ITP measured one weekday (retrieved ${D.calitp_retrieved}).` : (C.calitp.length && state.route === "204" ? "Cal-ITP has no measurement for this selection." : "Cal-ITP figures are loaded for Vermont line 204 only.");
   const span = liveN && liveDates[0] !== liveDates[liveN - 1] ? `${liveDates[0]} to ${liveDates[liveN - 1]}` : liveDates[0];
   const lv = liveN ? ` Green points: bus GPS, average of ${liveN} measured hour${liveN > 1 ? "s" : ""}, ${span}.` : " No measured hours yet for this selection; the GPS collectors started in November 2026.";
   const tv = (trafN ? ` Yellow line: general traffic from TomTom, average of ${trafN} hour${trafN > 1 ? "s" : ""}, ${tt.span}.` : "")
-    + (hereN ? ` Dashed yellow line: the same from HERE, a second provider collected every 90 minutes, ${hereN} hour${hereN > 1 ? "s" : ""}, ${hh.span}.` : "");
+    + (hereN ? ` Dashed yellow line: the same from HERE, a second provider collected every 90 minutes, ${hereN} hour${hereN > 1 ? "s" : ""}, ${hh.span}.` : "")
+    + (incN ? " Triangles along the bottom: hours with traffic incidents on this stretch (TomTom; bigger means more)." : "");
   $("#obs-sub").textContent = !hasBus() ? `General traffic by clock hour, from TomTom and HERE.${tv}` : `Current timetable, by clock hour. ${cal}${lv}${tv}` + (state.day !== "weekday" && periods.length ? " Cal-ITP figures are for a weekday." : "");
   $("#obs-legend").innerHTML = (hasBus() ? `<span><i style="background:var(--s1)"></i>Timetable, last 3 months</span>` : "") +
     (periods.length ? `<span><i style="background:var(--s2)"></i>Cal-ITP measured, middle trip</span><span><i class="band" style="background:var(--s2)"></i>Cal-ITP measured, 20th to 80th percentile</span>` : "") +
     (hasBus() ? `<span><i class="dot" style="background:var(--s3)"></i>Measured by bus GPS (Metro and Swiftly feeds)</span>` : "") +
     (trafN ? `<span><i style="background:var(--s4)"></i>General traffic (TomTom)</span>` : "") +
-    (hereN ? `<span><i class="dash"></i>General traffic (HERE)</span>` : "");
+    (hereN ? `<span><i class="dash"></i>General traffic (HERE)</span>` : "") +
+    (incN ? `<span><i class="tri"></i>Traffic incidents (TomTom)</span>` : "");
   const vals = [...sched, ...periods.flatMap(p => [p.p20, p.p80]), ...live.map(l => l.mph), ...traffic, ...hereLine].filter(v => v != null);
   const svg = svgIn(host, W, H);
   if (!vals.length) { el("text", { x: W / 2, y: H / 2, "text-anchor": "middle" }, svg, "No data for this selection"); return; }
@@ -559,6 +577,11 @@ function renderObs() {
   if (hd) el("path", { d: hd, fill: "none", stroke: "var(--s4)", "stroke-width": 2, "stroke-dasharray": "6 4", "stroke-linejoin": "round", "stroke-linecap": "round" }, svg);
   hereLine.forEach((v, h) => { if (v != null && (hereLine[h - 1] == null && hereLine[h + 1] == null)) el("circle", { cx: x(h + .5), cy: y(v), r: 3.5, fill: "var(--surface)", stroke: "var(--s4)", "stroke-width": 2 }, svg); });
   for (const l of live) el("circle", { cx: x(l.hour + .5), cy: y(l.mph), r: 5, fill: "var(--s3)", stroke: "var(--surface)", "stroke-width": 2 }, svg);
+  incAt.forEach((mp, h) => {
+    if (!mp.size) return;
+    const r = 4 + Math.min(mp.size, 6), cx = x(h + .5), base = H - m.b - 2;
+    el("path", { d: `M${cx - r} ${base} L${cx + r} ${base} L${cx} ${base - r * 1.6} Z`, fill: "var(--accent)", "fill-opacity": .8 }, svg);
+  });
   const cross = el("line", { y1: m.t, y2: H - m.b, stroke: "var(--ink-2)", visibility: "hidden" }, svg);
   const hit = el("rect", { x: m.l, y: m.t, width: W - m.l - m.r, height: H - m.t - m.b, fill: "transparent" }, svg);
   hit.addEventListener("pointermove", ev => {
@@ -570,7 +593,8 @@ function renderObs() {
       + (p ? row("--s2", `Cal-ITP (${p.p})`, f1(p.p50) + " mph") + row("--s2", "Range", `${f1(p.p20)} to ${f1(p.p80)}`) : "")
       + (l ? row("--s3", `Measured (${l.n} hr${l.n > 1 ? "s" : ""})`, f1(l.mph) + " mph") : "")
       + (traffic[h] != null ? row("--s4", "Traffic (TomTom)", f1(traffic[h]) + " mph") : "")
-      + (hereLine[h] != null ? row("--s4", "Traffic (HERE)", f1(hereLine[h]) + " mph") : ""), ev.clientX, ev.clientY);
+      + (hereLine[h] != null ? row("--s4", "Traffic (HERE)", f1(hereLine[h]) + " mph") : "")
+      + (incAt[h].size ? row("--accent", "Incidents", incText(h)) : ""), ev.clientX, ev.clientY);
   });
   hit.addEventListener("pointerleave", () => { hideTip(); cross.setAttribute("visibility", "hidden"); });
 }
@@ -606,6 +630,29 @@ function renderFocus() {
   $("#focus-tbl").innerHTML = `<thead><tr><th>Segment</th><th>Direction</th><th>Miles</th><th>Bus passes</th><th>Middle pass, seconds</th><th>20th to 80th percentile</th><th>mph</th></tr></thead><tbody>` +
     C.focus.map(f => `<tr><td>${f.name}</td><td>${cap(f.direction)}</td><td>${f.length_mi.toFixed(2)}</td><td>${f.n}</td><td>${f.median_s.toFixed(0)}</td><td>${f.p20_s.toFixed(0)} to ${f.p80_s.toFixed(0)}</td><td>${(f.length_mi / f.median_s * 3600).toFixed(1)}</td></tr>`).join("") + "</tbody>";
 }
+// Incidents on the selected street (TomTom, last four weeks), by section and type.
+function renderIncidents() {
+  const box = $("#inc-street"), rows = C.incidents || [];
+  const dirs = state.dir === "both" ? C.directions : [state.dir];
+  const mine = rows.filter(r => dirs.includes(r.dir));
+  if (!mine.length) {
+    box.innerHTML = `<p class="deaths-note">No traffic incidents recorded on ${C.street} yet. TomTom incidents are collected every 20 minutes since November 19, 2026; collisions and injuries per street (from CCRS) are next.</p>`;
+    return;
+  }
+  const ids = new Set(mine.map(r => r.id)), first = mine.map(r => r.first).sort()[0];
+  const bySec = {};
+  mine.forEach(r => { (bySec[r.sec] ||= {}); bySec[r.sec][r.cat] = (bySec[r.sec][r.cat] || new Set()).add(r.id); });
+  const cats = [...new Set(mine.map(r => r.cat))].sort();
+  const secName = id => (C.sections.find(s => s.section_id === id) || {}).name || id;
+  const body = C.sections.slice(1).filter(s => bySec[s.section_id]).map(s => `<tr><td>${secName(s.section_id)}</td>` +
+    cats.map(c => `<td class="num">${bySec[s.section_id][c] ? bySec[s.section_id][c].size : ""}</td>`).join("") + "</tr>").join("");
+  const delays = mine.filter(r => r.delay).map(r => r.delay).sort((a, b) => a - b);
+  const med = delays.length ? delays[Math.floor(delays.length / 2)] : null;
+  box.innerHTML = `<p class="deaths-note"><b>${C.street}</b>, ${state.dir === "both" ? "both directions" : state.dir}: ${ids.size} traffic incident${ids.size > 1 ? "s" : ""} seen since ${first} (TomTom)` +
+    (med ? `; typical reported delay ${Math.round(med / 60)} min` : "") + `. Collisions and injuries per street (from CCRS) are next.</p>` +
+    `<div class="table-wrap"><table class="inc"><thead><tr><th>Stretch</th>${cats.map(c => `<th class="num">${c}</th>`).join("")}</tr></thead><tbody>${body}</tbody></table></div>`;
+}
+
 // Traffic deaths: national (NHTSA) and City of Los Angeles by year (CCRS), drawn once.
 function renderDeaths() {
   const box = $("#deaths"), d = D.deaths || {};
@@ -651,7 +698,7 @@ function renderDeaths() {
 
 function render() {
   useCorridor(); renderControls();
-  renderStats(); renderStreet(); renderObs(); renderHistory(); renderFocus();
+  renderStats(); renderStreet(); renderObs(); renderHistory(); renderFocus(); renderIncidents();
 }
 function set(k, v) { state[k] = v; try { localStorage.setItem("aviary-filters-2", JSON.stringify(state)); } catch (e) {} render(); }
 $("#whole").onclick = () => set("sec", "corridor");

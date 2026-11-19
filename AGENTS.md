@@ -12,7 +12,8 @@ Hollywood Bl, Sunset Bl / Cesar Chavez Av, Pico Bl with Olympic Bl as its untrea
 archive in standard formats (Parquet, CSV, Frictionless data package, OMF MDS 2.0 telemetry). The long series is
 *scheduled* speed rebuilt from LA Metro's GTFS git history (Vermont since 2016, the others since 2018). Measured
 speed comes from bus GPS collected every minute since November 2026 (LA Metro's public feed and Swiftly), so each
-upcoming project gets a measured "before".
+upcoming project gets a measured "before". A top-level requirement since 2026-11-19: **traffic incidents on every
+stretch over time** (delays, collisions by severity and by who was involved), designed in `docs/INCIDENTS.md`.
 
 ## Where things are
 
@@ -21,6 +22,7 @@ upcoming project gets a measured "before".
 | `docs/ROADMAP.md` | Task tracker: up-next list, open items by area, done log |
 | `meta/status/` | One short status note per working session (newest last); read the latest first |
 | `docs/EXPANSION_PLAN.md` | Before/after method and project status notes |
+| `docs/INCIDENTS.md` | Incident requirement: the data points (delay, collisions by severity K/A/B/C/O, traveller type, age band, conditions, live incidents), sources and storage design |
 | `docs/FREE_TIERS.md` | Free allowances of every API and service, current usage and headroom; update when adding a street, tile box or collector |
 | `docs/CROWDSOURCED_DATA.md` | Community-collected data (Telraam first) and why it matters here |
 | `docs/projects/` | Sourced research notes per project (Hollywood Bl, Fountain Av, Pico Bl, Westwood Bl) and per data source being explored (Telraam) |

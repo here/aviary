@@ -7,7 +7,7 @@ file when you finish or start something, and update "Current state" below when t
 ## Project in one paragraph
 
 A demo for the CoMotion LA conference: hourly bus speeds on Los Angeles streets being redesigned (Vermont Av,
-Hollywood Bl, Sunset Bl / Cesar Chavez Av; Fountain Av tracked without bus data), as a time-series page plus an
+Hollywood Bl, Sunset Bl / Cesar Chavez Av, Pico Bl with Olympic Bl as its untreated control; Fountain Av tracked without bus data), as a time-series page plus an
 archive in standard formats (Parquet, CSV, Frictionless data package, OMF MDS 2.0 telemetry). The long series is
 *scheduled* speed rebuilt from LA Metro's GTFS git history (Vermont since 2016, the others since 2018). Measured
 speed comes from bus GPS collected every minute since November 2026 (LA Metro's public feed and Swiftly), so each
@@ -19,8 +19,9 @@ upcoming project gets a measured "before".
 |---|---|
 | `docs/ROADMAP.md` | Task tracker and the ordered list of data sources to explore |
 | `docs/EXPANSION_PLAN.md` | Before/after method and project status notes |
+| `docs/FREE_TIERS.md` | Free allowances of every API and service, current usage and headroom; update when adding a street, tile box or collector |
 | `docs/CROWDSOURCED_DATA.md` | Community-collected data (Telraam first) and why it matters here |
-| `docs/projects/` | Sourced research notes per project (Hollywood Bl, Fountain Av) and per data source being explored (Telraam) |
+| `docs/projects/` | Sourced research notes per project (Hollywood Bl, Fountain Av, Pico Bl) and per data source being explored (Telraam) |
 | `corridors/*.json` | Street definitions: path, sections, bus lines, project dates, focus segments |
 | `pipeline/` | Backfills, roll-ups, data package and site builders (see each file's docstring) |
 | `worker/` | Cloudflare Workers: bus collector + site + API (`index.js`), GBFS (`gbfs.js`), traffic speeds (`traffic.js`) |
@@ -34,9 +35,9 @@ upcoming project gets a measured "before".
 | Site | Live at `https://aviary.herebox.org` (Cloudflare Worker with static assets) and `https://here.github.io/aviary/` (Pages, Source = GitHub Actions). Archive under `/data/`, package at `/datapackage.json`, street definitions at `/corridors/` |
 | Bus collector | Worker `aviary-vermont-speeds`, every minute: Metro websocket (lines 204, 754, 2, 4) into R2 `raw/` (7-day expiry); Swiftly vehicle positions every minute and trip updates every 15 minutes into `swiftly/` (no expiry). Status: `/api/status`, `/api/swiftly` |
 | GBFS collector | Worker `aviary-gbfs-collector`, every 10 minutes into `gbfs/`. Bird and Metro Bike Share working; Lime missing. Status: `/gbfs/status` |
-| Traffic-speed collector | Worker `aviary-traffic-collector`, every 15 minutes: TomTom Orbis Traffic API v2 flow tiles (22 zoom-14 tiles, main roads, km/h and OpenLR per road piece) into `traffic/tomtom/`, collecting since 2026-11-18 04:55 UTC. HERE path built but idle (no key). Status: `/traffic/status`; `/traffic/run` collects now. Rolled up hourly by `pipeline/build_traffic.py` into `data/traffic/` (Vermont) and `data/corridors/<id>/traffic/`; shown as the yellow line in the measured-speeds chart |
+| Traffic-speed collector | Worker `aviary-traffic-collector`, every 15 minutes: TomTom Orbis Traffic API v2 flow tiles (26 zoom-14 tiles since Pico and Olympic were added on 2026-11-19, main roads, km/h and OpenLR per road piece) into `traffic/tomtom/`, collecting since 2026-11-18 04:55 UTC. HERE path built but idle (no key). Status: `/traffic/status`; `/traffic/run` collects now. Rolled up hourly by `pipeline/build_traffic.py` into `data/traffic/` (Vermont) and `data/corridors/<id>/traffic/`; shown as the yellow line in the measured-speeds chart |
 | Hourly workflow | Downloads two days of pings from R2 (Metro + Swiftly), rolls up measured speeds for every street, commits them, writes permanent daily raw and MDS files to R2 (`daily/`, `mds/`), regenerates `datapackage.json`, builds the site, deploys Workers (step is `continue-on-error`: check it) and Pages. GitHub drops some scheduled runs |
-| Scheduled series | Vermont 2016-01-31 onward (`data/hourly/`); Hollywood and Sunset 2018 onward (`data/corridors/<id>/hourly/`). Rebuild needs the GTFS clone; not run by the workflow |
+| Scheduled series | Vermont 2016-01-31 onward (`data/hourly/`); Hollywood, Sunset, Pico and Olympic 2018 onward (`data/corridors/<id>/hourly/`). Rebuild needs the GTFS clone; not run by the workflow |
 | Measured series | Monthly CSVs: `data/observed/` (Vermont), `data/corridors/<id>/observed/` (with bus-by-bus focus-segment timings for Sunset) |
 | Measured bus history (Cal-ITP) | `data/calitp/vermont_calitp_history.csv`, `data/corridors/<id>/calitp/<id>_calitp_history.csv`: median, 20th and 80th percentile bus speeds per section, line, direction and time of day for 13 analysis Wednesdays from 2024-10 to 2026-07, from Cal-ITP's public speed maps. Built by `pipeline/fetch_calitp_history.py`; refreshed weekly by `.github/workflows/calitp-history.yml`. LA Metro's bus feed is named `recPnGkwdpnr8jmHB` (to 2025-07), then base64 of its GTFS address or `recX8JOPmBQM9aWLC` in the file names. Cal-ITP dropped PM Peak after 2025-07; 2024-10 and 2025-01 are partial |
 | General-traffic series | Monthly CSVs from TomTom flow tiles: `data/traffic/vermont_traffic_YYYY-MM.csv`, `data/corridors/<id>/traffic/<id>_traffic_YYYY-MM.csv` (speed, free-flow speed, coverage, closures per section and direction) |
@@ -50,7 +51,9 @@ All Cloudflare resource names are prefixed `aviary-`. Use `aviary.herebox.org` f
 
 Corridor caveats: Fountain Av's road diet is the City of West Hollywood's project (La Cienega Bl to La Brea Av),
 not LADOT's, and LADOT DASH runs on the Hollywood part of Fountain; `corridors/fountain.json` coordinates are
-approximate. The Hollywood corridor ends at Vermont Av, short of Hillhurst Av. Research notes in `docs/projects/`
+approximate. The Hollywood corridor ends at Vermont Av, short of Hillhurst Av. The Pico corridor ends at Bonnie Brae St,
+where line 30 leaves Pico, 0.6 mi short of the project's east end at Figueroa St (`docs/projects/pico-bl.md`). `corridors/olympic.json` is a
+control street, not a project (`control_for: pico`, line 28, same cross streets); `short_name` sets its picker label. Research notes in `docs/projects/`
 come from search-result summaries; verify before quoting.
 
 ## Swiftly

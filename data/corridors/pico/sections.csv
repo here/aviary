@@ -1,0 +1,5 @@
+corridor_id,section_id,name,start_mi,end_mi,length_mi
+pico,S1,Crenshaw Bl to Western Av,0.091,1.081,0.989
+pico,S2,Western Av to Vermont Av,1.081,2.074,0.994
+pico,S3,Vermont Av to Bonnie Brae St,2.074,2.738,0.664
+pico,corridor,Crenshaw Bl to Bonnie Brae St,0.091,2.738,2.647

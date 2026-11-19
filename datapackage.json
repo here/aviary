@@ -1,11 +1,11 @@
 {
   "name": "aviary-la-street-speeds",
-  "title": "Hourly bus speeds on Los Angeles streets being redesigned: Vermont Av, Hollywood Bl, Sunset Bl and Cesar Chavez Av",
+  "title": "Hourly bus speeds on Los Angeles streets being redesigned: Vermont Av, Hollywood Bl, Olympic Bl, Pico Bl, Sunset Bl and Cesar Chavez Av",
   "description": "Scheduled hourly bus speeds rebuilt from LA Metro's timetable history (Vermont Av since 2016, other streets since 2018), and measured speeds from bus GPS since November 2026. Speeds include stops. Each street's definition file lists the project dates on it.",
   "profile": "data-package",
   "version": "0.2.0",
   "created": "2026-11-17T00:00:00Z",
-  "updated": "2026-11-19T00:30:19Z",
+  "updated": "2026-11-19T07:31:13Z",
   "homepage": "https://aviary.herebox.org",
   "keywords": [
     "Los Angeles",
@@ -3101,6 +3101,1788 @@
       "name": "hollywood-feed-versions",
       "title": "Hollywood Bl, Highland Av to Vermont Av: timetable version in force for each date range",
       "path": "data/corridors/hollywood/feed_versions.csv",
+      "format": "csv",
+      "profile": "tabular-data-resource",
+      "schema": {
+        "fields": [
+          {
+            "name": "feed_version",
+            "type": "string",
+            "description": "GTFS version: publication date and git commit."
+          },
+          {
+            "name": "first_date",
+            "type": "string",
+            "description": "First service date it covers."
+          },
+          {
+            "name": "last_date",
+            "type": "string",
+            "description": "Last service date it covers."
+          },
+          {
+            "name": "days",
+            "type": "integer",
+            "description": "Number of service days."
+          }
+        ]
+      }
+    },
+    {
+      "name": "olympic-calitp-history",
+      "title": "Olympic Bl, Crenshaw Bl to Figueroa St (control for Pico Bl): measured bus speed history from Cal-ITP",
+      "path": "data/corridors/olympic/calitp/olympic_calitp_history.csv",
+      "format": "csv",
+      "description": "Roughly monthly Wednesdays since October 2024, from Cal-ITP's public speed maps.",
+      "profile": "tabular-data-resource",
+      "schema": {
+        "fields": [
+          {
+            "name": "corridor_id",
+            "type": "string",
+            "description": "Street identifier."
+          },
+          {
+            "name": "analysis_date",
+            "type": "date",
+            "description": "Day Cal-ITP analysed (a Wednesday)."
+          },
+          {
+            "name": "period",
+            "type": "string",
+            "description": "Cal-ITP time of day: Owl, Early AM, AM Peak, Midday, PM Peak, Evening (All day in early files)."
+          },
+          {
+            "name": "hours",
+            "type": "string",
+            "description": "Clock hours of the period, local time."
+          },
+          {
+            "name": "route",
+            "type": "string",
+            "description": "LA Metro bus line."
+          },
+          {
+            "name": "direction",
+            "type": "string",
+            "description": "Direction of travel along the street, from the order of the segment's two stops."
+          },
+          {
+            "name": "section_id",
+            "type": "string",
+            "description": "Section id; see that street's sections file."
+          },
+          {
+            "name": "p20_mph",
+            "type": "number",
+            "description": "20th percentile measured bus speed over the section (distance over summed segment travel time)."
+          },
+          {
+            "name": "p50_mph",
+            "type": "number",
+            "description": "Median measured bus speed over the section."
+          },
+          {
+            "name": "p80_mph",
+            "type": "number",
+            "description": "80th percentile measured bus speed over the section."
+          },
+          {
+            "name": "length_mi",
+            "type": "number",
+            "description": "Section length in miles."
+          },
+          {
+            "name": "coverage",
+            "type": "number",
+            "description": "Share of the section covered by matched stop-to-stop segments."
+          },
+          {
+            "name": "n_trips",
+            "type": "integer",
+            "description": "Fewest trips on any contributing segment."
+          },
+          {
+            "name": "source",
+            "type": "string",
+            "description": "`calitp_segment_speeds` = Cal-ITP public speed maps (bucket calitp-map-tiles)."
+          }
+        ]
+      }
+    },
+    {
+      "name": "olympic-definition",
+      "title": "Olympic Bl, Crenshaw Bl to Figueroa St (control for Pico Bl): definition",
+      "path": "corridors/olympic.json",
+      "format": "json",
+      "description": "Street path, section boundaries, bus lines and project dates.",
+      "mediatype": "application/json"
+    },
+    {
+      "name": "olympic-hourly-2018",
+      "title": "Olympic Bl, Crenshaw Bl to Figueroa St (control for Pico Bl): hourly scheduled speeds (2018)",
+      "path": "data/corridors/olympic/hourly/year=2018/olympic_speeds.parquet",
+      "format": "parquet",
+      "group": "olympic-hourly",
+      "description": "Scheduled speeds for lines 28. Hive-partitioned by local year.",
+      "profile": "tabular-data-resource",
+      "schema": {
+        "fields": [
+          {
+            "name": "corridor_id",
+            "type": "string",
+            "description": "Street identifier, matching corridors/<corridor_id>.json."
+          },
+          {
+            "name": "hour_start_utc",
+            "type": "datetime",
+            "description": "Start of the hour, UTC (ISO 8601)."
+          },
+          {
+            "name": "hour_start_local",
+            "type": "string",
+            "description": "Start of the hour in America/Los_Angeles with UTC offset, e.g. 2024-05-01T17:00:00-0700."
+          },
+          {
+            "name": "route",
+            "type": "string",
+            "description": "LA Metro bus line, e.g. 204, 754, 2, 4, 180, 217."
+          },
+          {
+            "name": "direction",
+            "type": "string",
+            "description": "northbound / southbound on Vermont Av; eastbound / westbound on the other corridors."
+          },
+          {
+            "name": "section_id",
+            "type": "string",
+            "description": "`corridor` for the whole street, or a section id (S1, S2, ...); see that street's sections file."
+          },
+          {
+            "name": "speed_mph",
+            "type": "number",
+            "description": "Average speed over the section in miles per hour, stops and signals included."
+          },
+          {
+            "name": "travel_time_min",
+            "type": "number",
+            "description": "Average minutes to traverse the section. Corridor rows sum the section averages."
+          },
+          {
+            "name": "length_mi",
+            "type": "number",
+            "description": "Section length in miles."
+          },
+          {
+            "name": "n_trips",
+            "type": "integer",
+            "description": "Trips contributing in that hour (corridor rows: the fewest on any section)."
+          },
+          {
+            "name": "source",
+            "type": "string",
+            "description": "`gtfs_schedule` = derived from the published timetable; `gtfs_realtime_observed` = measured from bus GPS (LA Metro's public feed and Swiftly, duplicates removed)."
+          },
+          {
+            "name": "feed_version",
+            "type": "string",
+            "description": "Scheduled rows: publication date and commit of the LACMTA/gtfs_bus version used. Empty for measured rows."
+          }
+        ],
+        "primaryKey": [
+          "hour_start_utc",
+          "route",
+          "direction",
+          "section_id",
+          "source"
+        ]
+      },
+      "mediatype": "application/vnd.apache.parquet"
+    },
+    {
+      "name": "olympic-hourly-2019",
+      "title": "Olympic Bl, Crenshaw Bl to Figueroa St (control for Pico Bl): hourly scheduled speeds (2019)",
+      "path": "data/corridors/olympic/hourly/year=2019/olympic_speeds.parquet",
+      "format": "parquet",
+      "group": "olympic-hourly",
+      "description": "Scheduled speeds for lines 28. Hive-partitioned by local year.",
+      "profile": "tabular-data-resource",
+      "schema": {
+        "fields": [
+          {
+            "name": "corridor_id",
+            "type": "string",
+            "description": "Street identifier, matching corridors/<corridor_id>.json."
+          },
+          {
+            "name": "hour_start_utc",
+            "type": "datetime",
+            "description": "Start of the hour, UTC (ISO 8601)."
+          },
+          {
+            "name": "hour_start_local",
+            "type": "string",
+            "description": "Start of the hour in America/Los_Angeles with UTC offset, e.g. 2024-05-01T17:00:00-0700."
+          },
+          {
+            "name": "route",
+            "type": "string",
+            "description": "LA Metro bus line, e.g. 204, 754, 2, 4, 180, 217."
+          },
+          {
+            "name": "direction",
+            "type": "string",
+            "description": "northbound / southbound on Vermont Av; eastbound / westbound on the other corridors."
+          },
+          {
+            "name": "section_id",
+            "type": "string",
+            "description": "`corridor` for the whole street, or a section id (S1, S2, ...); see that street's sections file."
+          },
+          {
+            "name": "speed_mph",
+            "type": "number",
+            "description": "Average speed over the section in miles per hour, stops and signals included."
+          },
+          {
+            "name": "travel_time_min",
+            "type": "number",
+            "description": "Average minutes to traverse the section. Corridor rows sum the section averages."
+          },
+          {
+            "name": "length_mi",
+            "type": "number",
+            "description": "Section length in miles."
+          },
+          {
+            "name": "n_trips",
+            "type": "integer",
+            "description": "Trips contributing in that hour (corridor rows: the fewest on any section)."
+          },
+          {
+            "name": "source",
+            "type": "string",
+            "description": "`gtfs_schedule` = derived from the published timetable; `gtfs_realtime_observed` = measured from bus GPS (LA Metro's public feed and Swiftly, duplicates removed)."
+          },
+          {
+            "name": "feed_version",
+            "type": "string",
+            "description": "Scheduled rows: publication date and commit of the LACMTA/gtfs_bus version used. Empty for measured rows."
+          }
+        ],
+        "primaryKey": [
+          "hour_start_utc",
+          "route",
+          "direction",
+          "section_id",
+          "source"
+        ]
+      },
+      "mediatype": "application/vnd.apache.parquet"
+    },
+    {
+      "name": "olympic-hourly-2020",
+      "title": "Olympic Bl, Crenshaw Bl to Figueroa St (control for Pico Bl): hourly scheduled speeds (2020)",
+      "path": "data/corridors/olympic/hourly/year=2020/olympic_speeds.parquet",
+      "format": "parquet",
+      "group": "olympic-hourly",
+      "description": "Scheduled speeds for lines 28. Hive-partitioned by local year.",
+      "profile": "tabular-data-resource",
+      "schema": {
+        "fields": [
+          {
+            "name": "corridor_id",
+            "type": "string",
+            "description": "Street identifier, matching corridors/<corridor_id>.json."
+          },
+          {
+            "name": "hour_start_utc",
+            "type": "datetime",
+            "description": "Start of the hour, UTC (ISO 8601)."
+          },
+          {
+            "name": "hour_start_local",
+            "type": "string",
+            "description": "Start of the hour in America/Los_Angeles with UTC offset, e.g. 2024-05-01T17:00:00-0700."
+          },
+          {
+            "name": "route",
+            "type": "string",
+            "description": "LA Metro bus line, e.g. 204, 754, 2, 4, 180, 217."
+          },
+          {
+            "name": "direction",
+            "type": "string",
+            "description": "northbound / southbound on Vermont Av; eastbound / westbound on the other corridors."
+          },
+          {
+            "name": "section_id",
+            "type": "string",
+            "description": "`corridor` for the whole street, or a section id (S1, S2, ...); see that street's sections file."
+          },
+          {
+            "name": "speed_mph",
+            "type": "number",
+            "description": "Average speed over the section in miles per hour, stops and signals included."
+          },
+          {
+            "name": "travel_time_min",
+            "type": "number",
+            "description": "Average minutes to traverse the section. Corridor rows sum the section averages."
+          },
+          {
+            "name": "length_mi",
+            "type": "number",
+            "description": "Section length in miles."
+          },
+          {
+            "name": "n_trips",
+            "type": "integer",
+            "description": "Trips contributing in that hour (corridor rows: the fewest on any section)."
+          },
+          {
+            "name": "source",
+            "type": "string",
+            "description": "`gtfs_schedule` = derived from the published timetable; `gtfs_realtime_observed` = measured from bus GPS (LA Metro's public feed and Swiftly, duplicates removed)."
+          },
+          {
+            "name": "feed_version",
+            "type": "string",
+            "description": "Scheduled rows: publication date and commit of the LACMTA/gtfs_bus version used. Empty for measured rows."
+          }
+        ],
+        "primaryKey": [
+          "hour_start_utc",
+          "route",
+          "direction",
+          "section_id",
+          "source"
+        ]
+      },
+      "mediatype": "application/vnd.apache.parquet"
+    },
+    {
+      "name": "olympic-hourly-2021",
+      "title": "Olympic Bl, Crenshaw Bl to Figueroa St (control for Pico Bl): hourly scheduled speeds (2021)",
+      "path": "data/corridors/olympic/hourly/year=2021/olympic_speeds.parquet",
+      "format": "parquet",
+      "group": "olympic-hourly",
+      "description": "Scheduled speeds for lines 28. Hive-partitioned by local year.",
+      "profile": "tabular-data-resource",
+      "schema": {
+        "fields": [
+          {
+            "name": "corridor_id",
+            "type": "string",
+            "description": "Street identifier, matching corridors/<corridor_id>.json."
+          },
+          {
+            "name": "hour_start_utc",
+            "type": "datetime",
+            "description": "Start of the hour, UTC (ISO 8601)."
+          },
+          {
+            "name": "hour_start_local",
+            "type": "string",
+            "description": "Start of the hour in America/Los_Angeles with UTC offset, e.g. 2024-05-01T17:00:00-0700."
+          },
+          {
+            "name": "route",
+            "type": "string",
+            "description": "LA Metro bus line, e.g. 204, 754, 2, 4, 180, 217."
+          },
+          {
+            "name": "direction",
+            "type": "string",
+            "description": "northbound / southbound on Vermont Av; eastbound / westbound on the other corridors."
+          },
+          {
+            "name": "section_id",
+            "type": "string",
+            "description": "`corridor` for the whole street, or a section id (S1, S2, ...); see that street's sections file."
+          },
+          {
+            "name": "speed_mph",
+            "type": "number",
+            "description": "Average speed over the section in miles per hour, stops and signals included."
+          },
+          {
+            "name": "travel_time_min",
+            "type": "number",
+            "description": "Average minutes to traverse the section. Corridor rows sum the section averages."
+          },
+          {
+            "name": "length_mi",
+            "type": "number",
+            "description": "Section length in miles."
+          },
+          {
+            "name": "n_trips",
+            "type": "integer",
+            "description": "Trips contributing in that hour (corridor rows: the fewest on any section)."
+          },
+          {
+            "name": "source",
+            "type": "string",
+            "description": "`gtfs_schedule` = derived from the published timetable; `gtfs_realtime_observed` = measured from bus GPS (LA Metro's public feed and Swiftly, duplicates removed)."
+          },
+          {
+            "name": "feed_version",
+            "type": "string",
+            "description": "Scheduled rows: publication date and commit of the LACMTA/gtfs_bus version used. Empty for measured rows."
+          }
+        ],
+        "primaryKey": [
+          "hour_start_utc",
+          "route",
+          "direction",
+          "section_id",
+          "source"
+        ]
+      },
+      "mediatype": "application/vnd.apache.parquet"
+    },
+    {
+      "name": "olympic-hourly-2022",
+      "title": "Olympic Bl, Crenshaw Bl to Figueroa St (control for Pico Bl): hourly scheduled speeds (2022)",
+      "path": "data/corridors/olympic/hourly/year=2022/olympic_speeds.parquet",
+      "format": "parquet",
+      "group": "olympic-hourly",
+      "description": "Scheduled speeds for lines 28. Hive-partitioned by local year.",
+      "profile": "tabular-data-resource",
+      "schema": {
+        "fields": [
+          {
+            "name": "corridor_id",
+            "type": "string",
+            "description": "Street identifier, matching corridors/<corridor_id>.json."
+          },
+          {
+            "name": "hour_start_utc",
+            "type": "datetime",
+            "description": "Start of the hour, UTC (ISO 8601)."
+          },
+          {
+            "name": "hour_start_local",
+            "type": "string",
+            "description": "Start of the hour in America/Los_Angeles with UTC offset, e.g. 2024-05-01T17:00:00-0700."
+          },
+          {
+            "name": "route",
+            "type": "string",
+            "description": "LA Metro bus line, e.g. 204, 754, 2, 4, 180, 217."
+          },
+          {
+            "name": "direction",
+            "type": "string",
+            "description": "northbound / southbound on Vermont Av; eastbound / westbound on the other corridors."
+          },
+          {
+            "name": "section_id",
+            "type": "string",
+            "description": "`corridor` for the whole street, or a section id (S1, S2, ...); see that street's sections file."
+          },
+          {
+            "name": "speed_mph",
+            "type": "number",
+            "description": "Average speed over the section in miles per hour, stops and signals included."
+          },
+          {
+            "name": "travel_time_min",
+            "type": "number",
+            "description": "Average minutes to traverse the section. Corridor rows sum the section averages."
+          },
+          {
+            "name": "length_mi",
+            "type": "number",
+            "description": "Section length in miles."
+          },
+          {
+            "name": "n_trips",
+            "type": "integer",
+            "description": "Trips contributing in that hour (corridor rows: the fewest on any section)."
+          },
+          {
+            "name": "source",
+            "type": "string",
+            "description": "`gtfs_schedule` = derived from the published timetable; `gtfs_realtime_observed` = measured from bus GPS (LA Metro's public feed and Swiftly, duplicates removed)."
+          },
+          {
+            "name": "feed_version",
+            "type": "string",
+            "description": "Scheduled rows: publication date and commit of the LACMTA/gtfs_bus version used. Empty for measured rows."
+          }
+        ],
+        "primaryKey": [
+          "hour_start_utc",
+          "route",
+          "direction",
+          "section_id",
+          "source"
+        ]
+      },
+      "mediatype": "application/vnd.apache.parquet"
+    },
+    {
+      "name": "olympic-hourly-2023",
+      "title": "Olympic Bl, Crenshaw Bl to Figueroa St (control for Pico Bl): hourly scheduled speeds (2023)",
+      "path": "data/corridors/olympic/hourly/year=2023/olympic_speeds.parquet",
+      "format": "parquet",
+      "group": "olympic-hourly",
+      "description": "Scheduled speeds for lines 28. Hive-partitioned by local year.",
+      "profile": "tabular-data-resource",
+      "schema": {
+        "fields": [
+          {
+            "name": "corridor_id",
+            "type": "string",
+            "description": "Street identifier, matching corridors/<corridor_id>.json."
+          },
+          {
+            "name": "hour_start_utc",
+            "type": "datetime",
+            "description": "Start of the hour, UTC (ISO 8601)."
+          },
+          {
+            "name": "hour_start_local",
+            "type": "string",
+            "description": "Start of the hour in America/Los_Angeles with UTC offset, e.g. 2024-05-01T17:00:00-0700."
+          },
+          {
+            "name": "route",
+            "type": "string",
+            "description": "LA Metro bus line, e.g. 204, 754, 2, 4, 180, 217."
+          },
+          {
+            "name": "direction",
+            "type": "string",
+            "description": "northbound / southbound on Vermont Av; eastbound / westbound on the other corridors."
+          },
+          {
+            "name": "section_id",
+            "type": "string",
+            "description": "`corridor` for the whole street, or a section id (S1, S2, ...); see that street's sections file."
+          },
+          {
+            "name": "speed_mph",
+            "type": "number",
+            "description": "Average speed over the section in miles per hour, stops and signals included."
+          },
+          {
+            "name": "travel_time_min",
+            "type": "number",
+            "description": "Average minutes to traverse the section. Corridor rows sum the section averages."
+          },
+          {
+            "name": "length_mi",
+            "type": "number",
+            "description": "Section length in miles."
+          },
+          {
+            "name": "n_trips",
+            "type": "integer",
+            "description": "Trips contributing in that hour (corridor rows: the fewest on any section)."
+          },
+          {
+            "name": "source",
+            "type": "string",
+            "description": "`gtfs_schedule` = derived from the published timetable; `gtfs_realtime_observed` = measured from bus GPS (LA Metro's public feed and Swiftly, duplicates removed)."
+          },
+          {
+            "name": "feed_version",
+            "type": "string",
+            "description": "Scheduled rows: publication date and commit of the LACMTA/gtfs_bus version used. Empty for measured rows."
+          }
+        ],
+        "primaryKey": [
+          "hour_start_utc",
+          "route",
+          "direction",
+          "section_id",
+          "source"
+        ]
+      },
+      "mediatype": "application/vnd.apache.parquet"
+    },
+    {
+      "name": "olympic-hourly-2024",
+      "title": "Olympic Bl, Crenshaw Bl to Figueroa St (control for Pico Bl): hourly scheduled speeds (2024)",
+      "path": "data/corridors/olympic/hourly/year=2024/olympic_speeds.parquet",
+      "format": "parquet",
+      "group": "olympic-hourly",
+      "description": "Scheduled speeds for lines 28. Hive-partitioned by local year.",
+      "profile": "tabular-data-resource",
+      "schema": {
+        "fields": [
+          {
+            "name": "corridor_id",
+            "type": "string",
+            "description": "Street identifier, matching corridors/<corridor_id>.json."
+          },
+          {
+            "name": "hour_start_utc",
+            "type": "datetime",
+            "description": "Start of the hour, UTC (ISO 8601)."
+          },
+          {
+            "name": "hour_start_local",
+            "type": "string",
+            "description": "Start of the hour in America/Los_Angeles with UTC offset, e.g. 2024-05-01T17:00:00-0700."
+          },
+          {
+            "name": "route",
+            "type": "string",
+            "description": "LA Metro bus line, e.g. 204, 754, 2, 4, 180, 217."
+          },
+          {
+            "name": "direction",
+            "type": "string",
+            "description": "northbound / southbound on Vermont Av; eastbound / westbound on the other corridors."
+          },
+          {
+            "name": "section_id",
+            "type": "string",
+            "description": "`corridor` for the whole street, or a section id (S1, S2, ...); see that street's sections file."
+          },
+          {
+            "name": "speed_mph",
+            "type": "number",
+            "description": "Average speed over the section in miles per hour, stops and signals included."
+          },
+          {
+            "name": "travel_time_min",
+            "type": "number",
+            "description": "Average minutes to traverse the section. Corridor rows sum the section averages."
+          },
+          {
+            "name": "length_mi",
+            "type": "number",
+            "description": "Section length in miles."
+          },
+          {
+            "name": "n_trips",
+            "type": "integer",
+            "description": "Trips contributing in that hour (corridor rows: the fewest on any section)."
+          },
+          {
+            "name": "source",
+            "type": "string",
+            "description": "`gtfs_schedule` = derived from the published timetable; `gtfs_realtime_observed` = measured from bus GPS (LA Metro's public feed and Swiftly, duplicates removed)."
+          },
+          {
+            "name": "feed_version",
+            "type": "string",
+            "description": "Scheduled rows: publication date and commit of the LACMTA/gtfs_bus version used. Empty for measured rows."
+          }
+        ],
+        "primaryKey": [
+          "hour_start_utc",
+          "route",
+          "direction",
+          "section_id",
+          "source"
+        ]
+      },
+      "mediatype": "application/vnd.apache.parquet"
+    },
+    {
+      "name": "olympic-hourly-2025",
+      "title": "Olympic Bl, Crenshaw Bl to Figueroa St (control for Pico Bl): hourly scheduled speeds (2025)",
+      "path": "data/corridors/olympic/hourly/year=2025/olympic_speeds.parquet",
+      "format": "parquet",
+      "group": "olympic-hourly",
+      "description": "Scheduled speeds for lines 28. Hive-partitioned by local year.",
+      "profile": "tabular-data-resource",
+      "schema": {
+        "fields": [
+          {
+            "name": "corridor_id",
+            "type": "string",
+            "description": "Street identifier, matching corridors/<corridor_id>.json."
+          },
+          {
+            "name": "hour_start_utc",
+            "type": "datetime",
+            "description": "Start of the hour, UTC (ISO 8601)."
+          },
+          {
+            "name": "hour_start_local",
+            "type": "string",
+            "description": "Start of the hour in America/Los_Angeles with UTC offset, e.g. 2024-05-01T17:00:00-0700."
+          },
+          {
+            "name": "route",
+            "type": "string",
+            "description": "LA Metro bus line, e.g. 204, 754, 2, 4, 180, 217."
+          },
+          {
+            "name": "direction",
+            "type": "string",
+            "description": "northbound / southbound on Vermont Av; eastbound / westbound on the other corridors."
+          },
+          {
+            "name": "section_id",
+            "type": "string",
+            "description": "`corridor` for the whole street, or a section id (S1, S2, ...); see that street's sections file."
+          },
+          {
+            "name": "speed_mph",
+            "type": "number",
+            "description": "Average speed over the section in miles per hour, stops and signals included."
+          },
+          {
+            "name": "travel_time_min",
+            "type": "number",
+            "description": "Average minutes to traverse the section. Corridor rows sum the section averages."
+          },
+          {
+            "name": "length_mi",
+            "type": "number",
+            "description": "Section length in miles."
+          },
+          {
+            "name": "n_trips",
+            "type": "integer",
+            "description": "Trips contributing in that hour (corridor rows: the fewest on any section)."
+          },
+          {
+            "name": "source",
+            "type": "string",
+            "description": "`gtfs_schedule` = derived from the published timetable; `gtfs_realtime_observed` = measured from bus GPS (LA Metro's public feed and Swiftly, duplicates removed)."
+          },
+          {
+            "name": "feed_version",
+            "type": "string",
+            "description": "Scheduled rows: publication date and commit of the LACMTA/gtfs_bus version used. Empty for measured rows."
+          }
+        ],
+        "primaryKey": [
+          "hour_start_utc",
+          "route",
+          "direction",
+          "section_id",
+          "source"
+        ]
+      },
+      "mediatype": "application/vnd.apache.parquet"
+    },
+    {
+      "name": "olympic-hourly-2026",
+      "title": "Olympic Bl, Crenshaw Bl to Figueroa St (control for Pico Bl): hourly scheduled speeds (2026)",
+      "path": "data/corridors/olympic/hourly/year=2026/olympic_speeds.parquet",
+      "format": "parquet",
+      "group": "olympic-hourly",
+      "description": "Scheduled speeds for lines 28. Hive-partitioned by local year.",
+      "profile": "tabular-data-resource",
+      "schema": {
+        "fields": [
+          {
+            "name": "corridor_id",
+            "type": "string",
+            "description": "Street identifier, matching corridors/<corridor_id>.json."
+          },
+          {
+            "name": "hour_start_utc",
+            "type": "datetime",
+            "description": "Start of the hour, UTC (ISO 8601)."
+          },
+          {
+            "name": "hour_start_local",
+            "type": "string",
+            "description": "Start of the hour in America/Los_Angeles with UTC offset, e.g. 2024-05-01T17:00:00-0700."
+          },
+          {
+            "name": "route",
+            "type": "string",
+            "description": "LA Metro bus line, e.g. 204, 754, 2, 4, 180, 217."
+          },
+          {
+            "name": "direction",
+            "type": "string",
+            "description": "northbound / southbound on Vermont Av; eastbound / westbound on the other corridors."
+          },
+          {
+            "name": "section_id",
+            "type": "string",
+            "description": "`corridor` for the whole street, or a section id (S1, S2, ...); see that street's sections file."
+          },
+          {
+            "name": "speed_mph",
+            "type": "number",
+            "description": "Average speed over the section in miles per hour, stops and signals included."
+          },
+          {
+            "name": "travel_time_min",
+            "type": "number",
+            "description": "Average minutes to traverse the section. Corridor rows sum the section averages."
+          },
+          {
+            "name": "length_mi",
+            "type": "number",
+            "description": "Section length in miles."
+          },
+          {
+            "name": "n_trips",
+            "type": "integer",
+            "description": "Trips contributing in that hour (corridor rows: the fewest on any section)."
+          },
+          {
+            "name": "source",
+            "type": "string",
+            "description": "`gtfs_schedule` = derived from the published timetable; `gtfs_realtime_observed` = measured from bus GPS (LA Metro's public feed and Swiftly, duplicates removed)."
+          },
+          {
+            "name": "feed_version",
+            "type": "string",
+            "description": "Scheduled rows: publication date and commit of the LACMTA/gtfs_bus version used. Empty for measured rows."
+          }
+        ],
+        "primaryKey": [
+          "hour_start_utc",
+          "route",
+          "direction",
+          "section_id",
+          "source"
+        ]
+      },
+      "mediatype": "application/vnd.apache.parquet"
+    },
+    {
+      "name": "olympic-sections",
+      "title": "Olympic Bl, Crenshaw Bl to Figueroa St (control for Pico Bl): sections",
+      "path": "data/corridors/olympic/sections.csv",
+      "format": "csv",
+      "profile": "tabular-data-resource",
+      "schema": {
+        "fields": [
+          {
+            "name": "corridor_id",
+            "type": "string",
+            "description": "Street identifier, matching corridors/<corridor_id>.json."
+          },
+          {
+            "name": "section_id",
+            "type": "string",
+            "description": "Section id; `corridor` is the whole street."
+          },
+          {
+            "name": "name",
+            "type": "string",
+            "description": "From cross street to cross street."
+          },
+          {
+            "name": "start_mi",
+            "type": "number",
+            "description": "Distance along the street's path where the section starts, miles."
+          },
+          {
+            "name": "end_mi",
+            "type": "number",
+            "description": "Where it ends, miles."
+          },
+          {
+            "name": "length_mi",
+            "type": "number",
+            "description": "Section length, miles."
+          }
+        ]
+      }
+    },
+    {
+      "name": "olympic-feed-versions",
+      "title": "Olympic Bl, Crenshaw Bl to Figueroa St (control for Pico Bl): timetable version in force for each date range",
+      "path": "data/corridors/olympic/feed_versions.csv",
+      "format": "csv",
+      "profile": "tabular-data-resource",
+      "schema": {
+        "fields": [
+          {
+            "name": "feed_version",
+            "type": "string",
+            "description": "GTFS version: publication date and git commit."
+          },
+          {
+            "name": "first_date",
+            "type": "string",
+            "description": "First service date it covers."
+          },
+          {
+            "name": "last_date",
+            "type": "string",
+            "description": "Last service date it covers."
+          },
+          {
+            "name": "days",
+            "type": "integer",
+            "description": "Number of service days."
+          }
+        ]
+      }
+    },
+    {
+      "name": "pico-calitp-history",
+      "title": "Pico Bl, Crenshaw Bl to Bonnie Brae St: measured bus speed history from Cal-ITP",
+      "path": "data/corridors/pico/calitp/pico_calitp_history.csv",
+      "format": "csv",
+      "description": "Roughly monthly Wednesdays since October 2024, from Cal-ITP's public speed maps.",
+      "profile": "tabular-data-resource",
+      "schema": {
+        "fields": [
+          {
+            "name": "corridor_id",
+            "type": "string",
+            "description": "Street identifier."
+          },
+          {
+            "name": "analysis_date",
+            "type": "date",
+            "description": "Day Cal-ITP analysed (a Wednesday)."
+          },
+          {
+            "name": "period",
+            "type": "string",
+            "description": "Cal-ITP time of day: Owl, Early AM, AM Peak, Midday, PM Peak, Evening (All day in early files)."
+          },
+          {
+            "name": "hours",
+            "type": "string",
+            "description": "Clock hours of the period, local time."
+          },
+          {
+            "name": "route",
+            "type": "string",
+            "description": "LA Metro bus line."
+          },
+          {
+            "name": "direction",
+            "type": "string",
+            "description": "Direction of travel along the street, from the order of the segment's two stops."
+          },
+          {
+            "name": "section_id",
+            "type": "string",
+            "description": "Section id; see that street's sections file."
+          },
+          {
+            "name": "p20_mph",
+            "type": "number",
+            "description": "20th percentile measured bus speed over the section (distance over summed segment travel time)."
+          },
+          {
+            "name": "p50_mph",
+            "type": "number",
+            "description": "Median measured bus speed over the section."
+          },
+          {
+            "name": "p80_mph",
+            "type": "number",
+            "description": "80th percentile measured bus speed over the section."
+          },
+          {
+            "name": "length_mi",
+            "type": "number",
+            "description": "Section length in miles."
+          },
+          {
+            "name": "coverage",
+            "type": "number",
+            "description": "Share of the section covered by matched stop-to-stop segments."
+          },
+          {
+            "name": "n_trips",
+            "type": "integer",
+            "description": "Fewest trips on any contributing segment."
+          },
+          {
+            "name": "source",
+            "type": "string",
+            "description": "`calitp_segment_speeds` = Cal-ITP public speed maps (bucket calitp-map-tiles)."
+          }
+        ]
+      }
+    },
+    {
+      "name": "pico-definition",
+      "title": "Pico Bl, Crenshaw Bl to Bonnie Brae St: definition",
+      "path": "corridors/pico.json",
+      "format": "json",
+      "description": "Street path, section boundaries, bus lines and project dates.",
+      "mediatype": "application/json"
+    },
+    {
+      "name": "pico-hourly-2018",
+      "title": "Pico Bl, Crenshaw Bl to Bonnie Brae St: hourly scheduled speeds (2018)",
+      "path": "data/corridors/pico/hourly/year=2018/pico_speeds.parquet",
+      "format": "parquet",
+      "group": "pico-hourly",
+      "description": "Scheduled speeds for lines 30. Hive-partitioned by local year.",
+      "profile": "tabular-data-resource",
+      "schema": {
+        "fields": [
+          {
+            "name": "corridor_id",
+            "type": "string",
+            "description": "Street identifier, matching corridors/<corridor_id>.json."
+          },
+          {
+            "name": "hour_start_utc",
+            "type": "datetime",
+            "description": "Start of the hour, UTC (ISO 8601)."
+          },
+          {
+            "name": "hour_start_local",
+            "type": "string",
+            "description": "Start of the hour in America/Los_Angeles with UTC offset, e.g. 2024-05-01T17:00:00-0700."
+          },
+          {
+            "name": "route",
+            "type": "string",
+            "description": "LA Metro bus line, e.g. 204, 754, 2, 4, 180, 217."
+          },
+          {
+            "name": "direction",
+            "type": "string",
+            "description": "northbound / southbound on Vermont Av; eastbound / westbound on the other corridors."
+          },
+          {
+            "name": "section_id",
+            "type": "string",
+            "description": "`corridor` for the whole street, or a section id (S1, S2, ...); see that street's sections file."
+          },
+          {
+            "name": "speed_mph",
+            "type": "number",
+            "description": "Average speed over the section in miles per hour, stops and signals included."
+          },
+          {
+            "name": "travel_time_min",
+            "type": "number",
+            "description": "Average minutes to traverse the section. Corridor rows sum the section averages."
+          },
+          {
+            "name": "length_mi",
+            "type": "number",
+            "description": "Section length in miles."
+          },
+          {
+            "name": "n_trips",
+            "type": "integer",
+            "description": "Trips contributing in that hour (corridor rows: the fewest on any section)."
+          },
+          {
+            "name": "source",
+            "type": "string",
+            "description": "`gtfs_schedule` = derived from the published timetable; `gtfs_realtime_observed` = measured from bus GPS (LA Metro's public feed and Swiftly, duplicates removed)."
+          },
+          {
+            "name": "feed_version",
+            "type": "string",
+            "description": "Scheduled rows: publication date and commit of the LACMTA/gtfs_bus version used. Empty for measured rows."
+          }
+        ],
+        "primaryKey": [
+          "hour_start_utc",
+          "route",
+          "direction",
+          "section_id",
+          "source"
+        ]
+      },
+      "mediatype": "application/vnd.apache.parquet"
+    },
+    {
+      "name": "pico-hourly-2019",
+      "title": "Pico Bl, Crenshaw Bl to Bonnie Brae St: hourly scheduled speeds (2019)",
+      "path": "data/corridors/pico/hourly/year=2019/pico_speeds.parquet",
+      "format": "parquet",
+      "group": "pico-hourly",
+      "description": "Scheduled speeds for lines 30. Hive-partitioned by local year.",
+      "profile": "tabular-data-resource",
+      "schema": {
+        "fields": [
+          {
+            "name": "corridor_id",
+            "type": "string",
+            "description": "Street identifier, matching corridors/<corridor_id>.json."
+          },
+          {
+            "name": "hour_start_utc",
+            "type": "datetime",
+            "description": "Start of the hour, UTC (ISO 8601)."
+          },
+          {
+            "name": "hour_start_local",
+            "type": "string",
+            "description": "Start of the hour in America/Los_Angeles with UTC offset, e.g. 2024-05-01T17:00:00-0700."
+          },
+          {
+            "name": "route",
+            "type": "string",
+            "description": "LA Metro bus line, e.g. 204, 754, 2, 4, 180, 217."
+          },
+          {
+            "name": "direction",
+            "type": "string",
+            "description": "northbound / southbound on Vermont Av; eastbound / westbound on the other corridors."
+          },
+          {
+            "name": "section_id",
+            "type": "string",
+            "description": "`corridor` for the whole street, or a section id (S1, S2, ...); see that street's sections file."
+          },
+          {
+            "name": "speed_mph",
+            "type": "number",
+            "description": "Average speed over the section in miles per hour, stops and signals included."
+          },
+          {
+            "name": "travel_time_min",
+            "type": "number",
+            "description": "Average minutes to traverse the section. Corridor rows sum the section averages."
+          },
+          {
+            "name": "length_mi",
+            "type": "number",
+            "description": "Section length in miles."
+          },
+          {
+            "name": "n_trips",
+            "type": "integer",
+            "description": "Trips contributing in that hour (corridor rows: the fewest on any section)."
+          },
+          {
+            "name": "source",
+            "type": "string",
+            "description": "`gtfs_schedule` = derived from the published timetable; `gtfs_realtime_observed` = measured from bus GPS (LA Metro's public feed and Swiftly, duplicates removed)."
+          },
+          {
+            "name": "feed_version",
+            "type": "string",
+            "description": "Scheduled rows: publication date and commit of the LACMTA/gtfs_bus version used. Empty for measured rows."
+          }
+        ],
+        "primaryKey": [
+          "hour_start_utc",
+          "route",
+          "direction",
+          "section_id",
+          "source"
+        ]
+      },
+      "mediatype": "application/vnd.apache.parquet"
+    },
+    {
+      "name": "pico-hourly-2020",
+      "title": "Pico Bl, Crenshaw Bl to Bonnie Brae St: hourly scheduled speeds (2020)",
+      "path": "data/corridors/pico/hourly/year=2020/pico_speeds.parquet",
+      "format": "parquet",
+      "group": "pico-hourly",
+      "description": "Scheduled speeds for lines 30. Hive-partitioned by local year.",
+      "profile": "tabular-data-resource",
+      "schema": {
+        "fields": [
+          {
+            "name": "corridor_id",
+            "type": "string",
+            "description": "Street identifier, matching corridors/<corridor_id>.json."
+          },
+          {
+            "name": "hour_start_utc",
+            "type": "datetime",
+            "description": "Start of the hour, UTC (ISO 8601)."
+          },
+          {
+            "name": "hour_start_local",
+            "type": "string",
+            "description": "Start of the hour in America/Los_Angeles with UTC offset, e.g. 2024-05-01T17:00:00-0700."
+          },
+          {
+            "name": "route",
+            "type": "string",
+            "description": "LA Metro bus line, e.g. 204, 754, 2, 4, 180, 217."
+          },
+          {
+            "name": "direction",
+            "type": "string",
+            "description": "northbound / southbound on Vermont Av; eastbound / westbound on the other corridors."
+          },
+          {
+            "name": "section_id",
+            "type": "string",
+            "description": "`corridor` for the whole street, or a section id (S1, S2, ...); see that street's sections file."
+          },
+          {
+            "name": "speed_mph",
+            "type": "number",
+            "description": "Average speed over the section in miles per hour, stops and signals included."
+          },
+          {
+            "name": "travel_time_min",
+            "type": "number",
+            "description": "Average minutes to traverse the section. Corridor rows sum the section averages."
+          },
+          {
+            "name": "length_mi",
+            "type": "number",
+            "description": "Section length in miles."
+          },
+          {
+            "name": "n_trips",
+            "type": "integer",
+            "description": "Trips contributing in that hour (corridor rows: the fewest on any section)."
+          },
+          {
+            "name": "source",
+            "type": "string",
+            "description": "`gtfs_schedule` = derived from the published timetable; `gtfs_realtime_observed` = measured from bus GPS (LA Metro's public feed and Swiftly, duplicates removed)."
+          },
+          {
+            "name": "feed_version",
+            "type": "string",
+            "description": "Scheduled rows: publication date and commit of the LACMTA/gtfs_bus version used. Empty for measured rows."
+          }
+        ],
+        "primaryKey": [
+          "hour_start_utc",
+          "route",
+          "direction",
+          "section_id",
+          "source"
+        ]
+      },
+      "mediatype": "application/vnd.apache.parquet"
+    },
+    {
+      "name": "pico-hourly-2021",
+      "title": "Pico Bl, Crenshaw Bl to Bonnie Brae St: hourly scheduled speeds (2021)",
+      "path": "data/corridors/pico/hourly/year=2021/pico_speeds.parquet",
+      "format": "parquet",
+      "group": "pico-hourly",
+      "description": "Scheduled speeds for lines 30. Hive-partitioned by local year.",
+      "profile": "tabular-data-resource",
+      "schema": {
+        "fields": [
+          {
+            "name": "corridor_id",
+            "type": "string",
+            "description": "Street identifier, matching corridors/<corridor_id>.json."
+          },
+          {
+            "name": "hour_start_utc",
+            "type": "datetime",
+            "description": "Start of the hour, UTC (ISO 8601)."
+          },
+          {
+            "name": "hour_start_local",
+            "type": "string",
+            "description": "Start of the hour in America/Los_Angeles with UTC offset, e.g. 2024-05-01T17:00:00-0700."
+          },
+          {
+            "name": "route",
+            "type": "string",
+            "description": "LA Metro bus line, e.g. 204, 754, 2, 4, 180, 217."
+          },
+          {
+            "name": "direction",
+            "type": "string",
+            "description": "northbound / southbound on Vermont Av; eastbound / westbound on the other corridors."
+          },
+          {
+            "name": "section_id",
+            "type": "string",
+            "description": "`corridor` for the whole street, or a section id (S1, S2, ...); see that street's sections file."
+          },
+          {
+            "name": "speed_mph",
+            "type": "number",
+            "description": "Average speed over the section in miles per hour, stops and signals included."
+          },
+          {
+            "name": "travel_time_min",
+            "type": "number",
+            "description": "Average minutes to traverse the section. Corridor rows sum the section averages."
+          },
+          {
+            "name": "length_mi",
+            "type": "number",
+            "description": "Section length in miles."
+          },
+          {
+            "name": "n_trips",
+            "type": "integer",
+            "description": "Trips contributing in that hour (corridor rows: the fewest on any section)."
+          },
+          {
+            "name": "source",
+            "type": "string",
+            "description": "`gtfs_schedule` = derived from the published timetable; `gtfs_realtime_observed` = measured from bus GPS (LA Metro's public feed and Swiftly, duplicates removed)."
+          },
+          {
+            "name": "feed_version",
+            "type": "string",
+            "description": "Scheduled rows: publication date and commit of the LACMTA/gtfs_bus version used. Empty for measured rows."
+          }
+        ],
+        "primaryKey": [
+          "hour_start_utc",
+          "route",
+          "direction",
+          "section_id",
+          "source"
+        ]
+      },
+      "mediatype": "application/vnd.apache.parquet"
+    },
+    {
+      "name": "pico-hourly-2022",
+      "title": "Pico Bl, Crenshaw Bl to Bonnie Brae St: hourly scheduled speeds (2022)",
+      "path": "data/corridors/pico/hourly/year=2022/pico_speeds.parquet",
+      "format": "parquet",
+      "group": "pico-hourly",
+      "description": "Scheduled speeds for lines 30. Hive-partitioned by local year.",
+      "profile": "tabular-data-resource",
+      "schema": {
+        "fields": [
+          {
+            "name": "corridor_id",
+            "type": "string",
+            "description": "Street identifier, matching corridors/<corridor_id>.json."
+          },
+          {
+            "name": "hour_start_utc",
+            "type": "datetime",
+            "description": "Start of the hour, UTC (ISO 8601)."
+          },
+          {
+            "name": "hour_start_local",
+            "type": "string",
+            "description": "Start of the hour in America/Los_Angeles with UTC offset, e.g. 2024-05-01T17:00:00-0700."
+          },
+          {
+            "name": "route",
+            "type": "string",
+            "description": "LA Metro bus line, e.g. 204, 754, 2, 4, 180, 217."
+          },
+          {
+            "name": "direction",
+            "type": "string",
+            "description": "northbound / southbound on Vermont Av; eastbound / westbound on the other corridors."
+          },
+          {
+            "name": "section_id",
+            "type": "string",
+            "description": "`corridor` for the whole street, or a section id (S1, S2, ...); see that street's sections file."
+          },
+          {
+            "name": "speed_mph",
+            "type": "number",
+            "description": "Average speed over the section in miles per hour, stops and signals included."
+          },
+          {
+            "name": "travel_time_min",
+            "type": "number",
+            "description": "Average minutes to traverse the section. Corridor rows sum the section averages."
+          },
+          {
+            "name": "length_mi",
+            "type": "number",
+            "description": "Section length in miles."
+          },
+          {
+            "name": "n_trips",
+            "type": "integer",
+            "description": "Trips contributing in that hour (corridor rows: the fewest on any section)."
+          },
+          {
+            "name": "source",
+            "type": "string",
+            "description": "`gtfs_schedule` = derived from the published timetable; `gtfs_realtime_observed` = measured from bus GPS (LA Metro's public feed and Swiftly, duplicates removed)."
+          },
+          {
+            "name": "feed_version",
+            "type": "string",
+            "description": "Scheduled rows: publication date and commit of the LACMTA/gtfs_bus version used. Empty for measured rows."
+          }
+        ],
+        "primaryKey": [
+          "hour_start_utc",
+          "route",
+          "direction",
+          "section_id",
+          "source"
+        ]
+      },
+      "mediatype": "application/vnd.apache.parquet"
+    },
+    {
+      "name": "pico-hourly-2023",
+      "title": "Pico Bl, Crenshaw Bl to Bonnie Brae St: hourly scheduled speeds (2023)",
+      "path": "data/corridors/pico/hourly/year=2023/pico_speeds.parquet",
+      "format": "parquet",
+      "group": "pico-hourly",
+      "description": "Scheduled speeds for lines 30. Hive-partitioned by local year.",
+      "profile": "tabular-data-resource",
+      "schema": {
+        "fields": [
+          {
+            "name": "corridor_id",
+            "type": "string",
+            "description": "Street identifier, matching corridors/<corridor_id>.json."
+          },
+          {
+            "name": "hour_start_utc",
+            "type": "datetime",
+            "description": "Start of the hour, UTC (ISO 8601)."
+          },
+          {
+            "name": "hour_start_local",
+            "type": "string",
+            "description": "Start of the hour in America/Los_Angeles with UTC offset, e.g. 2024-05-01T17:00:00-0700."
+          },
+          {
+            "name": "route",
+            "type": "string",
+            "description": "LA Metro bus line, e.g. 204, 754, 2, 4, 180, 217."
+          },
+          {
+            "name": "direction",
+            "type": "string",
+            "description": "northbound / southbound on Vermont Av; eastbound / westbound on the other corridors."
+          },
+          {
+            "name": "section_id",
+            "type": "string",
+            "description": "`corridor` for the whole street, or a section id (S1, S2, ...); see that street's sections file."
+          },
+          {
+            "name": "speed_mph",
+            "type": "number",
+            "description": "Average speed over the section in miles per hour, stops and signals included."
+          },
+          {
+            "name": "travel_time_min",
+            "type": "number",
+            "description": "Average minutes to traverse the section. Corridor rows sum the section averages."
+          },
+          {
+            "name": "length_mi",
+            "type": "number",
+            "description": "Section length in miles."
+          },
+          {
+            "name": "n_trips",
+            "type": "integer",
+            "description": "Trips contributing in that hour (corridor rows: the fewest on any section)."
+          },
+          {
+            "name": "source",
+            "type": "string",
+            "description": "`gtfs_schedule` = derived from the published timetable; `gtfs_realtime_observed` = measured from bus GPS (LA Metro's public feed and Swiftly, duplicates removed)."
+          },
+          {
+            "name": "feed_version",
+            "type": "string",
+            "description": "Scheduled rows: publication date and commit of the LACMTA/gtfs_bus version used. Empty for measured rows."
+          }
+        ],
+        "primaryKey": [
+          "hour_start_utc",
+          "route",
+          "direction",
+          "section_id",
+          "source"
+        ]
+      },
+      "mediatype": "application/vnd.apache.parquet"
+    },
+    {
+      "name": "pico-hourly-2024",
+      "title": "Pico Bl, Crenshaw Bl to Bonnie Brae St: hourly scheduled speeds (2024)",
+      "path": "data/corridors/pico/hourly/year=2024/pico_speeds.parquet",
+      "format": "parquet",
+      "group": "pico-hourly",
+      "description": "Scheduled speeds for lines 30. Hive-partitioned by local year.",
+      "profile": "tabular-data-resource",
+      "schema": {
+        "fields": [
+          {
+            "name": "corridor_id",
+            "type": "string",
+            "description": "Street identifier, matching corridors/<corridor_id>.json."
+          },
+          {
+            "name": "hour_start_utc",
+            "type": "datetime",
+            "description": "Start of the hour, UTC (ISO 8601)."
+          },
+          {
+            "name": "hour_start_local",
+            "type": "string",
+            "description": "Start of the hour in America/Los_Angeles with UTC offset, e.g. 2024-05-01T17:00:00-0700."
+          },
+          {
+            "name": "route",
+            "type": "string",
+            "description": "LA Metro bus line, e.g. 204, 754, 2, 4, 180, 217."
+          },
+          {
+            "name": "direction",
+            "type": "string",
+            "description": "northbound / southbound on Vermont Av; eastbound / westbound on the other corridors."
+          },
+          {
+            "name": "section_id",
+            "type": "string",
+            "description": "`corridor` for the whole street, or a section id (S1, S2, ...); see that street's sections file."
+          },
+          {
+            "name": "speed_mph",
+            "type": "number",
+            "description": "Average speed over the section in miles per hour, stops and signals included."
+          },
+          {
+            "name": "travel_time_min",
+            "type": "number",
+            "description": "Average minutes to traverse the section. Corridor rows sum the section averages."
+          },
+          {
+            "name": "length_mi",
+            "type": "number",
+            "description": "Section length in miles."
+          },
+          {
+            "name": "n_trips",
+            "type": "integer",
+            "description": "Trips contributing in that hour (corridor rows: the fewest on any section)."
+          },
+          {
+            "name": "source",
+            "type": "string",
+            "description": "`gtfs_schedule` = derived from the published timetable; `gtfs_realtime_observed` = measured from bus GPS (LA Metro's public feed and Swiftly, duplicates removed)."
+          },
+          {
+            "name": "feed_version",
+            "type": "string",
+            "description": "Scheduled rows: publication date and commit of the LACMTA/gtfs_bus version used. Empty for measured rows."
+          }
+        ],
+        "primaryKey": [
+          "hour_start_utc",
+          "route",
+          "direction",
+          "section_id",
+          "source"
+        ]
+      },
+      "mediatype": "application/vnd.apache.parquet"
+    },
+    {
+      "name": "pico-hourly-2025",
+      "title": "Pico Bl, Crenshaw Bl to Bonnie Brae St: hourly scheduled speeds (2025)",
+      "path": "data/corridors/pico/hourly/year=2025/pico_speeds.parquet",
+      "format": "parquet",
+      "group": "pico-hourly",
+      "description": "Scheduled speeds for lines 30. Hive-partitioned by local year.",
+      "profile": "tabular-data-resource",
+      "schema": {
+        "fields": [
+          {
+            "name": "corridor_id",
+            "type": "string",
+            "description": "Street identifier, matching corridors/<corridor_id>.json."
+          },
+          {
+            "name": "hour_start_utc",
+            "type": "datetime",
+            "description": "Start of the hour, UTC (ISO 8601)."
+          },
+          {
+            "name": "hour_start_local",
+            "type": "string",
+            "description": "Start of the hour in America/Los_Angeles with UTC offset, e.g. 2024-05-01T17:00:00-0700."
+          },
+          {
+            "name": "route",
+            "type": "string",
+            "description": "LA Metro bus line, e.g. 204, 754, 2, 4, 180, 217."
+          },
+          {
+            "name": "direction",
+            "type": "string",
+            "description": "northbound / southbound on Vermont Av; eastbound / westbound on the other corridors."
+          },
+          {
+            "name": "section_id",
+            "type": "string",
+            "description": "`corridor` for the whole street, or a section id (S1, S2, ...); see that street's sections file."
+          },
+          {
+            "name": "speed_mph",
+            "type": "number",
+            "description": "Average speed over the section in miles per hour, stops and signals included."
+          },
+          {
+            "name": "travel_time_min",
+            "type": "number",
+            "description": "Average minutes to traverse the section. Corridor rows sum the section averages."
+          },
+          {
+            "name": "length_mi",
+            "type": "number",
+            "description": "Section length in miles."
+          },
+          {
+            "name": "n_trips",
+            "type": "integer",
+            "description": "Trips contributing in that hour (corridor rows: the fewest on any section)."
+          },
+          {
+            "name": "source",
+            "type": "string",
+            "description": "`gtfs_schedule` = derived from the published timetable; `gtfs_realtime_observed` = measured from bus GPS (LA Metro's public feed and Swiftly, duplicates removed)."
+          },
+          {
+            "name": "feed_version",
+            "type": "string",
+            "description": "Scheduled rows: publication date and commit of the LACMTA/gtfs_bus version used. Empty for measured rows."
+          }
+        ],
+        "primaryKey": [
+          "hour_start_utc",
+          "route",
+          "direction",
+          "section_id",
+          "source"
+        ]
+      },
+      "mediatype": "application/vnd.apache.parquet"
+    },
+    {
+      "name": "pico-hourly-2026",
+      "title": "Pico Bl, Crenshaw Bl to Bonnie Brae St: hourly scheduled speeds (2026)",
+      "path": "data/corridors/pico/hourly/year=2026/pico_speeds.parquet",
+      "format": "parquet",
+      "group": "pico-hourly",
+      "description": "Scheduled speeds for lines 30. Hive-partitioned by local year.",
+      "profile": "tabular-data-resource",
+      "schema": {
+        "fields": [
+          {
+            "name": "corridor_id",
+            "type": "string",
+            "description": "Street identifier, matching corridors/<corridor_id>.json."
+          },
+          {
+            "name": "hour_start_utc",
+            "type": "datetime",
+            "description": "Start of the hour, UTC (ISO 8601)."
+          },
+          {
+            "name": "hour_start_local",
+            "type": "string",
+            "description": "Start of the hour in America/Los_Angeles with UTC offset, e.g. 2024-05-01T17:00:00-0700."
+          },
+          {
+            "name": "route",
+            "type": "string",
+            "description": "LA Metro bus line, e.g. 204, 754, 2, 4, 180, 217."
+          },
+          {
+            "name": "direction",
+            "type": "string",
+            "description": "northbound / southbound on Vermont Av; eastbound / westbound on the other corridors."
+          },
+          {
+            "name": "section_id",
+            "type": "string",
+            "description": "`corridor` for the whole street, or a section id (S1, S2, ...); see that street's sections file."
+          },
+          {
+            "name": "speed_mph",
+            "type": "number",
+            "description": "Average speed over the section in miles per hour, stops and signals included."
+          },
+          {
+            "name": "travel_time_min",
+            "type": "number",
+            "description": "Average minutes to traverse the section. Corridor rows sum the section averages."
+          },
+          {
+            "name": "length_mi",
+            "type": "number",
+            "description": "Section length in miles."
+          },
+          {
+            "name": "n_trips",
+            "type": "integer",
+            "description": "Trips contributing in that hour (corridor rows: the fewest on any section)."
+          },
+          {
+            "name": "source",
+            "type": "string",
+            "description": "`gtfs_schedule` = derived from the published timetable; `gtfs_realtime_observed` = measured from bus GPS (LA Metro's public feed and Swiftly, duplicates removed)."
+          },
+          {
+            "name": "feed_version",
+            "type": "string",
+            "description": "Scheduled rows: publication date and commit of the LACMTA/gtfs_bus version used. Empty for measured rows."
+          }
+        ],
+        "primaryKey": [
+          "hour_start_utc",
+          "route",
+          "direction",
+          "section_id",
+          "source"
+        ]
+      },
+      "mediatype": "application/vnd.apache.parquet"
+    },
+    {
+      "name": "pico-sections",
+      "title": "Pico Bl, Crenshaw Bl to Bonnie Brae St: sections",
+      "path": "data/corridors/pico/sections.csv",
+      "format": "csv",
+      "profile": "tabular-data-resource",
+      "schema": {
+        "fields": [
+          {
+            "name": "corridor_id",
+            "type": "string",
+            "description": "Street identifier, matching corridors/<corridor_id>.json."
+          },
+          {
+            "name": "section_id",
+            "type": "string",
+            "description": "Section id; `corridor` is the whole street."
+          },
+          {
+            "name": "name",
+            "type": "string",
+            "description": "From cross street to cross street."
+          },
+          {
+            "name": "start_mi",
+            "type": "number",
+            "description": "Distance along the street's path where the section starts, miles."
+          },
+          {
+            "name": "end_mi",
+            "type": "number",
+            "description": "Where it ends, miles."
+          },
+          {
+            "name": "length_mi",
+            "type": "number",
+            "description": "Section length, miles."
+          }
+        ]
+      }
+    },
+    {
+      "name": "pico-feed-versions",
+      "title": "Pico Bl, Crenshaw Bl to Bonnie Brae St: timetable version in force for each date range",
+      "path": "data/corridors/pico/feed_versions.csv",
       "format": "csv",
       "profile": "tabular-data-resource",
       "schema": {

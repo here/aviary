@@ -16,7 +16,7 @@ before/after is not bus-only. Facts about programs, prices and terms below are f
 
 | # | Source | What it adds | Access | Status |
 |---|---|---|---|---|
-| A1 | **Live traffic speed API (HERE or TomTom)** | General-traffic speed on each street segment, collected from now on, beside the bus data | Free developer tier; key goes in the URL | **in progress**: **TomTom collecting since 2026-11-18 04:55 UTC** (22 tiles every 15 minutes). Roll-up built 2026-11-18 (`pipeline/build_traffic.py`, run hourly by the workflow; on the page as a yellow line in the measured-speeds chart). Storage terms still to check. HERE built but unused. See "A1 details" |
+| A1 | **Live traffic speed API (HERE or TomTom)** | General-traffic speed on each street segment, collected from now on, beside the bus data | Free developer tier; key goes in the URL | **in progress**: **TomTom collecting since 2026-11-18 04:55 UTC** (22 tiles every 15 minutes; 25 with Pico from 2026-11-19; free-tier headroom in `docs/FREE_TIERS.md`). Roll-up built 2026-11-18 (`pipeline/build_traffic.py`, run hourly by the workflow; on the page as a yellow line in the measured-speeds chart). Storage terms still to check. HERE built but unused. See "A1 details" |
 | A2 | Strava Metro | Bike and run counts by street segment, history | Free for agencies and approved researchers; apply | next (owner applies) |
 | A3 | LADOT data request: Waze for Cities speeds and jams, MDS scooter trips, speed surveys for the study streets | Waze history (LADOT is a partner), scooter trips before/after, measured car speeds | Request to LADOT | next (owner sends) |
 | A4 | Metro Bike Share trip history | Station-to-station trips near the corridors, since 2016 | Open CSV | later |
@@ -107,6 +107,10 @@ before/after is not bus-only. Facts about programs, prices and terms below are f
 | C2 | Correct `corridors/fountain.json` coordinates (currently approximate) | next |
 | C3 | Collisions before/after for each street | moved to E1 (CCRS replaces the LAPD file, which stopped in March 2025) |
 | C4 | Before/after panel on the page (treated versus control) | later |
+| C6 | Pico Bl added (LADOT project, Crenshaw Bl to Figueroa St; line 30 measured Crenshaw Bl to Bonnie Brae St) | **done (2026-11-19)**: street definition, scheduled history since 2018, Cal-ITP history, TomTom tiles; notes in `docs/projects/pico-bl.md`. Next: confirm the construction start and stop relocations on the LADOT page |
+| C7 | Control street for Pico: Olympic Bl, Crenshaw Bl to Figueroa St, line 28 | **done (2026-11-19)**: same cross-street sections, scheduled history, Cal-ITP history, TomTom |
+| C8 | Traffic-only section for Pico, Bonnie Brae St to Figueroa St (line 30 detours via Olympic), skipped by the bus roll-ups | next |
+| C9 | Before/after comparison of Pico against Olympic (difference in differences) on the page once construction starts | later |
 | C5 | Lane-closure data (WZDx-style) from BOE / LADOT permits to flag hours affected by work zones | later |
 
 ## E. Safety, incidents and conditions (queued 2026-11-18)
@@ -124,6 +128,7 @@ Assessment, with sources checked: [`docs/projects/safety_and_incident_data.md`](
 
 | # | Task | Status |
 |---|---|---|
+| D0 | Free-tier usage tracked in `docs/FREE_TIERS.md`; owner to confirm in the TomTom dashboard whether the free allowance is daily or monthly | ongoing |
 | D1 | Watch that scheduled workflow runs keep firing (GitHub drops some); a full day without a run loses minute files | ongoing |
 | D2 | GBFS: expiry or compaction for `gbfs/` | later |
 | D3 | Lime GBFS feed (404) | later |

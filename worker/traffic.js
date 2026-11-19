@@ -3,17 +3,17 @@
 // TomTom (Orbis Traffic API v2 vector flow tiles), every 15 minutes, if TOMTOM_API_KEY is set:
 //     traffic/tomtom/YYYY-MM-DD/HH/tomtom_flow_YYYY-MM-DDTHHMM.json.gz
 //   One gzipped JSON per run: {"at", "zoom", "attributes", "tiles": {"z/x/y": "<base64 Mapbox vector tile>"}}.
-//   22 zoom-14 tiles cover the three boxes below. Each road piece in a tile carries absolute_speed (km/h),
+//   26 zoom-14 tiles cover the boxes below (see docs/FREE_TIERS.md before adding more). Each road piece in a tile carries absolute_speed (km/h),
 //   relative_speed (current / free-flow), road_category, road_closure, part_of_two_way_road and an OpenLR
 //   location reference. Only primary, secondary and tertiary roads are requested. Decoding happens later in
 //   Python, not here, to stay inside the Worker's CPU limit.
 //
 // HERE (Traffic API v7 flow), every 30 minutes, if HERE_API_KEY is set: current flow on every road segment inside
-// three boxes (Vermont Av;
-// Hollywood Bl plus Fountain Av; Sunset Bl / Cesar Chavez Av) and stores each response, gzipped, in R2:
+// four boxes (Vermont Av;
+// Hollywood Bl plus Fountain Av; Sunset Bl / Cesar Chavez Av; Pico Bl plus Olympic Bl) and stores each response, gzipped, in R2:
 //     traffic/here/YYYY-MM-DD/HH/here_<box>_YYYY-MM-DDTHHMM.json.gz
 // Each segment carries current speed, free-flow speed, jam factor and its shape, so a later roll-up can match
-// segments to the corridor sections. Three boxes x 48 runs a day is about 4,300 requests a month.
+// segments to the corridor sections. Four boxes x 48 runs a day is about 5,800 requests a month.
 //
 // Routes (on aviary.herebox.org): /traffic/status, /traffic/run (collect now).
 // A provider without a key is skipped.
@@ -21,6 +21,8 @@
 import hollywood from "../corridors/hollywood.json";
 import fountain from "../corridors/fountain.json";
 import sunset from "../corridors/sunset.json";
+import pico from "../corridors/pico.json";
+import olympic from "../corridors/olympic.json";
 
 const FLOW = "https://data.traffic.hereapi.com/v7/flow";
 const PAD = 0.002; // degrees (~200 m) around each street's path
@@ -36,6 +38,7 @@ const BOXES = {
   vermont: [-118.2944, 33.9265, -118.2884, 34.1000],
   hollywood_fountain: bbox(hollywood.line, fountain.line),
   sunset: bbox(sunset.line),
+  pico_olympic: bbox(pico.line, olympic.line), // Olympic Bl is the control street for Pico Bl
 };
 
 // Slippy-map tiles covering a box at a zoom level.

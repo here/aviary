@@ -1,0 +1,6 @@
+corridor_id,section_id,name,start_mi,end_mi,length_mi
+olympic,S1,Crenshaw Bl to Western Av,0.107,0.915,0.808
+olympic,S2,Western Av to Vermont Av,0.915,1.912,0.997
+olympic,S3,Vermont Av to Bonnie Brae St,1.912,2.669,0.758
+olympic,S4,Bonnie Brae St to Figueroa St,2.669,3.614,0.944
+olympic,corridor,Crenshaw Bl to Figueroa St,0.107,3.614,3.507

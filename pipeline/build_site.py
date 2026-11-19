@@ -143,7 +143,7 @@ if __name__ == "__main__":
         names = [b[0] for b in cfg["breakpoints"]]
         corridors[cfg["corridor_id"]] = {
             **profile(pd.read_parquet(root / "hourly")),
-            "name": cfg["name"].split(",")[0], "street": cfg["name"].split(",")[0], "ends": ["West", "East"],
+            "name": cfg.get("short_name") or cfg["name"].split(",")[0], "street": cfg["name"].split(",")[0], "ends": ["West", "East"],
             "routes": [[r, f"Line {r}"] for r in cfg["routes"]],
             "directions": [cfg["directions"]["increasing"], cfg["directions"]["decreasing"]],
             "sections": sections, "breakpoints": names,
@@ -154,7 +154,7 @@ if __name__ == "__main__":
             "history": history_rows(root / "calitp" / f"{cfg['corridor_id']}_calitp_history.csv"),
             "focus": focus_rows(root, cfg["corridor_id"]),
         }
-    order = ["vermont", "hollywood", "sunset", "fountain"]  # street picker order
+    order = ["vermont", "hollywood", "sunset", "pico", "olympic", "fountain"]  # street picker order
     corridors = dict(sorted(corridors.items(), key=lambda kv: order.index(kv[0]) if kv[0] in order else len(order)))
     payload = {"corridors": corridors, "planned": planned, "calitp_retrieved": calitp.retrieved.iloc[0],
                "rows": sum(c["meta"]["rows"] for c in corridors.values())}

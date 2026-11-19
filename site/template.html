@@ -83,6 +83,7 @@ table.plain tr.group th { text-align: left; padding-top: 16px; font-family: var(
 
 /* Controls: two aligned columns (Street | Line, Direction | Days) on wide screens, one column on phones. */
 .controls { display: grid; grid-template-columns: max-content max-content; gap: 14px 40px; align-items: start; justify-content: start; }
+.controls .ctl:first-child { grid-column: 1 / -1; } /* six streets need the full width */
 @media (max-width: 760px) { .controls { grid-template-columns: minmax(0, 1fr); gap: 12px; } }
 @media (max-width: 560px) {
   .seg { flex-wrap: wrap; gap: 6px; border: 0; background: none; overflow: visible; }
@@ -228,6 +229,9 @@ code { font: 12.5px ui-monospace, SFMono-Regular, Menlo, monospace; background: 
         <tr><td><a href="https://cd13.lacity.gov/access-to-hollywood" target="_blank" rel="noopener">Access to Hollywood</a></td><td>Hollywood Bl, Gower St to La Brea Av; Vine St</td><td>Council District 13, Bureau of Engineering</td><td>Announced 2024; current status to confirm</td></tr>
         <tr class="group"><th colspan="4">Sunset Bl and Cesar Chavez Av</th></tr>
         <tr><td><a href="https://ladotlivablestreets.org/projects/sunset" target="_blank" rel="noopener">Sunset East: Sunset Boulevard and Cesar Chavez Avenue</a></td><td>Fountain Av to Alameda St</td><td>LADOT</td><td>In design; outreach 2026</td></tr>
+        <tr class="group"><th colspan="4">Pico Bl</th></tr>
+        <tr><td><a href="https://ladotlivablestreets.org/projects/pico" target="_blank" rel="noopener">Pico Boulevard Safety and Mobility Project</a></td><td>Pico Bl, Crenshaw Bl to Figueroa St (Metro line 30 is measured from Crenshaw Bl to Bonnie Brae St)</td><td>LADOT</td><td>Construction expected to begin late 2026, in phases over about a year</td></tr>
+        <tr><td>Olympic Bl (control street)</td><td>Olympic Bl, Crenshaw Bl to Figueroa St, parallel to the Pico project with the same cross-street sections; Metro line 28</td><td>None (untreated)</td><td>Tracked for comparison with Pico Bl before and after construction</td></tr>
         <tr class="group"><th colspan="4">Fountain Av (no bus data yet)</th></tr>
         <tr><td><a href="https://engage.weho.org/fountain" target="_blank" rel="noopener">Fountain Avenue Streetscape Project</a></td><td>Fountain Av, La Cienega Bl to La Brea Av</td><td>City of West Hollywood</td><td>Phase 1 approved September 2025; construction expected late 2026 to early 2027</td></tr>
       </tbody>

@@ -88,6 +88,8 @@ table.plain tr.group th { text-align: left; padding-top: 16px; font-family: var(
 .project-maps { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 520px)); gap: 12px; }
 .project-maps figure { margin: 0; border: 1px solid var(--grid); border-radius: 8px; overflow: hidden; background: var(--surface); }
 .project-maps img { display: block; width: 100%; max-height: 420px; object-fit: contain; background: #fff; }
+.project-maps figure.wide { grid-column: 1 / -1; max-width: 1100px; }
+.project-maps figure.wide img { max-height: none; }
 .project-maps figcaption { padding: 6px 10px 8px; font-size: 12px; color: var(--ink-2); }
 .project-maps figcaption small { display: block; color: var(--ink-3); }
 table.inc { width: auto; min-width: min(100%, 420px); border-collapse: collapse; font-size: 13px; margin: 6px 0 4px; }
@@ -647,7 +649,7 @@ function renderProject() {
   box.hidden = false;
   const esc = t => String(t).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
   box.innerHTML = `<p class="project-head"><a href="${esc(p.url)}" target="_blank" rel="noopener">${esc(p.title)}</a> · ${esc(p.owner)} · project page ↗</p>` +
-    ((p.maps || []).length ? `<div class="project-maps">${p.maps.map(mp => `<figure><a href="${esc(mp.src)}" target="_blank" rel="noopener"><img src="${esc(mp.src)}" alt="${esc(mp.caption)}" loading="lazy"></a><figcaption>${esc(mp.caption)}<small>Source: <a href="${esc(mp.source)}" target="_blank" rel="noopener">${esc(mp.credit)}</a></small></figcaption></figure>`).join("")}</div>` : "");
+    ((p.maps || []).length ? `<div class="project-maps">${p.maps.map(mp => `<figure${mp.wide ? ' class="wide"' : ""}><a href="${esc(mp.src)}" target="_blank" rel="noopener"><img src="${esc(mp.src)}" alt="${esc(mp.caption)}" loading="lazy"></a><figcaption>${esc(mp.caption)}<small>Source: <a href="${esc(mp.source)}" target="_blank" rel="noopener">${esc(mp.credit)}</a></small></figcaption></figure>`).join("")}</div>` : "");
 }
 
 // Incidents on the selected street (TomTom, last four weeks), by section and type.

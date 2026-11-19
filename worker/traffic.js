@@ -9,12 +9,13 @@
 //   location reference. Only primary, secondary and tertiary roads are requested. Decoding happens later in
 //   Python, not here, to stay inside the Worker's CPU limit.
 //
-// HERE (Traffic API v7 flow), every 30 minutes, if HERE_API_KEY is set: current flow on every road segment inside
+// HERE (Traffic API v7 flow), once an hour, if HERE_API_KEY is set: current flow on every road segment inside
 // four boxes (Vermont Av;
 // Hollywood Bl plus Fountain Av; Sunset Bl / Cesar Chavez Av; Pico Bl plus Olympic Bl; Westwood Bl) and stores each response, gzipped, in R2:
 //     traffic/here/YYYY-MM-DD/HH/here_<box>_YYYY-MM-DDTHHMM.json.gz
 // Each segment carries current speed, free-flow speed, jam factor and its shape, so a later roll-up can match
-// segments to the corridor sections. Five boxes x 48 runs a day is about 7,200 requests a month.
+// segments to the corridor sections. Five boxes x 24 runs a day is about 3,600 requests a month, inside HERE's free 5,000 a month for
+// Traffic (each request is one transaction). Every 30 minutes would be 7,200 and would go over.
 //
 // Routes (on aviary.herebox.org): /traffic/status, /traffic/run (collect now).
 // A provider without a key is skipped.
@@ -101,8 +102,8 @@ async function collect(env, when = new Date()) {
   const status = { at: iso, tomtom: await collectTomTom(env, iso, day, hour, stamp), boxes: {} };
   if (!env.HERE_API_KEY) {
     status.here = "HERE_API_KEY secret not set";
-  } else if (when.getUTCMinutes() % 30 !== 0) {
-    status.here = "runs on the hour and half hour";
+  } else if (when.getUTCMinutes() !== 0) {
+    status.here = "runs on the hour (free plan: 5,000 requests a month)";
   } else {
     for (const [name, b] of Object.entries(BOXES)) {
       const q = new URLSearchParams({ in: `bbox:${b.map((v) => v.toFixed(5)).join(",")}`, locationReferencing: "shape", apiKey: env.HERE_API_KEY });

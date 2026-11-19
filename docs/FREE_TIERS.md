@@ -22,7 +22,7 @@ Confirm them in the provider's dashboard before relying on them.
 | data.ca.gov (CKAN: CCRS crashes, Cal-ITP speeds) | No key; no published limit | Not collected yet (roadmap E1) | n/a | Page through large tables politely |
 | data.lacity.org (Socrata) | No key needed; anonymous requests are throttled, and a free app token raises the limit (check) | Ad hoc queries only | n/a | Get an app token if a scheduled job starts using it |
 | Caltrans GIS (ArcGIS FeatureServer) | Open | One-off snapshot (`fetch_calitp.py`) | n/a | None |
-| HERE Traffic API v7 | Free "Base" or limited plan with a monthly transaction allowance (check) | Built but idle (no key). It would use 5 boxes × 48 runs a day = **~7,200 requests a month** | Unknown until a plan is chosen | Only turn it on after confirming the allowance |
+| HERE Traffic API v7, **flow** (`GET data.traffic.hereapi.com/v7/flow?in=bbox:...&locationReferencing=shape&apiKey=...`) | **5,000 transactions a month** for Traffic, one per request (HERE pricing page). Above that €2.20 per 1,000, billed only if a payment method is on the account | 5 boxes × 24 runs a day = **about 3,600 a month** (hourly, from 2026-11-19) | About 28% of the free allowance left | Do not go back to every 30 minutes (7,200 a month). A new street adds a box, or 720 a month; merge nearby streets into one box instead. Key in repository secret `HERE_API_KEY` |
 | Telraam | Free API key with a daily call limit (check) | Not used yet (roadmap A10) | n/a | An hourly fetch per segment is small |
 | NOAA weather (roadmap E3) | Free; the Climate Data Online API needs a free token, about 10,000 requests a day (check). The Iowa Environmental Mesonet serves ASOS without a key | Not used yet | n/a | Host must be added to the session allowlist |
 

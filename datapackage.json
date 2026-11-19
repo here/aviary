@@ -5,7 +5,7 @@
   "profile": "data-package",
   "version": "0.2.0",
   "created": "2026-11-17T00:00:00Z",
-  "updated": "2026-11-19T08:00:24Z",
+  "updated": "2026-11-19T08:07:15Z",
   "homepage": "https://aviary.herebox.org",
   "keywords": [
     "Los Angeles",
@@ -6511,6 +6511,83 @@
       }
     },
     {
+      "name": "westwood-traffic",
+      "title": "Westwood Bl, Le Conte Av to the E Line (Westwood/Rancho Park station): hourly general-traffic speeds (TomTom)",
+      "path": "data/corridors/westwood/traffic/westwood_traffic_2026-11.csv",
+      "format": "csv",
+      "description": "One file per local month. Collected since November 2026.",
+      "profile": "tabular-data-resource",
+      "schema": {
+        "fields": [
+          {
+            "name": "corridor_id",
+            "type": "string",
+            "description": "Street identifier (`vermont`, or matching corridors/<corridor_id>.json)."
+          },
+          {
+            "name": "hour_start_utc",
+            "type": "datetime",
+            "description": "Start of the hour, UTC (ISO 8601)."
+          },
+          {
+            "name": "hour_start_local",
+            "type": "string",
+            "description": "Start of the hour in America/Los_Angeles with UTC offset."
+          },
+          {
+            "name": "direction",
+            "type": "string",
+            "description": "Direction of travel along the street."
+          },
+          {
+            "name": "section_id",
+            "type": "string",
+            "description": "`corridor` for the whole street, or a section id; see that street's sections file."
+          },
+          {
+            "name": "speed_mph",
+            "type": "number",
+            "description": "General-traffic speed: covered length over summed travel time of the matched road pieces, averaged over the hour's snapshots by travel time."
+          },
+          {
+            "name": "free_flow_mph",
+            "type": "number",
+            "description": "Same, at free-flow speed (TomTom speed divided by relative speed)."
+          },
+          {
+            "name": "travel_time_min",
+            "type": "number",
+            "description": "Minutes to traverse the section at speed_mph."
+          },
+          {
+            "name": "length_mi",
+            "type": "number",
+            "description": "Section length in miles."
+          },
+          {
+            "name": "coverage",
+            "type": "number",
+            "description": "Share of the section covered by matched road pieces (mean over snapshots)."
+          },
+          {
+            "name": "closed_share",
+            "type": "number",
+            "description": "Share of covered length reported closed or at 0 km/h."
+          },
+          {
+            "name": "n_snapshots",
+            "type": "integer",
+            "description": "15-minute snapshots in the hour."
+          },
+          {
+            "name": "source",
+            "type": "string",
+            "description": "`tomtom_traffic_flow` = TomTom Orbis Traffic API v2 flow tiles."
+          }
+        ]
+      }
+    },
+    {
       "name": "westwood-definition",
       "title": "Westwood Bl, Le Conte Av to the E Line (Westwood/Rancho Park station): definition",
       "path": "corridors/westwood.json",
@@ -7003,6 +7080,78 @@
         ]
       },
       "mediatype": "application/vnd.apache.parquet"
+    },
+    {
+      "name": "westwood-observed",
+      "title": "Westwood Bl, Le Conte Av to the E Line (Westwood/Rancho Park station): measured hourly speeds from bus GPS",
+      "path": "data/corridors/westwood/observed/westwood_observed_2026-11.csv",
+      "format": "csv",
+      "description": "One file per local month. Measured since November 2026.",
+      "profile": "tabular-data-resource",
+      "schema": {
+        "fields": [
+          {
+            "name": "corridor_id",
+            "type": "string",
+            "description": "Street identifier, matching corridors/<corridor_id>.json."
+          },
+          {
+            "name": "hour_start_utc",
+            "type": "datetime",
+            "description": "Start of the hour, UTC (ISO 8601)."
+          },
+          {
+            "name": "hour_start_local",
+            "type": "string",
+            "description": "Start of the hour in America/Los_Angeles with UTC offset, e.g. 2024-05-01T17:00:00-0700."
+          },
+          {
+            "name": "route",
+            "type": "string",
+            "description": "LA Metro bus line, e.g. 204, 754, 2, 4, 180, 217."
+          },
+          {
+            "name": "direction",
+            "type": "string",
+            "description": "northbound / southbound on Vermont Av; eastbound / westbound on the other corridors."
+          },
+          {
+            "name": "section_id",
+            "type": "string",
+            "description": "`corridor` for the whole street, or a section id (S1, S2, ...); see that street's sections file."
+          },
+          {
+            "name": "speed_mph",
+            "type": "number",
+            "description": "Average speed over the section in miles per hour, stops and signals included."
+          },
+          {
+            "name": "travel_time_min",
+            "type": "number",
+            "description": "Average minutes to traverse the section. Corridor rows sum the section averages."
+          },
+          {
+            "name": "length_mi",
+            "type": "number",
+            "description": "Section length in miles."
+          },
+          {
+            "name": "n_trips",
+            "type": "integer",
+            "description": "Trips contributing in that hour (corridor rows: the fewest on any section)."
+          },
+          {
+            "name": "source",
+            "type": "string",
+            "description": "`gtfs_schedule` = derived from the published timetable; `gtfs_realtime_observed` = measured from bus GPS (LA Metro's public feed and Swiftly, duplicates removed)."
+          },
+          {
+            "name": "feed_version",
+            "type": "string",
+            "description": "Scheduled rows: publication date and commit of the LACMTA/gtfs_bus version used. Empty for measured rows."
+          }
+        ]
+      }
     },
     {
       "name": "westwood-sections",

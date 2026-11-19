@@ -92,7 +92,9 @@ table.plain tr.group th { text-align: left; padding-top: 16px; font-family: var(
 .project-maps figure.wide img { max-height: none; }
 .project-maps figcaption { padding: 6px 10px 8px; font-size: 12px; color: var(--ink-2); }
 .project-maps figcaption small { display: block; color: var(--ink-3); }
-table.inc { width: auto; min-width: min(100%, 420px); border-collapse: collapse; font-size: 13px; margin: 6px 0 4px; }
+table.inc { width: auto; min-width: min(100%, 420px); max-width: 100%; border-collapse: collapse; font-size: 13px; margin: 6px 0 4px; }
+table.inc th, table.inc td { white-space: normal; }
+table.inc th { vertical-align: bottom; }
 table.inc th, table.inc td { padding: 4px 10px 4px 0; border-bottom: 1px solid var(--grid); text-align: left; }
 table.inc .num { text-align: right; font-variant-numeric: tabular-nums; }
 #deaths-chart svg { width: 100%; height: auto; display: block; }
@@ -103,6 +105,11 @@ table.inc .num { text-align: right; font-variant-numeric: tabular-nums; }
 .controls { display: grid; grid-template-columns: max-content max-content; gap: 14px 40px; align-items: start; justify-content: start; }
 .controls .ctl:first-child { grid-column: 1 / -1; } /* six streets need the full width */
 @media (max-width: 760px) { .controls { grid-template-columns: minmax(0, 1fr); gap: 12px; } }
+/* the street picker wraps instead of scrolling whenever seven streets do not fit on one line */
+@media (max-width: 1100px) {
+  #seg-cor { flex-wrap: wrap; gap: 6px; border: 0; background: none; overflow: visible; }
+  #seg-cor button, #seg-cor button + button { border: 1px solid var(--ring); border-radius: 8px; background: var(--surface); }
+}
 @media (max-width: 560px) {
   .seg { flex-wrap: wrap; gap: 6px; border: 0; background: none; overflow: visible; }
   .seg button, .seg button + button { border: 1px solid var(--ring); border-radius: 8px; background: var(--surface); }
@@ -127,6 +134,13 @@ button:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
 .stretch:disabled { opacity: .45; cursor: default; }
 .stretch em { font-style: normal; display: block; padding-right: 6px; line-height: 1.25; }
 .stretch em small { display: block; color: var(--ink-3); font-size: 11px; }
+@media (max-width: 640px) {
+  .street-inner { min-width: 0; flex-direction: column; align-items: stretch; gap: 6px; }
+  .stretch { flex: none !important; flex-direction: row; align-items: center; gap: 10px; }
+  .stretch i { width: 10px; height: auto; align-self: stretch; margin: 0; border-left: 0; border-top: 2px solid var(--ink-2); }
+  .stretch:last-child i { border-right: 0; border-bottom: 2px solid var(--ink-2); }
+  .stretch em { padding-right: 0; }
+}
 .street-foot { display: flex; justify-content: space-between; gap: 12px; font-size: 12.5px; color: var(--ink-3); flex-wrap: wrap; }
 .events { margin: 0; padding-left: 18px; font-size: 13px; color: var(--ink-2); max-width: 90ch; }
 .events:empty { display: none; }
@@ -665,6 +679,11 @@ function renderIncidents() {
   const bySec = {};
   mine.forEach(r => { (bySec[r.sec] ||= {}); bySec[r.sec][r.cat] = (bySec[r.sec][r.cat] || new Set()).add(r.id); });
   const cats = [...new Set(mine.map(r => r.cat))].sort();
+  const CAT = { "jam": ["Traffic jam", "slow or stopped traffic well below normal speed"], "road closed": ["Road closed", "the road or one direction closed"],
+    "lane closed": ["Lane closed", "one or more lanes closed"], "road works": ["Roadworks", "construction or maintenance work"],
+    "accident": ["Crash", "a reported collision"], "broken down vehicle": ["Broken-down vehicle", "a stalled vehicle in the road"],
+    "dangerous conditions": ["Hazard", "debris or other dangerous conditions"], "flooding": ["Flooding", "water on the road"] };
+  const label = c => (CAT[c] || [c[0].toUpperCase() + c.slice(1)])[0];
   const secName = id => (C.sections.find(s => s.section_id === id) || {}).name || id;
   const body = C.sections.slice(1).filter(s => bySec[s.section_id]).map(s => `<tr><td>${secName(s.section_id)}</td>` +
     cats.map(c => `<td class="num">${bySec[s.section_id][c] ? bySec[s.section_id][c].size : ""}</td>`).join("") + "</tr>").join("");
@@ -672,7 +691,8 @@ function renderIncidents() {
   const med = delays.length ? delays[Math.floor(delays.length / 2)] : null;
   box.innerHTML = `<p class="deaths-note"><b>${C.street}</b>, ${state.dir === "both" ? "both directions" : state.dir}: ${ids.size} traffic incident${ids.size > 1 ? "s" : ""} seen since ${first} (TomTom)` +
     (med ? `; typical reported delay ${Math.round(med / 60)} min` : "") + `. Collisions and injuries per street (from CCRS) are next.</p>` +
-    `<div class="table-wrap"><table class="inc"><thead><tr><th>Stretch</th>${cats.map(c => `<th class="num">${c}</th>`).join("")}</tr></thead><tbody>${body}</tbody></table></div>`;
+    `<div class="table-wrap"><table class="inc"><thead><tr><th>Stretch</th>${cats.map(c => `<th class="num" title="${(CAT[c] || [c, ""])[1]}">${label(c)}</th>`).join("")}</tr></thead><tbody>${body}</tbody></table></div>` +
+    `<p class="deaths-note">Counts are incidents TomTom reported on each stretch. ${cats.map(c => `<b>${label(c)}</b>: ${(CAT[c] || [c, "as reported by TomTom"])[1]}`).join("; ")}.</p>`;
 }
 
 // Traffic deaths: national (NHTSA) and City of Los Angeles by year (CCRS), drawn once.
@@ -696,7 +716,7 @@ function renderDeaths() {
     tiles.push([`Los Angeles, ${thisYear.year} so far`, `${fmt(thisYear.killed)}<small>killed</small>`,
       `through ${thisYear.through}: ${rate.toFixed(2)} a day, on pace for about ${fmt(rate * daysIn(thisYear.year))} (late reports still arriving)`]);
   }
-  $("#deaths-stats").innerHTML = `<p class="stats-head"><b>Traffic deaths</b>: what these redesigns are meant to reduce</p>` +
+  $("#deaths-stats").innerHTML = `<p class="stats-head"><b>Traffic deaths</b></p>` +
     tiles.map(t => `<div class="stat"><span class="stat-k">${t[0]}</span><b>${t[1]}</b><span>${t[2]}</span></div>`).join("");
   const host = $("#deaths-chart");
   if (la.length) {
@@ -715,7 +735,7 @@ function renderDeaths() {
     });
   }
   const lapd = last && (d.ccrs || []).find(r => r.area === "los_angeles_city_lapd" && r.year === last.year);
-  $("#deaths-note").textContent = `Bars: people killed in crashes in the City of Los Angeles each year, from the California Crash Reporting System (CHP), which covers every agency, so freeway crashes inside the city count${thisYear ? `; ${thisYear.year} is partial (lighter)` : ""}. Refreshed daily. LAPD's own reports alone count ${lapd ? fmt(lapd.killed) : "fewer"} for ${last ? last.year : "last year"}, and LAPD's published city total can differ again. National figures: NHTSA.`;
+  $("#deaths-note").textContent = `People killed in crashes in the City of Los Angeles each year, from the California Crash Reporting System (CHP), which covers every agency, so freeway crashes inside the city count${thisYear ? `; ${thisYear.year} is partial (lighter)` : ""}. Refreshed daily. LAPD's own reports alone count ${lapd ? fmt(lapd.killed) : "fewer"} for ${last ? last.year : "last year"}, and LAPD's published city total can differ again. National figures: NHTSA.`;
 }
 
 function render() {

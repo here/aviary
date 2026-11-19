@@ -9,15 +9,15 @@
 //   location reference. Only primary, secondary and tertiary roads are requested. Decoding happens later in
 //   Python, not here, to stay inside the Worker's CPU limit.
 //
-// HERE (Traffic API v7 flow), once an hour, if HERE_API_KEY is set: current flow on every road segment inside
-// four boxes (Vermont Av;
-// Hollywood Bl plus Fountain Av; Sunset Bl / Cesar Chavez Av; Pico Bl plus Olympic Bl; Westwood Bl) and stores each response, gzipped, in R2:
-//     traffic/here/YYYY-MM-DD/HH/here_<box>_YYYY-MM-DDTHHMM.json.gz
-// Each segment carries current speed, free-flow speed, jam factor and its shape, so a later roll-up can match
-// segments to the corridor sections. Five boxes x 24 runs a day is about 3,600 requests a month, inside HERE's free 5,000 a month for
-// Traffic (each request is one transaction). Every 30 minutes would be 7,200 and would go over.
+// HERE (Traffic API v7 flow), every 90 minutes, if HERE_API_KEY is set: current flow on the roads along each study
+// street, using the corridor filter (the street's path, Flexible Polyline encoded, radius 40 m), one request per
+// street (7), stored gzipped in R2:
+//     traffic/here/YYYY-MM-DD/HH/here_<corridor_id>_YYYY-MM-DDTHHMM.json.gz
+// Each flow item carries current speed, free-flow speed, jam factor, confidence and its shape (links), so
+// pipeline/build_traffic.py --provider here can match links to the corridor sections. Free plan: 5,000 a month.
 //
-// Routes (on aviary.herebox.org): /traffic/status, /traffic/run (collect now).
+// Routes (on aviary.herebox.org): /traffic/status, /traffic/run (collect now; add ?here=1 to include HERE off-schedule,
+// which costs 7 HERE requests).
 // A provider without a key is skipped.
 
 import hollywood from "../corridors/hollywood.json";
@@ -26,6 +26,7 @@ import sunset from "../corridors/sunset.json";
 import pico from "../corridors/pico.json";
 import olympic from "../corridors/olympic.json";
 import westwood from "../corridors/westwood.json";
+import { encode, simplify } from "./flexpolyline.js";
 
 const FLOW = "https://data.traffic.hereapi.com/v7/flow";
 const PAD = 0.002; // degrees (~200 m) around each street's path
@@ -44,6 +45,18 @@ const BOXES = {
   pico_olympic: bbox(pico.line, olympic.line), // Olympic Bl is the control street for Pico Bl
   westwood: bbox(westwood.line),
 };
+
+// HERE corridor filter: one request per street along its own path, so only roads within HERE_RADIUS_M of the street
+// come back (cross streets are dropped later by the roll-up). Paths are simplified to keep the URL under HERE's
+// 1,000-character limit. Seven streets every 90 minutes is 16 x 7 x 30 = about 3,400 requests a month, inside
+// HERE's free 5,000 a month for Traffic; hourly would be about 5,000 and too close.
+const HERE_RADIUS_M = 40;
+const HERE_EVERY_MIN = 90;
+const VERMONT_LINE = [[-118.2919, 34.1010], [-118.2917, 33.9235]]; // as VERMONT in pipeline/build_traffic.py
+const HERE_CORRIDORS = Object.fromEntries(
+  [["vermont", VERMONT_LINE], ...[hollywood, fountain, sunset, pico, olympic, westwood].map((c) => [c.corridor_id, c.line])]
+    .map(([id, line]) => [id, encode(simplify(line).map(([lon, lat]) => [lat, lon]))]),
+);
 
 // Slippy-map tiles covering a box at a zoom level.
 function tilesFor(b, z) {
@@ -97,16 +110,17 @@ async function gzip(text) {
   return new Response(stream).arrayBuffer();
 }
 
-async function collect(env, when = new Date()) {
+async function collect(env, when = new Date(), forceHere = false) {
   const iso = when.toISOString(), day = iso.slice(0, 10), hour = iso.slice(11, 13), stamp = `${iso.slice(0, 13)}${iso.slice(14, 16)}`;
   const status = { at: iso, tomtom: await collectTomTom(env, iso, day, hour, stamp), boxes: {} };
   if (!env.HERE_API_KEY) {
     status.here = "HERE_API_KEY secret not set";
-  } else if (when.getUTCMinutes() !== 0) {
-    status.here = "runs on the hour (free plan: 5,000 requests a month)";
+  } else if (!forceHere && ((when.getUTCHours() * 60 + when.getUTCMinutes()) % HERE_EVERY_MIN) !== 0) {
+    status.here = `runs every ${HERE_EVERY_MIN} minutes from 00:00 UTC (free plan: 5,000 requests a month)`;
   } else {
-    for (const [name, b] of Object.entries(BOXES)) {
-      const q = new URLSearchParams({ in: `bbox:${b.map((v) => v.toFixed(5)).join(",")}`, locationReferencing: "shape", apiKey: env.HERE_API_KEY });
+    status.here = "corridor filter, radius " + HERE_RADIUS_M + " m";
+    for (const [name, poly] of Object.entries(HERE_CORRIDORS)) {
+      const q = new URLSearchParams({ in: `corridor:${poly};r=${HERE_RADIUS_M}`, locationReferencing: "shape", apiKey: env.HERE_API_KEY });
       try {
         const r = await fetch(`${FLOW}?${q}`, { signal: AbortSignal.timeout(25000) });
         const text = await r.text();
@@ -132,12 +146,13 @@ export default {
     ctx.waitUntil(collect(env, new Date(controller.scheduledTime)));
   },
   async fetch(request, env) {
-    const path = new URL(request.url).pathname.replace(/^\/traffic/, "") || "/";
+    const url = new URL(request.url);
+    const path = url.pathname.replace(/^\/traffic/, "") || "/";
     if (path === "/status") {
       const o = await env.ARCHIVE.get("status/traffic.json");
       return json(o ? await o.json() : { at: null, error: "not run yet", tomtom_key: !!env.TOMTOM_API_KEY, here_key: !!env.HERE_API_KEY, tiles: TT_TILES });
     }
-    if (path === "/run") return json(await collect(env));
-    return json({ routes: ["/traffic/status", "/traffic/run"], boxes: BOXES, tomtom_tiles: TT_TILES }, 404);
+    if (path === "/run") return json(await collect(env, new Date(), url.searchParams.get("here") === "1"));
+    return json({ routes: ["/traffic/status", "/traffic/run"], boxes: BOXES, here_corridors: HERE_CORRIDORS, tomtom_tiles: TT_TILES }, 404);
   },
 };

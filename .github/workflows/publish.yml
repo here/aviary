@@ -70,7 +70,7 @@ jobs:
             python pipeline/swiftly_to_pings.py --in run/swiftly/vp --out run/raw/swiftly
           fi
 
-      - name: Download TomTom traffic tiles and roll up general-traffic speeds
+      - name: Download TomTom and HERE traffic and roll up general-traffic speeds
         if: env.AWS_ACCESS_KEY_ID != ''
         run: |
           for day in "$(date -u +%F)" "$(date -u -d yesterday +%F)"; do
@@ -79,6 +79,14 @@ jobs:
           done
           if [ -d run/traffic/tomtom ]; then
             python pipeline/build_traffic.py --raw run/traffic/tomtom
+          fi
+          # HERE flow (every 90 minutes, one file per street), a cross-check on TomTom
+          for day in "$(date -u +%F)" "$(date -u -d yesterday +%F)"; do
+            aws s3 sync "s3://$R2_BUCKET/traffic/here/$day/" "run/traffic/here/$day/" --only-show-errors \
+              --endpoint-url "https://$CLOUDFLARE_ACCOUNT_ID.r2.cloudflarestorage.com"
+          done
+          if [ -d run/traffic/here ]; then
+            python pipeline/build_traffic.py --provider here --raw run/traffic/here || echo "HERE roll-up failed"
           fi
 
       - name: Or listen to the feed from here (no Cloudflare storage configured)

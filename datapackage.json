@@ -5,7 +5,7 @@
   "profile": "data-package",
   "version": "0.2.0",
   "created": "2026-11-17T00:00:00Z",
-  "updated": "2026-11-19T08:15:07Z",
+  "updated": "2026-11-19T08:26:40Z",
   "homepage": "https://aviary.herebox.org",
   "keywords": [
     "Los Angeles",
@@ -46,8 +46,12 @@
       "path": "https://storage.googleapis.com/storage/v1/b/calitp-map-tiles/o?prefix=segment_speeds_"
     },
     {
-      "title": "TomTom Orbis Traffic API v2 (traffic flow tiles)",
+      "title": "TomTom Orbis Maps Traffic API v2 (Vector Flow Tiles)",
       "path": "https://docs.tomtom.com/traffic-api/documentation/tomtom-orbis-maps/v2/product-information/introduction"
+    },
+    {
+      "title": "HERE Traffic API v7 (flow, corridor filter)",
+      "path": "https://docs.here.com/traffic-api/docs/geospatial-filters-here-traffic-api-v7-concepts"
     }
   ],
   "resources": [
@@ -1837,7 +1841,7 @@
           {
             "name": "free_flow_mph",
             "type": "number",
-            "description": "Same, at free-flow speed (TomTom speed divided by relative speed)."
+            "description": "Same, at free-flow speed (TomTom: speed divided by relative speed; HERE: freeFlow)."
           },
           {
             "name": "travel_time_min",
@@ -1857,17 +1861,17 @@
           {
             "name": "closed_share",
             "type": "number",
-            "description": "Share of covered length reported closed or at 0 km/h."
+            "description": "Share of covered length reported closed (TomTom: closure or 0 km/h; HERE: traversability closed or jam factor 10)."
           },
           {
             "name": "n_snapshots",
             "type": "integer",
-            "description": "15-minute snapshots in the hour."
+            "description": "Snapshots in the hour (TomTom every 15 minutes, HERE every 90 minutes)."
           },
           {
             "name": "source",
             "type": "string",
-            "description": "`tomtom_traffic_flow` = TomTom Orbis Traffic API v2 flow tiles."
+            "description": "`tomtom_traffic_flow` = TomTom Orbis Maps Traffic API v2 Vector Flow Tiles; `here_traffic_flow` = HERE Traffic API v7 flow (corridor filter, live speeds only: confidence above 0.7)."
           }
         ]
       }
@@ -2045,7 +2049,7 @@
           {
             "name": "free_flow_mph",
             "type": "number",
-            "description": "Same, at free-flow speed (TomTom speed divided by relative speed)."
+            "description": "Same, at free-flow speed (TomTom: speed divided by relative speed; HERE: freeFlow)."
           },
           {
             "name": "travel_time_min",
@@ -2065,17 +2069,17 @@
           {
             "name": "closed_share",
             "type": "number",
-            "description": "Share of covered length reported closed or at 0 km/h."
+            "description": "Share of covered length reported closed (TomTom: closure or 0 km/h; HERE: traversability closed or jam factor 10)."
           },
           {
             "name": "n_snapshots",
             "type": "integer",
-            "description": "15-minute snapshots in the hour."
+            "description": "Snapshots in the hour (TomTom every 15 minutes, HERE every 90 minutes)."
           },
           {
             "name": "source",
             "type": "string",
-            "description": "`tomtom_traffic_flow` = TomTom Orbis Traffic API v2 flow tiles."
+            "description": "`tomtom_traffic_flow` = TomTom Orbis Maps Traffic API v2 Vector Flow Tiles; `here_traffic_flow` = HERE Traffic API v7 flow (corridor filter, live speeds only: confidence above 0.7)."
           }
         ]
       }
@@ -2212,7 +2216,7 @@
           {
             "name": "free_flow_mph",
             "type": "number",
-            "description": "Same, at free-flow speed (TomTom speed divided by relative speed)."
+            "description": "Same, at free-flow speed (TomTom: speed divided by relative speed; HERE: freeFlow)."
           },
           {
             "name": "travel_time_min",
@@ -2232,17 +2236,17 @@
           {
             "name": "closed_share",
             "type": "number",
-            "description": "Share of covered length reported closed or at 0 km/h."
+            "description": "Share of covered length reported closed (TomTom: closure or 0 km/h; HERE: traversability closed or jam factor 10)."
           },
           {
             "name": "n_snapshots",
             "type": "integer",
-            "description": "15-minute snapshots in the hour."
+            "description": "Snapshots in the hour (TomTom every 15 minutes, HERE every 90 minutes)."
           },
           {
             "name": "source",
             "type": "string",
-            "description": "`tomtom_traffic_flow` = TomTom Orbis Traffic API v2 flow tiles."
+            "description": "`tomtom_traffic_flow` = TomTom Orbis Maps Traffic API v2 Vector Flow Tiles; `here_traffic_flow` = HERE Traffic API v7 flow (corridor filter, live speeds only: confidence above 0.7)."
           }
         ]
       }
@@ -3252,7 +3256,7 @@
           {
             "name": "free_flow_mph",
             "type": "number",
-            "description": "Same, at free-flow speed (TomTom speed divided by relative speed)."
+            "description": "Same, at free-flow speed (TomTom: speed divided by relative speed; HERE: freeFlow)."
           },
           {
             "name": "travel_time_min",
@@ -3272,17 +3276,17 @@
           {
             "name": "closed_share",
             "type": "number",
-            "description": "Share of covered length reported closed or at 0 km/h."
+            "description": "Share of covered length reported closed (TomTom: closure or 0 km/h; HERE: traversability closed or jam factor 10)."
           },
           {
             "name": "n_snapshots",
             "type": "integer",
-            "description": "15-minute snapshots in the hour."
+            "description": "Snapshots in the hour (TomTom every 15 minutes, HERE every 90 minutes)."
           },
           {
             "name": "source",
             "type": "string",
-            "description": "`tomtom_traffic_flow` = TomTom Orbis Traffic API v2 flow tiles."
+            "description": "`tomtom_traffic_flow` = TomTom Orbis Maps Traffic API v2 Vector Flow Tiles; `here_traffic_flow` = HERE Traffic API v7 flow (corridor filter, live speeds only: confidence above 0.7)."
           }
         ]
       }
@@ -4292,7 +4296,7 @@
           {
             "name": "free_flow_mph",
             "type": "number",
-            "description": "Same, at free-flow speed (TomTom speed divided by relative speed)."
+            "description": "Same, at free-flow speed (TomTom: speed divided by relative speed; HERE: freeFlow)."
           },
           {
             "name": "travel_time_min",
@@ -4312,17 +4316,17 @@
           {
             "name": "closed_share",
             "type": "number",
-            "description": "Share of covered length reported closed or at 0 km/h."
+            "description": "Share of covered length reported closed (TomTom: closure or 0 km/h; HERE: traversability closed or jam factor 10)."
           },
           {
             "name": "n_snapshots",
             "type": "integer",
-            "description": "15-minute snapshots in the hour."
+            "description": "Snapshots in the hour (TomTom every 15 minutes, HERE every 90 minutes)."
           },
           {
             "name": "source",
             "type": "string",
-            "description": "`tomtom_traffic_flow` = TomTom Orbis Traffic API v2 flow tiles."
+            "description": "`tomtom_traffic_flow` = TomTom Orbis Maps Traffic API v2 Vector Flow Tiles; `here_traffic_flow` = HERE Traffic API v7 flow (corridor filter, live speeds only: confidence above 0.7)."
           }
         ]
       }
@@ -5332,7 +5336,7 @@
           {
             "name": "free_flow_mph",
             "type": "number",
-            "description": "Same, at free-flow speed (TomTom speed divided by relative speed)."
+            "description": "Same, at free-flow speed (TomTom: speed divided by relative speed; HERE: freeFlow)."
           },
           {
             "name": "travel_time_min",
@@ -5352,17 +5356,17 @@
           {
             "name": "closed_share",
             "type": "number",
-            "description": "Share of covered length reported closed or at 0 km/h."
+            "description": "Share of covered length reported closed (TomTom: closure or 0 km/h; HERE: traversability closed or jam factor 10)."
           },
           {
             "name": "n_snapshots",
             "type": "integer",
-            "description": "15-minute snapshots in the hour."
+            "description": "Snapshots in the hour (TomTom every 15 minutes, HERE every 90 minutes)."
           },
           {
             "name": "source",
             "type": "string",
-            "description": "`tomtom_traffic_flow` = TomTom Orbis Traffic API v2 flow tiles."
+            "description": "`tomtom_traffic_flow` = TomTom Orbis Maps Traffic API v2 Vector Flow Tiles; `here_traffic_flow` = HERE Traffic API v7 flow (corridor filter, live speeds only: confidence above 0.7)."
           }
         ]
       }
@@ -6552,7 +6556,7 @@
           {
             "name": "free_flow_mph",
             "type": "number",
-            "description": "Same, at free-flow speed (TomTom speed divided by relative speed)."
+            "description": "Same, at free-flow speed (TomTom: speed divided by relative speed; HERE: freeFlow)."
           },
           {
             "name": "travel_time_min",
@@ -6572,17 +6576,17 @@
           {
             "name": "closed_share",
             "type": "number",
-            "description": "Share of covered length reported closed or at 0 km/h."
+            "description": "Share of covered length reported closed (TomTom: closure or 0 km/h; HERE: traversability closed or jam factor 10)."
           },
           {
             "name": "n_snapshots",
             "type": "integer",
-            "description": "15-minute snapshots in the hour."
+            "description": "Snapshots in the hour (TomTom every 15 minutes, HERE every 90 minutes)."
           },
           {
             "name": "source",
             "type": "string",
-            "description": "`tomtom_traffic_flow` = TomTom Orbis Traffic API v2 flow tiles."
+            "description": "`tomtom_traffic_flow` = TomTom Orbis Maps Traffic API v2 Vector Flow Tiles; `here_traffic_flow` = HERE Traffic API v7 flow (corridor filter, live speeds only: confidence above 0.7)."
           }
         ]
       }

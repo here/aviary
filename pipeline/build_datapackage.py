@@ -55,13 +55,13 @@ TRAFFIC_FIELDS = [
     ("direction", "string", "Direction of travel along the street."),
     ("section_id", "string", "`corridor` for the whole street, or a section id; see that street's sections file."),
     ("speed_mph", "number", "General-traffic speed: covered length over summed travel time of the matched road pieces, averaged over the hour's snapshots by travel time."),
-    ("free_flow_mph", "number", "Same, at free-flow speed (TomTom speed divided by relative speed)."),
+    ("free_flow_mph", "number", "Same, at free-flow speed (TomTom: speed divided by relative speed; HERE: freeFlow)."),
     ("travel_time_min", "number", "Minutes to traverse the section at speed_mph."),
     ("length_mi", "number", "Section length in miles."),
     ("coverage", "number", "Share of the section covered by matched road pieces (mean over snapshots)."),
-    ("closed_share", "number", "Share of covered length reported closed or at 0 km/h."),
-    ("n_snapshots", "integer", "15-minute snapshots in the hour."),
-    ("source", "string", "`tomtom_traffic_flow` = TomTom Orbis Traffic API v2 flow tiles."),
+    ("closed_share", "number", "Share of covered length reported closed (TomTom: closure or 0 km/h; HERE: traversability closed or jam factor 10)."),
+    ("n_snapshots", "integer", "Snapshots in the hour (TomTom every 15 minutes, HERE every 90 minutes)."),
+    ("source", "string", "`tomtom_traffic_flow` = TomTom Orbis Maps Traffic API v2 Vector Flow Tiles; `here_traffic_flow` = HERE Traffic API v7 flow (corridor filter, live speeds only: confidence above 0.7)."),
 ]
 
 
@@ -155,6 +155,8 @@ def main() -> None:
         "Roughly monthly Wednesdays since October 2024, from Cal-ITP's public speed maps.", schema(HISTORY_FIELDS))
     add("vermont-traffic", "Vermont Av: hourly general-traffic speeds (TomTom)", paths(root, "data/traffic/vermont_traffic_*.csv"), "csv",
         "One file per local month. Collected since November 2026.", schema(TRAFFIC_FIELDS))
+    add("vermont-here-traffic", "Vermont Av: hourly general-traffic speeds (HERE)", paths(root, "data/traffic/vermont_here_traffic_*.csv"), "csv",
+        "One file per local month. Collected every 90 minutes since 2026-11-19; a cross-check on TomTom.", schema(TRAFFIC_FIELDS))
     if (root / "data/sections.csv").exists():
         add("vermont-sections", "Vermont Av: sections", "data/sections.csv", "csv", None, csv_schema(root / "data/sections.csv", SECTION_DESC))
     if (root / "data/feed_versions.csv").exists():
@@ -177,6 +179,8 @@ def main() -> None:
             "Roughly monthly Wednesdays since October 2024, from Cal-ITP's public speed maps.", schema(HISTORY_FIELDS))
         add(f"{cid}-traffic", f"{name}: hourly general-traffic speeds (TomTom)", paths(root, f"data/corridors/{cid}/traffic/{cid}_traffic_*.csv"),
             "csv", "One file per local month. Collected since November 2026.", schema(TRAFFIC_FIELDS))
+        add(f"{cid}-here-traffic", f"{name}: hourly general-traffic speeds (HERE)", paths(root, f"data/corridors/{cid}/traffic/{cid}_here_traffic_*.csv"),
+            "csv", "One file per local month. Collected every 90 minutes since 2026-11-19; a cross-check on TomTom.", schema(TRAFFIC_FIELDS))
         add(f"{cid}-definition", f"{name}: definition", cfg_path.as_posix(), "json",
             "Street path, section boundaries, bus lines and project dates." + ("" if has_bus else " No bus data for this street yet."),
             mediatype="application/json")
@@ -226,7 +230,8 @@ def main() -> None:
             {"title": "Swiftly realtime API for LA Metro (GTFS-realtime vehicle positions)", "path": "https://api.goswift.ly"},
             {"title": "Cal-ITP / Caltrans Average Transit Speeds by Stop", "path": "https://data.ca.gov/dataset/average-transit-speeds-by-stop"},
             {"title": "Cal-ITP public speed maps (Google Cloud Storage bucket calitp-map-tiles)", "path": "https://storage.googleapis.com/storage/v1/b/calitp-map-tiles/o?prefix=segment_speeds_"},
-            {"title": "TomTom Orbis Traffic API v2 (traffic flow tiles)", "path": "https://docs.tomtom.com/traffic-api/documentation/tomtom-orbis-maps/v2/product-information/introduction"},
+            {"title": "TomTom Orbis Maps Traffic API v2 (Vector Flow Tiles)", "path": "https://docs.tomtom.com/traffic-api/documentation/tomtom-orbis-maps/v2/product-information/introduction"},
+            {"title": "HERE Traffic API v7 (flow, corridor filter)", "path": "https://docs.here.com/traffic-api/docs/geospatial-filters-here-traffic-api-v7-concepts"},
         ],
         "resources": resources,
     }

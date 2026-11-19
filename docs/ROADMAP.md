@@ -120,7 +120,7 @@ Assessment, with sources checked: [`docs/projects/safety_and_incident_data.md`](
 | # | Item | Source | Status |
 |---|---|---|---|
 | E1 | Collisions per section and year (severity, weather, lighting, road surface) | CCRS on data.ca.gov: open, 2016 to present, includes LAPD, lat/lon. First check why LAPD counts drop from 2016 to 2024 | queued |
-| E2 | Traffic incidents (accidents, closures, roadworks) as an hourly flag per section | TomTom Incident Details v5 with the existing key; present-only, so collect every 15 minutes from now on | queued (do soon: history is not recoverable) |
+| E2 | Traffic incidents (accidents, closures, roadworks) as an hourly flag per section | TomTom Incident Details v5 with the existing key (free: 2,500 a month, so every 20 minutes, not 15), or incident vector tiles (share the 200,000-a-month tile allowance); present-only, so collect from now on | queued (do soon: history is not recoverable) |
 | E3 | Hourly weather and daylight to compare speeds under different conditions | NOAA ASOS (downtown USC, LAX); host to be allowed | queued |
 | E4 | Emergency response travel time near each corridor | LAFD Station Response Metrics (monthly per station, 2016 to 2026-09); LA County Fire for Fountain Av needs a request | queued |
 
@@ -128,7 +128,7 @@ Assessment, with sources checked: [`docs/projects/safety_and_incident_data.md`](
 
 | # | Task | Status |
 |---|---|---|
-| D0 | Free-tier usage tracked in `docs/FREE_TIERS.md`; owner to confirm in the TomTom dashboard whether the free allowance is daily or monthly | ongoing |
+| D0 | Free-tier usage tracked in `docs/FREE_TIERS.md`; TomTom free allowances are monthly (Vector Flow Tiles 200,000; Incident Details 2,500); owner to check the dashboard usage counter and payment method | ongoing |
 | D1 | Watch that scheduled workflow runs keep firing (GitHub drops some); a full day without a run loses minute files | ongoing |
 | D2 | GBFS: expiry or compaction for `gbfs/` | later |
 | D3 | Lime GBFS feed (404) | later |

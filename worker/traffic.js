@@ -1,6 +1,7 @@
 // Cloudflare Worker: archives general-traffic speeds on the study streets from two providers.
 //
-// TomTom (Orbis Traffic API v2 vector flow tiles), every 15 minutes, if TOMTOM_API_KEY is set:
+// TomTom (Orbis Maps Traffic API v2, Vector Flow Tiles; billed as "Traffic Flow & Incidents API Vector Tiles",
+// free 200,000 a month), every 15 minutes, if TOMTOM_API_KEY is set:
 //     traffic/tomtom/YYYY-MM-DD/HH/tomtom_flow_YYYY-MM-DDTHHMM.json.gz
 //   One gzipped JSON per run: {"at", "zoom", "attributes", "tiles": {"z/x/y": "<base64 Mapbox vector tile>"}}.
 //   26 zoom-14 tiles cover the boxes below (see docs/FREE_TIERS.md before adding more). Each road piece in a tile carries absolute_speed (km/h),

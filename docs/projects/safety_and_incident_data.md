@@ -37,7 +37,9 @@ includes LAPD reports (NCIC code `1942`, 11,038 crashes in the City of Los Angel
 - **What each incident gives**: category (accident, jam, roadworks, closure and others), delay magnitude, start time,
   from and to street names, and the length of the delay.
 - **Limitation**: it lists only what is happening now, so a history means polling it. Every 15 minutes, beside the
-  flow tiles, would be one request per run (96 a day).
+  flow tiles, would be one request per run: 96 a day, or 2,880 a month. That is over Incident Details' free allowance of
+  2,500 a month, so poll every 20 minutes or use the incident vector tiles, which share the flow tiles' 200,000 a month
+  (`docs/FREE_TIERS.md`).
 - **Fit with existing data**: the flow tiles we already store carry a `road_closure` flag per road piece, and
   `build_traffic.py` reports it as `closed_share`. Incidents would add the *reason* and the *start time*.
 - **Other sources**:

@@ -11,7 +11,8 @@ Confirm them in the provider's dashboard before relying on them.
 
 | Service | Free allowance | This project uses | Headroom | Watch |
 |---|---|---|---|---|
-| TomTom (traffic flow tiles) | 50,000 tile requests and 2,500 non-tile requests **a day** (TomTom developer store; the docs pricing page lists *monthly* figures, so check) | 26 tiles × 96 runs = **2,496 tile requests a day** | About 20× on the daily figure | Each new street adds 1 to 4 zoom-14 tiles (~100 to 400 a day). Incidents (roadmap E2) would add 96 non-tile requests a day |
+| TomTom Orbis Maps Traffic API v2, **Vector Flow Tiles** | 200,000 a month, shared with incident vector tiles (pricing line item "Traffic Flow & Incidents API Vector Tiles") | 26 tiles × 96 runs = 2,496 a day, **about 75,000 a month** | About 37% of the free allowance used | Each new street adds 1 to 4 zoom-14 tiles, about 3,000 to 12,000 a month. Room for roughly 40 more tiles at the current 15-minute interval |
+| TomTom Traffic Incidents API, **Incident Details** (non-tile) | 2,500 a month (line item "Traffic Incidents API Details") | Not used yet (roadmap E2) | n/a | **Polling every 15 minutes would be 2,880 a month, over the free allowance.** Poll every 20 minutes (2,160 a month), or read incidents from the incident vector tiles, which share the 200,000 tile allowance |
 | Swiftly (LA Metro realtime) | 180 requests per 15 minutes per key | Vehicle positions every minute plus trip updates every 15 minutes = **16 per 15 minutes** | About 11× | Requests are not per street, so adding Pico costs nothing. Ask Swiftly about storage and redistribution terms |
 | LA Metro websocket | No key, no published limit | One connection a minute (lines 204, 754, 2, 4) | n/a | Line 30 (Pico) comes from Swiftly only |
 | Cloudflare Workers (free plan) | 100,000 requests a day; 5 cron triggers per account; 10 ms CPU per invocation (check) | 3 cron Workers: collector every minute, GBFS every 10 minutes, traffic every 15 minutes = **~1,680 runs a day**, plus page and API visits | Wide on requests; **2 cron triggers left** | CPU per run is the tight limit (gzipping a minute of messages). A new collector should share an existing cron rather than add a fourth or fifth |
@@ -28,7 +29,7 @@ Confirm them in the provider's dashboard before relying on them.
 ## How adding a street changes usage
 
 Adding Pico Bl and its control, Olympic Bl, on 2026-11-19 cost:
-- **TomTom**: 4 new zoom-14 tiles (22 to 26), about 380 more tile requests a day.
+- **TomTom**: 4 new zoom-14 tiles (22 to 26), about 11,500 more Vector Flow Tile requests a month.
 - **Swiftly, Workers, R2 writes**: nothing. The Swiftly feed already carries every LA Metro bus, and the collector
   stores the whole feed; lines 30 and 28 are picked out later in `pipeline/swiftly_to_pings.py`.
 - **R2 reads and the hourly workflow**: nothing extra downloaded; a little more CPU time for two more streets'
@@ -37,14 +38,41 @@ Adding Pico Bl and its control, Olympic Bl, on 2026-11-19 cost:
 - **GitHub repository**: about 1 MB of scheduled-speed Parquet per street now, then one small observed CSV and one traffic CSV
   a month.
 
+## Exactly what is called at TomTom
+
+The traffic Worker (`worker/traffic.js`, function `collectTomTom`) makes this request once per tile every 15
+minutes, 26 tiles per run:
+
+    GET https://api.tomtom.com/maps/orbis/traffic/flow/vector/tile/14/{x}/{y}?apiVersion=2
+        &attributes=tags(absolute_speed,relative_speed,road_category,road_closure,part_of_two_way_road,openlr),roadCategories(primary,secondary,tertiary)
+    Header: TomTom-Api-Key: <key>     (Worker secret TOMTOM_API_KEY, from the repository secret)
+
+- **Product**: TomTom Orbis Maps Traffic API, service version 2.
+- **Endpoint**: Vector Flow Tiles, zoom 14 (about 2.4 km square at LA's latitude).
+- **Response**: Mapbox Vector Tile (protobuf), with one layer, "Traffic flow".
+- **Billing**: each tile counts as one request against "Traffic Flow & Incidents API Vector Tiles".
+
+Nothing else at TomTom is called on a schedule. The one-off incident check on 2026-11-18 used the older Traffic API
+v5 path `GET https://api.tomtom.com/traffic/services/5/incidentDetails` (Incident Details, billed as "Traffic
+Incidents API Details").
+
 For any future street, the TomTom tile count is the only number that grows directly. Check it at
 `https://aviary.herebox.org/traffic/status` (`tomtom.of`).
 
 ## Where the numbers come from
 
-- TomTom: the developer store and FAQ (`developer.tomtom.com/store/maps-api`, `developer.tomtom.com/platform/documentation/faqs`)
-  state daily free amounts. `docs.tomtom.com/pricing` shows monthly amounts for some APIs. **Owner: confirm in the
-  TomTom dashboard which applies to this key, and whether overage is blocked or billed.**
+- TomTom: `docs.tomtom.com/pricing`, read 2026-11-19. `developer.tomtom.com/pricing` now redirects there. Free
+  amounts are **monthly** and per product: "Free monthly requests per API, no credit card needed". The rows that
+  matter, each tagged for both "TomTom Maps" and "TomTom Orbis Maps":
+  - "Traffic Flow & Incidents API Vector Tiles": 200K a month.
+  - "Traffic Incidents API Details": 2.5K a month.
+  - "Traffic Flow API Segment Data" (not used; tagged "TomTom Maps" only): 20K a month.
+
+  The page gives no price per 1,000 above the free amount. The FAQ asks whether requests fail or are charged at the
+  limit, and whether the allowance is per account or per key, but shows no answers. The daily figures quoted
+  elsewhere (50,000 tiles and 2,500 other requests a day) are an older scheme and no longer apply. **Owner: in the
+  TomTom dashboard, check the usage counter and whether a payment method is attached** (without one, going over
+  should fail rather than bill, but the page does not say).
 - Swiftly: the limit was given with the key (see `AGENTS.md`, Swiftly section).
 - Cloudflare: `developers.cloudflare.com/workers/platform/limits` (cron triggers, requests, CPU) and
   `developers.cloudflare.com/r2/pricing` (storage and operations).

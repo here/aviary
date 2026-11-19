@@ -11,7 +11,7 @@ Confirm them in the provider's dashboard before relying on them.
 
 | Service | Free allowance | This project uses | Headroom | Watch |
 |---|---|---|---|---|
-| TomTom Orbis Maps Traffic API v2, **Vector Flow Tiles** | 200,000 a month, shared with incident vector tiles (pricing line item "Traffic Flow & Incidents API Vector Tiles") | 26 tiles × 96 runs = 2,496 a day, **about 75,000 a month** | About 37% of the free allowance used | Each new street adds 1 to 4 zoom-14 tiles, about 3,000 to 12,000 a month. Room for roughly 40 more tiles at the current 15-minute interval |
+| TomTom Orbis Maps Traffic API v2, **Vector Flow Tiles** | 200,000 a month, shared with incident vector tiles (pricing line item "Traffic Flow & Incidents API Vector Tiles") | 30 tiles × 96 runs = 2,880 a day, **about 86,000 a month** | About 43% of the free allowance used | Each new street adds 1 to 4 zoom-14 tiles, about 3,000 to 12,000 a month. Room for roughly 35 more tiles at the current 15-minute interval |
 | TomTom Traffic Incidents API, **Incident Details** (non-tile) | 2,500 a month (line item "Traffic Incidents API Details") | Not used yet (roadmap E2) | n/a | **Polling every 15 minutes would be 2,880 a month, over the free allowance.** Poll every 20 minutes (2,160 a month), or read incidents from the incident vector tiles, which share the 200,000 tile allowance |
 | Swiftly (LA Metro realtime) | 180 requests per 15 minutes per key | Vehicle positions every minute plus trip updates every 15 minutes = **16 per 15 minutes** | About 11× | Requests are not per street, so adding Pico costs nothing. Ask Swiftly about storage and redistribution terms |
 | LA Metro websocket | No key, no published limit | One connection a minute (lines 204, 754, 2, 4) | n/a | Line 30 (Pico) comes from Swiftly only |
@@ -22,16 +22,16 @@ Confirm them in the provider's dashboard before relying on them.
 | data.ca.gov (CKAN: CCRS crashes, Cal-ITP speeds) | No key; no published limit | Not collected yet (roadmap E1) | n/a | Page through large tables politely |
 | data.lacity.org (Socrata) | No key needed; anonymous requests are throttled, and a free app token raises the limit (check) | Ad hoc queries only | n/a | Get an app token if a scheduled job starts using it |
 | Caltrans GIS (ArcGIS FeatureServer) | Open | One-off snapshot (`fetch_calitp.py`) | n/a | None |
-| HERE Traffic API v7 | Free "Base" or limited plan with a monthly transaction allowance (check) | Built but idle (no key). It would use 4 boxes × 48 runs a day = **~5,800 requests a month** | Unknown until a plan is chosen | Only turn it on after confirming the allowance |
+| HERE Traffic API v7 | Free "Base" or limited plan with a monthly transaction allowance (check) | Built but idle (no key). It would use 5 boxes × 48 runs a day = **~7,200 requests a month** | Unknown until a plan is chosen | Only turn it on after confirming the allowance |
 | Telraam | Free API key with a daily call limit (check) | Not used yet (roadmap A10) | n/a | An hourly fetch per segment is small |
 | NOAA weather (roadmap E3) | Free; the Climate Data Online API needs a free token, about 10,000 requests a day (check). The Iowa Environmental Mesonet serves ASOS without a key | Not used yet | n/a | Host must be added to the session allowlist |
 
 ## How adding a street changes usage
 
-Adding Pico Bl and its control, Olympic Bl, on 2026-11-19 cost:
-- **TomTom**: 4 new zoom-14 tiles (22 to 26), about 11,500 more Vector Flow Tile requests a month.
+Adding Pico Bl, its control Olympic Bl, and Westwood Bl on 2026-11-19 cost:
+- **TomTom**: 8 new zoom-14 tiles (22 to 30), about 23,000 more Vector Flow Tile requests a month.
 - **Swiftly, Workers, R2 writes**: nothing. The Swiftly feed already carries every LA Metro bus, and the collector
-  stores the whole feed; lines 30 and 28 are picked out later in `pipeline/swiftly_to_pings.py`.
+  stores the whole feed; lines 30, 28, 761 and 233 are picked out later in `pipeline/swiftly_to_pings.py`.
 - **R2 reads and the hourly workflow**: nothing extra downloaded; a little more CPU time for two more streets'
   roll-ups.
 - **Cal-ITP bucket**: nothing; the same files are re-read.
@@ -41,7 +41,7 @@ Adding Pico Bl and its control, Olympic Bl, on 2026-11-19 cost:
 ## Exactly what is called at TomTom
 
 The traffic Worker (`worker/traffic.js`, function `collectTomTom`) makes this request once per tile every 15
-minutes, 26 tiles per run:
+minutes, 30 tiles per run:
 
     GET https://api.tomtom.com/maps/orbis/traffic/flow/vector/tile/14/{x}/{y}?apiVersion=2
         &attributes=tags(absolute_speed,relative_speed,road_category,road_closure,part_of_two_way_road,openlr),roadCategories(primary,secondary,tertiary)

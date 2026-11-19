@@ -111,6 +111,8 @@ before/after is not bus-only. Facts about programs, prices and terms below are f
 | C7 | Control street for Pico: Olympic Bl, Crenshaw Bl to Figueroa St, line 28 | **done (2026-11-19)**: same cross-street sections, scheduled history, Cal-ITP history, TomTom |
 | C8 | Traffic-only section for Pico, Bonnie Brae St to Figueroa St (line 30 detours via Olympic), skipped by the bus roll-ups | next |
 | C9 | Before/after comparison of Pico against Olympic (difference in differences) on the page once construction starts | later |
+| C10 | Westwood Bl added (LADOT project: protected bike lanes, 1.1 mi of bus lanes, UCLA to E Line) | **done (2026-11-19)**: Le Conte Av to E Line; Metro 761 / 233 on S1 and S2, scheduled history from June 2021, Cal-ITP history, TomTom. Notes in `docs/projects/westwood-bl.md`. Confirm extents and bus-lane location when the design is published |
+| C11 | Big Blue Bus feeds (GTFS + GTFS-realtime) for Westwood south of Santa Monica Bl | later (needs the BBB host on the session allowlist and a collector change) |
 | C5 | Lane-closure data (WZDx-style) from BOE / LADOT permits to flag hours affected by work zones | later |
 
 ## E. Safety, incidents and conditions (queued 2026-11-18)

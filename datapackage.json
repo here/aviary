@@ -1,11 +1,11 @@
 {
   "name": "aviary-la-street-speeds",
-  "title": "Hourly bus speeds on Los Angeles streets being redesigned: Vermont Av, Hollywood Bl, Olympic Bl, Pico Bl, Sunset Bl and Cesar Chavez Av",
+  "title": "Hourly bus speeds on Los Angeles streets being redesigned: Vermont Av, Hollywood Bl, Olympic Bl, Pico Bl, Sunset Bl and Cesar Chavez Av, Westwood Bl",
   "description": "Scheduled hourly bus speeds rebuilt from LA Metro's timetable history (Vermont Av since 2016, other streets since 2018), and measured speeds from bus GPS since November 2026. Speeds include stops. Each street's definition file lists the project dates on it.",
   "profile": "data-package",
   "version": "0.2.0",
   "created": "2026-11-17T00:00:00Z",
-  "updated": "2026-11-19T07:39:50Z",
+  "updated": "2026-11-19T07:56:44Z",
   "homepage": "https://aviary.herebox.org",
   "keywords": [
     "Los Angeles",
@@ -6424,6 +6424,654 @@
             "name": "speed_mph_median",
             "type": "number",
             "description": "Segment length over the middle crossing time, mph."
+          }
+        ]
+      }
+    },
+    {
+      "name": "westwood-calitp-history",
+      "title": "Westwood Bl, Le Conte Av to the E Line (Westwood/Rancho Park station): measured bus speed history from Cal-ITP",
+      "path": "data/corridors/westwood/calitp/westwood_calitp_history.csv",
+      "format": "csv",
+      "description": "Roughly monthly Wednesdays since October 2024, from Cal-ITP's public speed maps.",
+      "profile": "tabular-data-resource",
+      "schema": {
+        "fields": [
+          {
+            "name": "corridor_id",
+            "type": "string",
+            "description": "Street identifier."
+          },
+          {
+            "name": "analysis_date",
+            "type": "date",
+            "description": "Day Cal-ITP analysed (a Wednesday)."
+          },
+          {
+            "name": "period",
+            "type": "string",
+            "description": "Cal-ITP time of day: Owl, Early AM, AM Peak, Midday, PM Peak, Evening (All day in early files)."
+          },
+          {
+            "name": "hours",
+            "type": "string",
+            "description": "Clock hours of the period, local time."
+          },
+          {
+            "name": "route",
+            "type": "string",
+            "description": "LA Metro bus line."
+          },
+          {
+            "name": "direction",
+            "type": "string",
+            "description": "Direction of travel along the street, from the order of the segment's two stops."
+          },
+          {
+            "name": "section_id",
+            "type": "string",
+            "description": "Section id; see that street's sections file."
+          },
+          {
+            "name": "p20_mph",
+            "type": "number",
+            "description": "20th percentile measured bus speed over the section (distance over summed segment travel time)."
+          },
+          {
+            "name": "p50_mph",
+            "type": "number",
+            "description": "Median measured bus speed over the section."
+          },
+          {
+            "name": "p80_mph",
+            "type": "number",
+            "description": "80th percentile measured bus speed over the section."
+          },
+          {
+            "name": "length_mi",
+            "type": "number",
+            "description": "Section length in miles."
+          },
+          {
+            "name": "coverage",
+            "type": "number",
+            "description": "Share of the section covered by matched stop-to-stop segments."
+          },
+          {
+            "name": "n_trips",
+            "type": "integer",
+            "description": "Fewest trips on any contributing segment."
+          },
+          {
+            "name": "source",
+            "type": "string",
+            "description": "`calitp_segment_speeds` = Cal-ITP public speed maps (bucket calitp-map-tiles)."
+          }
+        ]
+      }
+    },
+    {
+      "name": "westwood-definition",
+      "title": "Westwood Bl, Le Conte Av to the E Line (Westwood/Rancho Park station): definition",
+      "path": "corridors/westwood.json",
+      "format": "json",
+      "description": "Street path, section boundaries, bus lines and project dates.",
+      "mediatype": "application/json"
+    },
+    {
+      "name": "westwood-hourly-2021",
+      "title": "Westwood Bl, Le Conte Av to the E Line (Westwood/Rancho Park station): hourly scheduled speeds (2021)",
+      "path": "data/corridors/westwood/hourly/year=2021/westwood_speeds.parquet",
+      "format": "parquet",
+      "group": "westwood-hourly",
+      "description": "Scheduled speeds for lines 761, 233. Hive-partitioned by local year.",
+      "profile": "tabular-data-resource",
+      "schema": {
+        "fields": [
+          {
+            "name": "corridor_id",
+            "type": "string",
+            "description": "Street identifier, matching corridors/<corridor_id>.json."
+          },
+          {
+            "name": "hour_start_utc",
+            "type": "datetime",
+            "description": "Start of the hour, UTC (ISO 8601)."
+          },
+          {
+            "name": "hour_start_local",
+            "type": "string",
+            "description": "Start of the hour in America/Los_Angeles with UTC offset, e.g. 2024-05-01T17:00:00-0700."
+          },
+          {
+            "name": "route",
+            "type": "string",
+            "description": "LA Metro bus line, e.g. 204, 754, 2, 4, 180, 217."
+          },
+          {
+            "name": "direction",
+            "type": "string",
+            "description": "northbound / southbound on Vermont Av; eastbound / westbound on the other corridors."
+          },
+          {
+            "name": "section_id",
+            "type": "string",
+            "description": "`corridor` for the whole street, or a section id (S1, S2, ...); see that street's sections file."
+          },
+          {
+            "name": "speed_mph",
+            "type": "number",
+            "description": "Average speed over the section in miles per hour, stops and signals included."
+          },
+          {
+            "name": "travel_time_min",
+            "type": "number",
+            "description": "Average minutes to traverse the section. Corridor rows sum the section averages."
+          },
+          {
+            "name": "length_mi",
+            "type": "number",
+            "description": "Section length in miles."
+          },
+          {
+            "name": "n_trips",
+            "type": "integer",
+            "description": "Trips contributing in that hour (corridor rows: the fewest on any section)."
+          },
+          {
+            "name": "source",
+            "type": "string",
+            "description": "`gtfs_schedule` = derived from the published timetable; `gtfs_realtime_observed` = measured from bus GPS (LA Metro's public feed and Swiftly, duplicates removed)."
+          },
+          {
+            "name": "feed_version",
+            "type": "string",
+            "description": "Scheduled rows: publication date and commit of the LACMTA/gtfs_bus version used. Empty for measured rows."
+          }
+        ],
+        "primaryKey": [
+          "hour_start_utc",
+          "route",
+          "direction",
+          "section_id",
+          "source"
+        ]
+      },
+      "mediatype": "application/vnd.apache.parquet"
+    },
+    {
+      "name": "westwood-hourly-2022",
+      "title": "Westwood Bl, Le Conte Av to the E Line (Westwood/Rancho Park station): hourly scheduled speeds (2022)",
+      "path": "data/corridors/westwood/hourly/year=2022/westwood_speeds.parquet",
+      "format": "parquet",
+      "group": "westwood-hourly",
+      "description": "Scheduled speeds for lines 761, 233. Hive-partitioned by local year.",
+      "profile": "tabular-data-resource",
+      "schema": {
+        "fields": [
+          {
+            "name": "corridor_id",
+            "type": "string",
+            "description": "Street identifier, matching corridors/<corridor_id>.json."
+          },
+          {
+            "name": "hour_start_utc",
+            "type": "datetime",
+            "description": "Start of the hour, UTC (ISO 8601)."
+          },
+          {
+            "name": "hour_start_local",
+            "type": "string",
+            "description": "Start of the hour in America/Los_Angeles with UTC offset, e.g. 2024-05-01T17:00:00-0700."
+          },
+          {
+            "name": "route",
+            "type": "string",
+            "description": "LA Metro bus line, e.g. 204, 754, 2, 4, 180, 217."
+          },
+          {
+            "name": "direction",
+            "type": "string",
+            "description": "northbound / southbound on Vermont Av; eastbound / westbound on the other corridors."
+          },
+          {
+            "name": "section_id",
+            "type": "string",
+            "description": "`corridor` for the whole street, or a section id (S1, S2, ...); see that street's sections file."
+          },
+          {
+            "name": "speed_mph",
+            "type": "number",
+            "description": "Average speed over the section in miles per hour, stops and signals included."
+          },
+          {
+            "name": "travel_time_min",
+            "type": "number",
+            "description": "Average minutes to traverse the section. Corridor rows sum the section averages."
+          },
+          {
+            "name": "length_mi",
+            "type": "number",
+            "description": "Section length in miles."
+          },
+          {
+            "name": "n_trips",
+            "type": "integer",
+            "description": "Trips contributing in that hour (corridor rows: the fewest on any section)."
+          },
+          {
+            "name": "source",
+            "type": "string",
+            "description": "`gtfs_schedule` = derived from the published timetable; `gtfs_realtime_observed` = measured from bus GPS (LA Metro's public feed and Swiftly, duplicates removed)."
+          },
+          {
+            "name": "feed_version",
+            "type": "string",
+            "description": "Scheduled rows: publication date and commit of the LACMTA/gtfs_bus version used. Empty for measured rows."
+          }
+        ],
+        "primaryKey": [
+          "hour_start_utc",
+          "route",
+          "direction",
+          "section_id",
+          "source"
+        ]
+      },
+      "mediatype": "application/vnd.apache.parquet"
+    },
+    {
+      "name": "westwood-hourly-2023",
+      "title": "Westwood Bl, Le Conte Av to the E Line (Westwood/Rancho Park station): hourly scheduled speeds (2023)",
+      "path": "data/corridors/westwood/hourly/year=2023/westwood_speeds.parquet",
+      "format": "parquet",
+      "group": "westwood-hourly",
+      "description": "Scheduled speeds for lines 761, 233. Hive-partitioned by local year.",
+      "profile": "tabular-data-resource",
+      "schema": {
+        "fields": [
+          {
+            "name": "corridor_id",
+            "type": "string",
+            "description": "Street identifier, matching corridors/<corridor_id>.json."
+          },
+          {
+            "name": "hour_start_utc",
+            "type": "datetime",
+            "description": "Start of the hour, UTC (ISO 8601)."
+          },
+          {
+            "name": "hour_start_local",
+            "type": "string",
+            "description": "Start of the hour in America/Los_Angeles with UTC offset, e.g. 2024-05-01T17:00:00-0700."
+          },
+          {
+            "name": "route",
+            "type": "string",
+            "description": "LA Metro bus line, e.g. 204, 754, 2, 4, 180, 217."
+          },
+          {
+            "name": "direction",
+            "type": "string",
+            "description": "northbound / southbound on Vermont Av; eastbound / westbound on the other corridors."
+          },
+          {
+            "name": "section_id",
+            "type": "string",
+            "description": "`corridor` for the whole street, or a section id (S1, S2, ...); see that street's sections file."
+          },
+          {
+            "name": "speed_mph",
+            "type": "number",
+            "description": "Average speed over the section in miles per hour, stops and signals included."
+          },
+          {
+            "name": "travel_time_min",
+            "type": "number",
+            "description": "Average minutes to traverse the section. Corridor rows sum the section averages."
+          },
+          {
+            "name": "length_mi",
+            "type": "number",
+            "description": "Section length in miles."
+          },
+          {
+            "name": "n_trips",
+            "type": "integer",
+            "description": "Trips contributing in that hour (corridor rows: the fewest on any section)."
+          },
+          {
+            "name": "source",
+            "type": "string",
+            "description": "`gtfs_schedule` = derived from the published timetable; `gtfs_realtime_observed` = measured from bus GPS (LA Metro's public feed and Swiftly, duplicates removed)."
+          },
+          {
+            "name": "feed_version",
+            "type": "string",
+            "description": "Scheduled rows: publication date and commit of the LACMTA/gtfs_bus version used. Empty for measured rows."
+          }
+        ],
+        "primaryKey": [
+          "hour_start_utc",
+          "route",
+          "direction",
+          "section_id",
+          "source"
+        ]
+      },
+      "mediatype": "application/vnd.apache.parquet"
+    },
+    {
+      "name": "westwood-hourly-2024",
+      "title": "Westwood Bl, Le Conte Av to the E Line (Westwood/Rancho Park station): hourly scheduled speeds (2024)",
+      "path": "data/corridors/westwood/hourly/year=2024/westwood_speeds.parquet",
+      "format": "parquet",
+      "group": "westwood-hourly",
+      "description": "Scheduled speeds for lines 761, 233. Hive-partitioned by local year.",
+      "profile": "tabular-data-resource",
+      "schema": {
+        "fields": [
+          {
+            "name": "corridor_id",
+            "type": "string",
+            "description": "Street identifier, matching corridors/<corridor_id>.json."
+          },
+          {
+            "name": "hour_start_utc",
+            "type": "datetime",
+            "description": "Start of the hour, UTC (ISO 8601)."
+          },
+          {
+            "name": "hour_start_local",
+            "type": "string",
+            "description": "Start of the hour in America/Los_Angeles with UTC offset, e.g. 2024-05-01T17:00:00-0700."
+          },
+          {
+            "name": "route",
+            "type": "string",
+            "description": "LA Metro bus line, e.g. 204, 754, 2, 4, 180, 217."
+          },
+          {
+            "name": "direction",
+            "type": "string",
+            "description": "northbound / southbound on Vermont Av; eastbound / westbound on the other corridors."
+          },
+          {
+            "name": "section_id",
+            "type": "string",
+            "description": "`corridor` for the whole street, or a section id (S1, S2, ...); see that street's sections file."
+          },
+          {
+            "name": "speed_mph",
+            "type": "number",
+            "description": "Average speed over the section in miles per hour, stops and signals included."
+          },
+          {
+            "name": "travel_time_min",
+            "type": "number",
+            "description": "Average minutes to traverse the section. Corridor rows sum the section averages."
+          },
+          {
+            "name": "length_mi",
+            "type": "number",
+            "description": "Section length in miles."
+          },
+          {
+            "name": "n_trips",
+            "type": "integer",
+            "description": "Trips contributing in that hour (corridor rows: the fewest on any section)."
+          },
+          {
+            "name": "source",
+            "type": "string",
+            "description": "`gtfs_schedule` = derived from the published timetable; `gtfs_realtime_observed` = measured from bus GPS (LA Metro's public feed and Swiftly, duplicates removed)."
+          },
+          {
+            "name": "feed_version",
+            "type": "string",
+            "description": "Scheduled rows: publication date and commit of the LACMTA/gtfs_bus version used. Empty for measured rows."
+          }
+        ],
+        "primaryKey": [
+          "hour_start_utc",
+          "route",
+          "direction",
+          "section_id",
+          "source"
+        ]
+      },
+      "mediatype": "application/vnd.apache.parquet"
+    },
+    {
+      "name": "westwood-hourly-2025",
+      "title": "Westwood Bl, Le Conte Av to the E Line (Westwood/Rancho Park station): hourly scheduled speeds (2025)",
+      "path": "data/corridors/westwood/hourly/year=2025/westwood_speeds.parquet",
+      "format": "parquet",
+      "group": "westwood-hourly",
+      "description": "Scheduled speeds for lines 761, 233. Hive-partitioned by local year.",
+      "profile": "tabular-data-resource",
+      "schema": {
+        "fields": [
+          {
+            "name": "corridor_id",
+            "type": "string",
+            "description": "Street identifier, matching corridors/<corridor_id>.json."
+          },
+          {
+            "name": "hour_start_utc",
+            "type": "datetime",
+            "description": "Start of the hour, UTC (ISO 8601)."
+          },
+          {
+            "name": "hour_start_local",
+            "type": "string",
+            "description": "Start of the hour in America/Los_Angeles with UTC offset, e.g. 2024-05-01T17:00:00-0700."
+          },
+          {
+            "name": "route",
+            "type": "string",
+            "description": "LA Metro bus line, e.g. 204, 754, 2, 4, 180, 217."
+          },
+          {
+            "name": "direction",
+            "type": "string",
+            "description": "northbound / southbound on Vermont Av; eastbound / westbound on the other corridors."
+          },
+          {
+            "name": "section_id",
+            "type": "string",
+            "description": "`corridor` for the whole street, or a section id (S1, S2, ...); see that street's sections file."
+          },
+          {
+            "name": "speed_mph",
+            "type": "number",
+            "description": "Average speed over the section in miles per hour, stops and signals included."
+          },
+          {
+            "name": "travel_time_min",
+            "type": "number",
+            "description": "Average minutes to traverse the section. Corridor rows sum the section averages."
+          },
+          {
+            "name": "length_mi",
+            "type": "number",
+            "description": "Section length in miles."
+          },
+          {
+            "name": "n_trips",
+            "type": "integer",
+            "description": "Trips contributing in that hour (corridor rows: the fewest on any section)."
+          },
+          {
+            "name": "source",
+            "type": "string",
+            "description": "`gtfs_schedule` = derived from the published timetable; `gtfs_realtime_observed` = measured from bus GPS (LA Metro's public feed and Swiftly, duplicates removed)."
+          },
+          {
+            "name": "feed_version",
+            "type": "string",
+            "description": "Scheduled rows: publication date and commit of the LACMTA/gtfs_bus version used. Empty for measured rows."
+          }
+        ],
+        "primaryKey": [
+          "hour_start_utc",
+          "route",
+          "direction",
+          "section_id",
+          "source"
+        ]
+      },
+      "mediatype": "application/vnd.apache.parquet"
+    },
+    {
+      "name": "westwood-hourly-2026",
+      "title": "Westwood Bl, Le Conte Av to the E Line (Westwood/Rancho Park station): hourly scheduled speeds (2026)",
+      "path": "data/corridors/westwood/hourly/year=2026/westwood_speeds.parquet",
+      "format": "parquet",
+      "group": "westwood-hourly",
+      "description": "Scheduled speeds for lines 761, 233. Hive-partitioned by local year.",
+      "profile": "tabular-data-resource",
+      "schema": {
+        "fields": [
+          {
+            "name": "corridor_id",
+            "type": "string",
+            "description": "Street identifier, matching corridors/<corridor_id>.json."
+          },
+          {
+            "name": "hour_start_utc",
+            "type": "datetime",
+            "description": "Start of the hour, UTC (ISO 8601)."
+          },
+          {
+            "name": "hour_start_local",
+            "type": "string",
+            "description": "Start of the hour in America/Los_Angeles with UTC offset, e.g. 2024-05-01T17:00:00-0700."
+          },
+          {
+            "name": "route",
+            "type": "string",
+            "description": "LA Metro bus line, e.g. 204, 754, 2, 4, 180, 217."
+          },
+          {
+            "name": "direction",
+            "type": "string",
+            "description": "northbound / southbound on Vermont Av; eastbound / westbound on the other corridors."
+          },
+          {
+            "name": "section_id",
+            "type": "string",
+            "description": "`corridor` for the whole street, or a section id (S1, S2, ...); see that street's sections file."
+          },
+          {
+            "name": "speed_mph",
+            "type": "number",
+            "description": "Average speed over the section in miles per hour, stops and signals included."
+          },
+          {
+            "name": "travel_time_min",
+            "type": "number",
+            "description": "Average minutes to traverse the section. Corridor rows sum the section averages."
+          },
+          {
+            "name": "length_mi",
+            "type": "number",
+            "description": "Section length in miles."
+          },
+          {
+            "name": "n_trips",
+            "type": "integer",
+            "description": "Trips contributing in that hour (corridor rows: the fewest on any section)."
+          },
+          {
+            "name": "source",
+            "type": "string",
+            "description": "`gtfs_schedule` = derived from the published timetable; `gtfs_realtime_observed` = measured from bus GPS (LA Metro's public feed and Swiftly, duplicates removed)."
+          },
+          {
+            "name": "feed_version",
+            "type": "string",
+            "description": "Scheduled rows: publication date and commit of the LACMTA/gtfs_bus version used. Empty for measured rows."
+          }
+        ],
+        "primaryKey": [
+          "hour_start_utc",
+          "route",
+          "direction",
+          "section_id",
+          "source"
+        ]
+      },
+      "mediatype": "application/vnd.apache.parquet"
+    },
+    {
+      "name": "westwood-sections",
+      "title": "Westwood Bl, Le Conte Av to the E Line (Westwood/Rancho Park station): sections",
+      "path": "data/corridors/westwood/sections.csv",
+      "format": "csv",
+      "profile": "tabular-data-resource",
+      "schema": {
+        "fields": [
+          {
+            "name": "corridor_id",
+            "type": "string",
+            "description": "Street identifier, matching corridors/<corridor_id>.json."
+          },
+          {
+            "name": "section_id",
+            "type": "string",
+            "description": "Section id; `corridor` is the whole street."
+          },
+          {
+            "name": "name",
+            "type": "string",
+            "description": "From cross street to cross street."
+          },
+          {
+            "name": "start_mi",
+            "type": "number",
+            "description": "Distance along the street's path where the section starts, miles."
+          },
+          {
+            "name": "end_mi",
+            "type": "number",
+            "description": "Where it ends, miles."
+          },
+          {
+            "name": "length_mi",
+            "type": "number",
+            "description": "Section length, miles."
+          }
+        ]
+      }
+    },
+    {
+      "name": "westwood-feed-versions",
+      "title": "Westwood Bl, Le Conte Av to the E Line (Westwood/Rancho Park station): timetable version in force for each date range",
+      "path": "data/corridors/westwood/feed_versions.csv",
+      "format": "csv",
+      "profile": "tabular-data-resource",
+      "schema": {
+        "fields": [
+          {
+            "name": "feed_version",
+            "type": "string",
+            "description": "GTFS version: publication date and git commit."
+          },
+          {
+            "name": "first_date",
+            "type": "string",
+            "description": "First service date it covers."
+          },
+          {
+            "name": "last_date",
+            "type": "string",
+            "description": "Last service date it covers."
+          },
+          {
+            "name": "days",
+            "type": "integer",
+            "description": "Number of service days."
           }
         ]
       }

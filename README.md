@@ -5,7 +5,7 @@ Hourly bus speeds on Los Angeles streets being redesigned, starting with Vermont
 
 **Outputs:** [aviary.herebox.org](https://aviary.herebox.org) (live charts) · [here.github.io/aviary](https://here.github.io/aviary/) (GitHub Pages mirror)
 
-**LADOT and Metro projects:** [Hollywood Blvd Safety and Mobility](https://ladotlivablestreets.org/projects/hollywood-blvd) · [Sunset Blvd / Cesar Chavez (Sunset East)](https://ladotlivablestreets.org/projects/sunset) · [Pico Blvd Safety and Mobility](https://ladotlivablestreets.org/projects/pico) · [Fountain Av Streetscape (City of West Hollywood, not LADOT)](docs/projects/fountain-av.md) · [Vermont Transit Corridor BRT](https://boardagendas.metro.net/board-report/2026-0025/) · [LADOT Livable Streets](https://ladotlivablestreets.org) · [LADOT news](https://ladot.lacity.gov/dotnews)
+**LADOT and Metro projects:** [Hollywood Blvd Safety and Mobility](https://ladotlivablestreets.org/projects/hollywood-blvd) · [Sunset Blvd / Cesar Chavez (Sunset East)](https://ladotlivablestreets.org/projects/sunset) · [Pico Blvd Safety and Mobility](https://ladotlivablestreets.org/projects/pico) · [Westwood Blvd Safety and Mobility](https://ladotlivablestreets.org/projects/westwood) · [Fountain Av Streetscape (City of West Hollywood, not LADOT)](docs/projects/fountain-av.md) · [Vermont Transit Corridor BRT](https://boardagendas.metro.net/board-report/2026-0025/) · [LADOT Livable Streets](https://ladotlivablestreets.org) · [LADOT news](https://ladot.lacity.gov/dotnews)
 
 ## Data sources
 
@@ -76,6 +76,7 @@ pm = h[(h.section_id == "corridor") & (h.route == "204")]
 | `corridors/pico.json` | Pico Bl, Crenshaw Bl to Bonnie Brae St: path, three sections, project events (notes in `docs/projects/pico-bl.md`) |
 | `data/corridors/pico/hourly/year=YYYY/pico_speeds.parquet` | Scheduled hourly speeds for line 30 since 2018 |
 | `corridors/olympic.json`, `data/corridors/olympic/` | Olympic Bl, Crenshaw Bl to Figueroa St: untreated control for Pico Bl (line 28, same cross-street sections) |
+| `corridors/westwood.json`, `data/corridors/westwood/` | Westwood Bl, Le Conte Av to the E Line: lines 761 and 233 north of Santa Monica Bl, traffic for the whole stretch |
 | R2 `gbfs/` | Shared bike and scooter availability snapshots every 10 minutes (Bird, Metro Bike Share), from `worker/gbfs.js` |
 
 See `docs/EXPANSION_PLAN.md` for the before/after plan these support.

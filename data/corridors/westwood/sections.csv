@@ -1,0 +1,6 @@
+corridor_id,section_id,name,start_mi,end_mi,length_mi
+westwood,S1,Le Conte Av to Wilshire Bl,0.029,0.408,0.379
+westwood,S2,Wilshire Bl to Santa Monica Bl,0.408,1.079,0.671
+westwood,S3,Santa Monica Bl to Pico Bl,1.079,1.631,0.552
+westwood,S4,Pico Bl to E Line (Westwood/Rancho Park station),1.631,2.158,0.526
+westwood,corridor,Le Conte Av to E Line (Westwood/Rancho Park station),0.029,2.158,2.128

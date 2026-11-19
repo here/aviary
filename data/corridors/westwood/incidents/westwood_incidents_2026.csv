@@ -1,0 +1,2 @@
+corridor_id,incident_id,section_id,direction,category,description,magnitude,max_delay_s,start_time_utc,end_time_utc,first_seen_utc,last_seen_utc,from_street,to_street,length_on_section_mi,source
+westwood,TTI-69906437-7d70-46c7-9fd8-516a31f672e7-TTL16379927928013001,S1,southbound,jam,Backed up traffic,2,189,2026-11-19T19:56:45Z,2026-11-19T20:25:15Z,2026-11-19T20:00:04Z,2026-11-19T20:00:04Z,Charles E Young Dr S,Weyburn Ave,0.071,tomtom_incident_details

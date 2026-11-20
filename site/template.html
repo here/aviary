@@ -98,6 +98,12 @@ table.inc th, table.inc td { white-space: normal; }
 table.inc th { vertical-align: bottom; }
 table.inc th, table.inc td { padding: 4px 10px 4px 0; border-bottom: 1px solid var(--grid); text-align: left; }
 table.inc .num { text-align: right; font-variant-numeric: tabular-nums; }
+.vision-zero { margin-top: 10px; display: flex; flex-direction: column; gap: 6px; }
+.vz-links { margin: 0; padding-left: 18px; font-size: 14px; }
+.vz-links a { color: var(--accent); }
+.vz-figure { margin: 4px 0 0; max-width: 900px; }
+.vz-figure img { display: block; width: 100%; height: auto; background: #fff; border: 1px solid var(--grid); border-radius: 8px; }
+.vz-figure figcaption { font-size: 12.5px; color: var(--ink-3); margin-top: 4px; }
 #deaths-chart svg { width: 100%; height: auto; display: block; }
 .stats-head { grid-column: 1 / -1; margin: 0; padding: 12px 0 0; font-size: 13.5px; color: var(--ink-2); }
 @media (max-width: 640px) { .stats { grid-template-columns: minmax(0, 1fr); } .stat + .stat { padding-left: 0; border-left: 0; border-top: 1px solid var(--grid); } }
@@ -292,6 +298,17 @@ code { font: 12.5px ui-monospace, SFMono-Regular, Menlo, monospace; background: 
     <div class="stats" id="deaths-stats"></div>
     <div id="deaths-chart"></div>
     <p class="deaths-note" id="deaths-note"></p>
+    <div class="vision-zero">
+      <h3 class="sub-title">Vision Zero</h3>
+      <ul class="vz-links">
+        <li><a href="https://visionzero.lacounty.gov/" target="_blank" rel="noopener">Vision Zero - Los Angeles County</a></li>
+        <li><a href="https://visionzeronetwork.org/" target="_blank" rel="noopener">Vision Zero Network</a></li>
+      </ul>
+      <figure class="vz-figure">
+        <a href="maps/safe-system-pyramid.jpg" target="_blank" rel="noopener"><img src="maps/safe-system-pyramid.jpg" loading="lazy" alt="Safe System pyramid. From top to bottom: education (driver education programs, slow down campaigns); active measures (signals and signs, in-vehicle collision warnings, seatbelts, helmets); latent safety measures (signal timing, leading pedestrian intervals, air bags, automated emergency braking); built environment (roundabouts, curb extensions, raised crosswalks, sidewalks, bikeways); socioeconomic factors (affordable housing near transit, zoning reform). Measures near the top need more individual effort; measures near the base have more population health impact."></a>
+        <figcaption>Safe System pyramid: measures near the top depend on individual effort; changes to the built environment and socioeconomic factors at the base reach the most people.</figcaption>
+      </figure>
+    </div>
   </section>
 
   <section class="panel" id="sources">

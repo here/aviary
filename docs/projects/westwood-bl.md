@@ -52,6 +52,26 @@ Project page: https://ladotlivablestreets.org/projects/westwood. The page text b
 - **Bus-lane effect to check**: LADOT's "14 to 20% faster" claim can be tested directly once the bus lanes are built,
   if they fall on S1 or S2.
 
+## LADOT project map (owner screenshot, 2026-11-20)
+
+The map shows planned features from **Le Conte Av to about Pico Bl** (near the Westside Pavilion). Section S4 here
+(Pico Bl to the E Line) therefore appears to lie outside the project. It could serve as an untreated comparison
+stretch on the same street, for traffic only.
+
+Feature counts listed on the map:
+
+| Feature | Count |
+|---|---|
+| Curb ramps | 61 |
+| Bike-bus boarding platforms | 17 |
+| Bicycle signals | 8 |
+| Protected left-turn signals | 7 |
+| Leading pedestrian intervals | 5 |
+| HAWK pedestrian signals | 2 |
+| Toucan crossing | 1 |
+| Protected bicycle facility | 1 |
+| Full-time bus-only lane | 1 (the list continues below the screenshot) |
+
 ## Open questions
 
 - Exact extents of the bike lanes and of the 1.1 mi of bus lanes.

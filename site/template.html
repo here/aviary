@@ -143,7 +143,7 @@ button:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
 }
 .street-foot { display: flex; justify-content: space-between; gap: 12px; font-size: 12.5px; color: var(--ink-3); flex-wrap: wrap; }
 .section-title { margin: 8px 0 -6px; font-size: clamp(20px, 3vw, 26px); }
-.project-dates h3 { margin: 0 0 6px; font-size: 13px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); }
+.sub-title, .project-dates h3 { margin: 0 0 6px; font-size: 13px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); }
 .project-dates:has(.events:empty) { display: none; }
 .events { margin: 0; padding-left: 18px; font-size: 13px; color: var(--ink-2); max-width: 90ch; }
 .events:empty { display: none; }
@@ -197,9 +197,9 @@ code { font: 12.5px ui-monospace, SFMono-Regular, Menlo, monospace; background: 
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 100 20 10 10 0 000-20zm6.93 6h-2.95a15.7 15.7 0 00-1.38-3.56A8.03 8.03 0 0118.93 8zM12 4.04c.83 1.2 1.48 2.53 1.91 3.96h-3.82c.43-1.43 1.08-2.76 1.91-3.96zM4.26 14a8.2 8.2 0 010-4h3.38a16.5 16.5 0 000 4H4.26zm.81 2h2.95c.32 1.25.78 2.45 1.38 3.56A7.99 7.99 0 015.07 16zm2.95-8H5.07a7.99 7.99 0 014.33-3.56A15.7 15.7 0 008.02 8zM12 19.96c-.83-1.2-1.48-2.53-1.91-3.96h3.82c-.43 1.43-1.08 2.76-1.91 3.96zM14.34 14H9.66a14.7 14.7 0 010-4h4.68a14.7 14.7 0 010 4zm.25 5.56c.6-1.11 1.06-2.31 1.38-3.56h2.95a8.03 8.03 0 01-4.33 3.56zM16.36 14a16.5 16.5 0 000-4h3.38a8.2 8.2 0 010 4h-3.38z"/></svg>
           <span class="vh">Maintained by Mike Waggoner</span>
         </a>
-        <a href="https://www.linkedin.com/in/mikehere" target="_blank" rel="noopener" title="Mike Waggoner on LinkedIn">
+        <a href="https://www.linkedin.com/in/mikehere" target="_blank" rel="noopener" title="LinkedIn">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.35V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 110-4.13 2.06 2.06 0 010 4.13zM7.12 20.45H3.56V9h3.56v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.73V1.73C24 .77 23.2 0 22.22 0z"/></svg>
-          <span class="vh">Mike Waggoner on LinkedIn</span>
+          <span class="vh">LinkedIn</span>
         </a>
         <a href="https://bsky.app/profile/herebox.org" target="_blank" rel="noopener" title="Bluesky @herebox.org">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5.2 2.6C7.95 4.67 10.9 8.86 12 11.13c1.1-2.27 4.05-6.46 6.8-8.53 1.98-1.49 5.2-2.65 5.2 1.03 0 .73-.42 6.16-.67 7.04-.86 3.06-3.98 3.84-6.76 3.37 4.86.83 6.1 3.57 3.43 6.31-5.07 5.2-7.29-1.31-7.86-2.97-.1-.31-.15-.45-.15-.33 0-.12-.05.02-.15.33-.57 1.66-2.79 8.17-7.86 2.97-2.67-2.74-1.43-5.48 3.43-6.31-2.78.47-5.9-.31-6.76-3.37C.42 9.79 0 4.36 0 3.63 0-.05 3.22 1.11 5.2 2.6z"/></svg>
@@ -227,11 +227,6 @@ code { font: 12.5px ui-monospace, SFMono-Regular, Menlo, monospace; background: 
 
   <section class="project" id="project" aria-label="Project"></section>
 
-  <section class="street" id="segments" aria-label="Choose a stretch of Vermont Avenue">
-    <div class="street-row"><div class="street-inner" id="street"></div></div>
-    <div class="street-foot"><span id="street-label"></span><button class="linkish" id="whole" type="button">Show the whole corridor - Select a segment to focus results</button></div>
-  </section>
-
   <h2 class="section-title" id="measured-times">Measured Times</h2>
   <section class="panel" id="measured">
     <h2>Timetable against measured speeds</h2>
@@ -248,6 +243,12 @@ code { font: 12.5px ui-monospace, SFMono-Regular, Menlo, monospace; background: 
   </section>
 
   <section class="stats" id="stats" aria-live="polite"></section>
+
+  <section class="street" id="segments" aria-label="Select segment">
+    <h3 class="sub-title">Select segment</h3>
+    <div class="street-row"><div class="street-inner" id="street"></div></div>
+    <div class="street-foot"><span id="street-label"></span><button class="linkish" id="whole" type="button">Show the whole corridor - Select a segment to focus results</button></div>
+  </section>
 
   <section class="project-dates" aria-label="Project dates">
     <h3>Project dates</h3>
@@ -331,7 +332,7 @@ code { font: 12.5px ui-monospace, SFMono-Regular, Menlo, monospace; background: 
     <span class="sep" aria-hidden="true">·</span>
     <a href="https://mikewaggoner.com" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 100 20 10 10 0 000-20zm6.93 6h-2.95a15.7 15.7 0 00-1.38-3.56A8.03 8.03 0 0118.93 8zM12 4.04c.83 1.2 1.48 2.53 1.91 3.96h-3.82c.43-1.43 1.08-2.76 1.91-3.96zM4.26 14a8.2 8.2 0 010-4h3.38a16.5 16.5 0 000 4H4.26zm.81 2h2.95c.32 1.25.78 2.45 1.38 3.56A7.99 7.99 0 015.07 16zm2.95-8H5.07a7.99 7.99 0 014.33-3.56A15.7 15.7 0 008.02 8zM12 19.96c-.83-1.2-1.48-2.53-1.91-3.96h3.82c-.43 1.43-1.08 2.76-1.91 3.96zM14.34 14H9.66a14.7 14.7 0 010-4h4.68a14.7 14.7 0 010 4zm.25 5.56c.6-1.11 1.06-2.31 1.38-3.56h2.95a8.03 8.03 0 01-4.33 3.56zM16.36 14a16.5 16.5 0 000-4h3.38a8.2 8.2 0 010 4h-3.38z"/></svg><span>Maintained by Mike Waggoner</span></a>
     <span class="sep" aria-hidden="true">·</span>
-    <a href="https://www.linkedin.com/in/mikehere" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.35V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 110-4.13 2.06 2.06 0 010 4.13zM7.12 20.45H3.56V9h3.56v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.73V1.73C24 .77 23.2 0 22.22 0z"/></svg><span>Mike Waggoner on LinkedIn</span></a>
+    <a href="https://www.linkedin.com/in/mikehere" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.35V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 110-4.13 2.06 2.06 0 010 4.13zM7.12 20.45H3.56V9h3.56v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.73V1.73C24 .77 23.2 0 22.22 0z"/></svg><span>LinkedIn</span></a>
     <span class="sep" aria-hidden="true">·</span>
     <a href="https://bsky.app/profile/herebox.org" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5.2 2.6C7.95 4.67 10.9 8.86 12 11.13c1.1-2.27 4.05-6.46 6.8-8.53 1.98-1.49 5.2-2.65 5.2 1.03 0 .73-.42 6.16-.67 7.04-.86 3.06-3.98 3.84-6.76 3.37 4.86.83 6.1 3.57 3.43 6.31-5.07 5.2-7.29-1.31-7.86-2.97-.1-.31-.15-.45-.15-.33 0-.12-.05.02-.15.33-.57 1.66-2.79 8.17-7.86 2.97-2.67-2.74-1.43-5.48 3.43-6.31-2.78.47-5.9-.31-6.76-3.37C.42 9.79 0 4.36 0 3.63 0-.05 3.22 1.11 5.2 2.6z"/></svg><span>Bluesky @herebox.org</span></a>
     <span class="sep" aria-hidden="true">·</span>

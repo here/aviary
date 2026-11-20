@@ -142,6 +142,9 @@ button:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
   .stretch em { padding-right: 0; }
 }
 .street-foot { display: flex; justify-content: space-between; gap: 12px; font-size: 12.5px; color: var(--ink-3); flex-wrap: wrap; }
+.section-title { margin: 8px 0 -6px; font-size: clamp(20px, 3vw, 26px); }
+.project-dates h3 { margin: 0 0 6px; font-size: 13px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); }
+.project-dates:has(.events:empty) { display: none; }
 .events { margin: 0; padding-left: 18px; font-size: 13px; color: var(--ink-2); max-width: 90ch; }
 .events:empty { display: none; }
 .events b { font-weight: 600; color: var(--ink); }
@@ -227,9 +230,9 @@ code { font: 12.5px ui-monospace, SFMono-Regular, Menlo, monospace; background: 
   <section class="street" id="segments" aria-label="Choose a stretch of Vermont Avenue">
     <div class="street-row"><div class="street-inner" id="street"></div></div>
     <div class="street-foot"><span id="street-label"></span><button class="linkish" id="whole" type="button">Show the whole corridor</button></div>
-    <ul class="events" id="events"></ul>
   </section>
 
+  <h2 class="section-title" id="measured-times">Measured Times</h2>
   <section class="panel" id="measured">
     <h2>Timetable against measured speeds</h2>
     <p id="obs-sub"></p>
@@ -245,6 +248,11 @@ code { font: 12.5px ui-monospace, SFMono-Regular, Menlo, monospace; background: 
   </section>
 
   <section class="stats" id="stats" aria-live="polite"></section>
+
+  <section class="project-dates" aria-label="Project dates">
+    <h3>Project dates</h3>
+    <ul class="events" id="events"></ul>
+  </section>
 
   <section class="panel" id="next-site" hidden>
     <h2>Measured through the next project site</h2>

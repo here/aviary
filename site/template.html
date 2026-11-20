@@ -229,7 +229,7 @@ code { font: 12.5px ui-monospace, SFMono-Regular, Menlo, monospace; background: 
 
   <section class="street" id="segments" aria-label="Choose a stretch of Vermont Avenue">
     <div class="street-row"><div class="street-inner" id="street"></div></div>
-    <div class="street-foot"><span id="street-label"></span><button class="linkish" id="whole" type="button">Show the whole corridor</button></div>
+    <div class="street-foot"><span id="street-label"></span><button class="linkish" id="whole" type="button">Show the whole corridor - Select a segment to focus results</button></div>
   </section>
 
   <h2 class="section-title" id="measured-times">Measured Times</h2>
@@ -352,6 +352,7 @@ const BANDS = [
 ];
 const state = { cor: "vermont", route: "204", dir: "both", day: "weekday", sec: "corridor" };
 try { Object.assign(state, JSON.parse(localStorage.getItem("aviary-filters-2") || "{}")); } catch (e) {}
+state.sec = "corridor";   // every visit starts on the whole corridor
 let C, M, YEARS;  // the corridor on screen, its month count and its years
 const secOf = id => C.sections.find(s => s.section_id === id);
 const hourName = h => (h % 12 || 12) + (h % 24 < 12 ? "am" : "pm");
@@ -364,11 +365,40 @@ function speed(m, h, sec = state.sec, st = state) {
   let inv = 0;
   for (const d of dirs) {
     const a = C.series[[st.route, d, sec, st.day].join("|")];
-    const v = a && a[m * 24 + h];
+    let v = a && a[m * 24 + h];
+    if (!v && sec === "corridor") v = corridorFromSections(m, h, d, st);
     if (!v) return null;
     inv += 100 / v;
   }
   return dirs.length / inv;
+}
+// Whole-corridor timetable speed (mph x 100) from the stretches this line serves, when no single trip covers them all.
+function corridorFromSections(m, h, d, st) {
+  let len = 0, time = 0;
+  for (const s of C.sections.slice(1)) {
+    const a = C.series[[st.route, d, s.section_id, st.day].join("|")], v = a && a[m * 24 + h];
+    if (v) { len += s.length_mi; time += s.length_mi / (v / 100); }
+  }
+  return len >= 0.4 * C.sections[0].length_mi && time ? len / time * 100 : null;
+}
+// Add whole-corridor rows to hourly measured rows (bus GPS, TomTom, HERE) for hours that have none, by adding up the
+// stretches measured in that hour (length over summed travel time), when they cover at least 40% of the street.
+function addCorridorRows(rows) {
+  if (!rows || rows._corridor) return rows;
+  const total = C.sections[0].length_mi, lenOf = Object.fromEntries(C.sections.map(s => [s.section_id, s.length_mi]));
+  const have = new Set(rows.filter(r => r.section === "corridor").map(r => [r.date, r.hour, r.direction, r.route].join("|")));
+  const acc = {};
+  for (const r of rows) {
+    if (r.section === "corridor" || !r.mph || !lenOf[r.section]) continue;
+    const k = [r.date, r.hour, r.direction, r.route].join("|");
+    if (have.has(k)) continue;
+    const a = (acc[k] ||= { r, len: 0, time: 0 });
+    a.len += lenOf[r.section]; a.time += lenOf[r.section] / r.mph;
+  }
+  for (const { r, len, time } of Object.values(acc))
+    if (len >= 0.4 * total) rows.push({ ...r, section: "corridor", mph: Math.round(len / time * 100) / 100, n: r.n, combined: true });
+  rows._corridor = true;
+  return rows;
 }
 // average over a set of months and hours, by averaging running time
 function avg(ms, hs, sec = state.sec) {
@@ -389,9 +419,8 @@ function useCorridor() {
   C = D.corridors[state.cor]; M = C.months.length; YEARS = [...new Set(C.months.map(m => m.slice(0, 4)))];
   if (hasBus() && !C.routes.some(r => r[0] === state.route)) state.route = C.routes[0][0];
   if (state.dir !== "both" && !C.directions.includes(state.dir)) state.dir = "both";
+  addCorridorRows(C.live); addCorridorRows(C.traffic); addCorridorRows(C.here);
   if (!secOf(state.sec)) state.sec = "corridor";
-  if (hasBus() && !span(state.sec)) { const s = C.sections.find(x => span(x.section_id)); if (s) state.sec = s.section_id; }
-  if (!hasBus() && !trafficSpeed(state.sec)) { const s = C.sections.find(x => trafficSpeed(x.section_id)); if (s) state.sec = s.section_id; }
 }
 
 function el(tag, attrs, parent, text) {
@@ -468,7 +497,6 @@ function renderStreet() {
   const d = describe();
   $("#street-label").textContent = `${C.ends[0]} ← ${C.street} → ${C.ends[1]} · showing ${d.where} (${d.len.toFixed(1)} mi)`;
   $("#events").innerHTML = C.events.map(e => `<li><b>${e.date || "Planned"}</b> · ${e.label}${e.status ? ` (${e.status})` : ""}</li>`).join("");
-  $("#whole").hidden = state.sec === "corridor";
 }
 
 const HIST_PERIODS = { "AM Peak": 0, "Midday": 1, "PM Peak": 2, "Evening": 3 };  // index into BANDS (same clock hours)
@@ -748,7 +776,7 @@ function render() {
   useCorridor(); renderControls();
   renderStats(); renderStreet(); renderObs(); renderHistory(); renderFocus(); renderIncidents(); renderProject();
 }
-function set(k, v) { state[k] = v; try { localStorage.setItem("aviary-filters-2", JSON.stringify(state)); } catch (e) {} render(); }
+function set(k, v) { state[k] = v; if (k === "cor") state.sec = "corridor"; try { localStorage.setItem("aviary-filters-2", JSON.stringify(state)); } catch (e) {} render(); }
 $("#whole").onclick = () => set("sec", "corridor");
 renderDeaths(); addEventListener("resize", () => renderDeaths());
 let rz; addEventListener("resize", () => { clearTimeout(rz); rz = setTimeout(render, 120); });

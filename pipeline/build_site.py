@@ -104,6 +104,35 @@ def history_rows(path: pathlib.Path) -> list:
              "p50": float(r.p50_mph), "len": float(r.length_mi)} for r in h.itertuples()]
 
 
+def jpeg_size(path: pathlib.Path):
+    """(width, height) of a JPEG from its frame header, without an imaging library."""
+    try:
+        b = path.read_bytes()
+        i = 2
+        while i < len(b) - 9:
+            if b[i] != 0xFF:
+                i += 1
+                continue
+            marker, seg = b[i + 1], int.from_bytes(b[i + 2:i + 4], "big")
+            if marker in (0xC0, 0xC1, 0xC2):
+                return int.from_bytes(b[i + 7:i + 9], "big"), int.from_bytes(b[i + 5:i + 7], "big")
+            i += 2 + seg
+    except OSError:
+        pass
+    return None
+
+
+def with_sizes(project, site_dir: pathlib.Path):
+    """Add each map's pixel width and height so the page can reserve its space before the image loads."""
+    if not project:
+        return project
+    for m in project.get("maps", []):
+        wh = jpeg_size(site_dir / m["src"])
+        if wh:
+            m["w"], m["h"] = wh
+    return project
+
+
 def focus_rows(root: pathlib.Path, cid: str) -> list:
     """Per focus segment and direction: bus passes timed so far, median and spread in seconds."""
     files = sorted((root / "observed").glob(f"{cid}_focus_traversals_*.csv"))
@@ -168,7 +197,7 @@ if __name__ == "__main__":
                 "name": cfg["name"].split(",")[0], "street": cfg["name"].split(",")[0], "ends": cfg.get("ends", ["West", "East"]),
                 "routes": [], "directions": [cfg["directions"]["increasing"], cfg["directions"]["decreasing"]],
                 "sections": [pc.total] + pc.sections, "breakpoints": [b[0] for b in cfg["breakpoints"]],
-                "events": events, "calitp": [], "live": [], "traffic": traffic, "here": here, "incidents": incidents, "project": cfg.get("project"), "history": [], "focus": [],
+                "events": events, "calitp": [], "live": [], "traffic": traffic, "here": here, "incidents": incidents, "project": with_sizes(cfg.get("project"), a.template.parent), "history": [], "focus": [],
             }
             continue
         sec = pd.read_csv(root / "sections.csv")
@@ -186,11 +215,12 @@ if __name__ == "__main__":
             "traffic": traffic,
             "here": here,
             "incidents": incidents,
-            "project": cfg.get("project"),
+            "project": with_sizes(cfg.get("project"), a.template.parent),
             "history": history_rows(root / "calitp" / f"{cfg['corridor_id']}_calitp_history.csv"),
             "focus": focus_rows(root, cfg["corridor_id"]),
         }
     order = ["vermont", "hollywood", "sunset", "pico", "olympic", "westwood", "fountain"]  # street picker order
+    with_sizes(corridors["vermont"]["project"], a.template.parent)
     corridors = dict(sorted(corridors.items(), key=lambda kv: order.index(kv[0]) if kv[0] in order else len(order)))
     deaths = {}
     fat = a.data / "reference" / "fatalities_ccrs.csv"

@@ -89,9 +89,9 @@ table.plain tr.group th { text-align: left; padding-top: 16px; font-family: var(
 .project-desc { margin: 0; max-width: 75ch; font-size: 14px; color: var(--ink-2); }
 .project-maps { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 520px)); gap: 12px; }
 .project-maps figure { margin: 0; border: 1px solid var(--grid); border-radius: 8px; overflow: hidden; background: var(--surface); }
-.project-maps img { display: block; width: 100%; max-height: 420px; object-fit: contain; background: #fff; }
+.project-maps img { display: block; width: 100%; height: auto; max-height: 420px; object-fit: contain; background: #fff; }
 .project-maps figure.wide { grid-column: 1 / -1; max-width: 1100px; }
-.project-maps figure.wide img { max-height: none; }
+.project-maps figure.wide img { max-height: min(640px, 80vh); height: auto; }
 .project-maps figcaption { padding: 6px 10px 8px; font-size: 12px; color: var(--ink-2); }
 .project-maps figcaption small { display: block; color: var(--ink-3); }
 table.inc { width: auto; min-width: min(100%, 420px); max-width: 100%; border-collapse: collapse; font-size: 13px; margin: 6px 0 4px; }
@@ -715,11 +715,14 @@ function renderFocus() {
     C.focus.map(f => `<tr><td>${f.name}</td><td>${cap(f.direction)}</td><td>${f.length_mi.toFixed(2)}</td><td>${f.n}</td><td>${f.median_s.toFixed(0)}</td><td>${f.p20_s.toFixed(0)} to ${f.p80_s.toFixed(0)}</td><td>${(f.length_mi / f.median_s * 3600).toFixed(1)}</td></tr>`).join("") + "</tbody>";
 }
 // Project link and map snapshots for the selected street (images live in site/maps/, credited).
+let projectShown = null;
 function renderProject() {
   const box = $("#project"), p = C.project || {};
+  if (projectShown === state.cor) return;   // unchanged: keep the images in place (no reload, no jump)
+  projectShown = state.cor;
   box.hidden = false;
   const esc = t => String(t).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
-  const fig = (mp, wide) => `<figure${wide || mp.wide ? ' class="wide"' : ""}><a href="${esc(mp.src)}" target="_blank" rel="noopener"><img src="${esc(mp.src)}" alt="${esc(mp.caption)}" loading="lazy"></a><figcaption>${esc(mp.caption)}<small>Source: <a href="${esc(mp.source)}" target="_blank" rel="noopener">${esc(mp.credit)}</a></small></figcaption></figure>`;
+  const fig = (mp, wide) => `<figure${wide || mp.wide ? ' class="wide"' : ""}><a href="${esc(mp.src)}" target="_blank" rel="noopener"><img src="${esc(mp.src)}" alt="${esc(mp.caption)}"${mp.w ? ` width="${mp.w}" height="${mp.h}"` : ""} loading="${wide ? "eager" : "lazy"}" decoding="async"></a><figcaption>${esc(mp.caption)}<small>Source: <a href="${esc(mp.source)}" target="_blank" rel="noopener">${esc(mp.credit)}</a></small></figcaption></figure>`;
   const maps = p.maps || [], best = maps[0], rest = maps.slice(1);
   box.innerHTML = `<h2 class="street-title">${esc(C.street)}</h2>` +
     (best ? `<div class="project-maps">${fig(best, true)}</div>` : "") +
@@ -806,8 +809,13 @@ function render() {
 }
 function set(k, v) { state[k] = v; if (k === "cor") state.sec = "corridor"; try { localStorage.setItem("aviary-filters-2", JSON.stringify(state)); } catch (e) {} render(); }
 $("#whole").onclick = () => set("sec", "corridor");
-renderDeaths(); addEventListener("resize", () => renderDeaths());
-let rz; addEventListener("resize", () => { clearTimeout(rz); rz = setTimeout(render, 120); });
+renderDeaths();
+let rz, lastW = innerWidth;
+addEventListener("resize", () => {
+  if (innerWidth === lastW) return;   // mobile browsers resize the height as their toolbars show and hide while scrolling
+  lastW = innerWidth;
+  clearTimeout(rz); rz = setTimeout(() => { render(); renderDeaths(); }, 150);
+});
 addEventListener("scroll", hideTip, { passive: true });
 render();
 </script>

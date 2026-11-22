@@ -26,7 +26,7 @@
 // 2,500. Stored gzipped under traffic/incidents/YYYY-MM-DD/HH/tomtom_incidents_YYYY-MM-DDTHHMM.json.gz and rolled
 // up by pipeline/build_incidents.py. /traffic/run?incidents=1 polls now (one request).
 //
-// GitHub trigger: at minute 17 of every hour, if GH_DISPATCH_TOKEN is set (a fine-grained token limited to here/aviary
+// GitHub trigger: at minute 25 of every hour, if GH_DISPATCH_TOKEN is set (a fine-grained token limited to here/aviary
 // with Actions: read and write), start the "Collect and roll up" workflow with workflow_dispatch. GitHub's own hourly
 // schedule skipped most runs (6 of about 31 ran on 2026-11-20/21); Cloudflare's cron is reliable.
 //
@@ -215,7 +215,7 @@ export default {
     const when = new Date(controller.scheduledTime), m = when.getUTCMinutes();
     if (m % 15 === 0) ctx.waitUntil(collect(env, when));
     if (m % INCIDENT_EVERY_MIN === 0) ctx.waitUntil(collectIncidents(env, when));
-    if (m === 17) ctx.waitUntil(dispatchCollect(env, when));
+    if (m === 25) ctx.waitUntil(dispatchCollect(env, when));   // must be a multiple of 5: the cron fires every 5 minutes
   },
   async fetch(request, env) {
     const url = new URL(request.url);

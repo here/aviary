@@ -72,7 +72,7 @@ Facts about programmes, prices and terms are from search summaries (2026-11-18);
 |---|---|---|
 | D0 | Free-tier usage (`docs/FREE_TIERS.md`). Owner: check the TomTom dashboard usage counter and whether a payment method is attached (and the same for HERE) | ongoing |
 | D1 | Scheduled runs are unreliable: from 2026-11-20 17:00 to 2026-11-22 00:30 UTC GitHub ran "Collect and roll up" only 6 times instead of about 31 (gaps of 4 to 8 hours). No data is lost while gaps stay under the two-day download window (R2 raw/ keeps 7 days), but the page goes stale | ongoing; see D6 |
-| D6 | Trigger "Collect and roll up" hourly from the traffic Worker's cron (minute 25, `workflow_dispatch` via the GitHub API) | **in progress** (2026-11-22): token added and copied into the Worker; first attempt set for minute 17 never fired (the cron runs every 5 minutes), moved to minute 25; confirm the first dispatch |
+| D6 | Trigger "Collect and roll up" hourly from the traffic Worker's cron (minute 25, `workflow_dispatch` via the GitHub API) | **done (2026-11-22)**: first dispatch at 10:25 UTC returned 204 and started run 11; GitHub's own schedule stays as a backup. Token `GH_DISPATCH_TOKEN` expires on the date the owner chose: renew it then |
 | D2 | GBFS: expiry or compaction for `gbfs/` | later |
 | D3 | Lime GBFS feed (404) | later |
 | D4 | Rename "Vermont" leftovers (`aviary-vermont-speeds` Worker and bucket) if wanted | later (owner decision) |

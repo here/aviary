@@ -87,11 +87,11 @@ table.plain tr.group th { text-align: left; padding-top: 16px; font-family: var(
 .project-head a { color: var(--accent); font-weight: 600; }
 .street-title { margin: 6px 0 0; font-size: clamp(22px, 3.4vw, 30px); }
 .project-desc { margin: 0; max-width: 75ch; font-size: 14px; color: var(--ink-2); }
-.project-maps { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 520px)); gap: 12px; }
+/* maps: one per row, as large as the screen allows; on wide screens they extend past the text column up to 1400px */
+.project-maps { --mapw: min(1400px, calc(100vw - 32px)); display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px;
+  width: max(100%, var(--mapw)); margin-inline: calc((100% - max(100%, var(--mapw))) / 2); }
+.project-maps img { display: block; width: 100%; height: auto; background: #fff; }
 .project-maps figure { margin: 0; border: 1px solid var(--grid); border-radius: 8px; overflow: hidden; background: var(--surface); }
-.project-maps img { display: block; width: 100%; height: auto; max-height: 420px; object-fit: contain; background: #fff; }
-.project-maps figure.wide { grid-column: 1 / -1; max-width: 1100px; }
-.project-maps figure.wide img { max-height: min(640px, 80vh); height: auto; }
 .project-maps figcaption { padding: 6px 10px 8px; font-size: 12px; color: var(--ink-2); }
 .project-maps figcaption small { display: block; color: var(--ink-3); }
 table.inc { width: auto; min-width: min(100%, 420px); max-width: 100%; border-collapse: collapse; font-size: 13px; margin: 6px 0 4px; }

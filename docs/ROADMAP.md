@@ -70,7 +70,8 @@ Facts about programmes, prices and terms are from search summaries (2026-11-18);
 | # | Task | Status |
 |---|---|---|
 | D0 | Free-tier usage (`docs/FREE_TIERS.md`). Owner: check the TomTom dashboard usage counter and whether a payment method is attached (and the same for HERE) | ongoing |
-| D1 | Watch that scheduled workflow runs keep firing (GitHub drops some); a day without a run loses minute files | ongoing |
+| D1 | Scheduled runs are unreliable: from 2026-11-20 17:00 to 2026-11-22 00:30 UTC GitHub ran "Collect and roll up" only 6 times instead of about 31 (gaps of 4 to 8 hours). No data is lost while gaps stay under the two-day download window (R2 raw/ keeps 7 days), but the page goes stale | ongoing; see D6 |
+| D6 | Trigger "Collect and roll up" hourly from a Cloudflare Worker cron (`workflow_dispatch` via the GitHub API) instead of GitHub's schedule. Needs a fine-grained GitHub token with Actions read and write on here/aviary, stored as a Worker secret | next (owner to create the token) |
 | D2 | GBFS: expiry or compaction for `gbfs/` | later |
 | D3 | Lime GBFS feed (404) | later |
 | D4 | Rename "Vermont" leftovers (`aviary-vermont-speeds` Worker and bucket) if wanted | later (owner decision) |

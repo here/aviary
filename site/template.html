@@ -46,7 +46,7 @@ header { display: flex; flex-direction: column; gap: 10px; }
 .social a:hover { color: var(--ink); border-color: var(--ink-3); }
 .social a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .social svg { width: 18px; height: 18px; fill: currentColor; }
-.toc { display: flex; flex-wrap: wrap; gap: 6px; }
+.toc { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; }
 .toc a { font-size: 13px; color: var(--ink-2); text-decoration: none; padding: 5px 10px; border: 1px solid var(--ring); border-radius: 999px; background: var(--surface); }
 .toc a:hover { color: var(--ink); border-color: var(--ink-3); }
 .toc a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
@@ -88,9 +88,8 @@ table.plain tr.group th { text-align: left; padding-top: 16px; font-family: var(
 .project-head a { color: var(--accent); font-weight: 600; }
 .street-title { margin: 6px 0 0; font-size: clamp(22px, 3.4vw, 30px); }
 .project-desc { margin: 0; max-width: 75ch; font-size: 14px; color: var(--ink-2); }
-/* maps: one per row, as large as the screen allows; on wide screens they extend past the text column up to 1400px */
-.project-maps { --mapw: min(1400px, calc(100vw - 32px)); display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px;
-  width: max(100%, var(--mapw)); margin-inline: calc((100% - max(100%, var(--mapw))) / 2); }
+/* maps: one per row, within the text column with a 2% margin each side (never wider than their image files) */
+.project-maps { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; width: 96%; margin-inline: 2%; }
 .project-maps img { display: block; width: 100%; height: auto; background: #fff; }
 .project-maps figure { width: 100%; justify-self: center; }
 .project-maps figure { margin: 0; border: 1px solid var(--grid); border-radius: 8px; overflow: hidden; background: var(--surface); }
@@ -113,7 +112,7 @@ table.inc .num { text-align: right; font-variant-numeric: tabular-nums; }
 @media (max-width: 640px) { .stats { grid-template-columns: minmax(0, 1fr); } .stat + .stat { padding-left: 0; border-left: 0; border-top: 1px solid var(--grid); } }
 
 /* Controls: two aligned columns (Street | Line, Direction | Days) on wide screens, one column on phones. */
-.controls { display: grid; grid-template-columns: max-content max-content; gap: 14px 40px; align-items: start; justify-content: start; }
+.controls { display: grid; grid-template-columns: max-content max-content; gap: 14px 40px; align-items: start; justify-content: center; }
 .controls:not(.controls-filters) .ctl:first-child { grid-column: 1 / -1; } /* seven streets need the full width */
 @media (max-width: 760px) { .controls { grid-template-columns: minmax(0, 1fr); gap: 12px; } }
 /* the street picker wraps instead of scrolling whenever seven streets do not fit on one line */
@@ -125,9 +124,9 @@ table.inc .num { text-align: right; font-variant-numeric: tabular-nums; }
   .seg { flex-wrap: wrap; gap: 6px; border: 0; background: none; overflow: visible; }
   .seg button, .seg button + button { border: 1px solid var(--ring); border-radius: 8px; background: var(--surface); }
 }
-.ctl { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; min-width: 0; }
+.ctl { display: flex; flex-direction: column; align-items: center; gap: 6px; min-width: 0; }
 .ctl > span { font-size: 11.5px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); }
-.seg { display: inline-flex; max-width: 100%; overflow-x: auto; border: 1px solid var(--ring); border-radius: 8px; background: var(--surface); }
+.seg { display: inline-flex; justify-content: center; max-width: 100%; overflow-x: auto; border: 1px solid var(--ring); border-radius: 8px; background: var(--surface); }
 .seg button { font: 500 13.5px var(--body); color: var(--ink-2); background: none; border: 0; padding: 8px 14px; cursor: pointer; white-space: nowrap; min-height: 36px; }
 .seg button + button { border-left: 1px solid var(--ring); }
 .seg button[aria-pressed="true"] { background: var(--accent-soft); color: var(--ink); font-weight: 600; }

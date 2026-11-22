@@ -26,6 +26,9 @@ env:
   AWS_DEFAULT_REGION: auto
   AWS_REQUEST_CHECKSUM_CALCULATION: when_required
   AWS_RESPONSE_CHECKSUM_VALIDATION: when_required
+  # R2 sometimes answers "InternalError ... please try again"; retry harder than the CLI's default of 2 attempts
+  AWS_RETRY_MODE: standard
+  AWS_MAX_ATTEMPTS: "8"
 jobs:
   collect:
     runs-on: ubuntu-latest
@@ -45,7 +48,8 @@ jobs:
         run: |
           for day in "$(date -u +%F)" "$(date -u -d yesterday +%F)"; do
             aws s3 sync "s3://$R2_BUCKET/raw/$day/" "run/raw/$day/" --only-show-errors \
-              --endpoint-url "https://$CLOUDFLARE_ACCOUNT_ID.r2.cloudflarestorage.com"
+              --endpoint-url "https://$CLOUDFLARE_ACCOUNT_ID.r2.cloudflarestorage.com" \
+              || echo "::warning::R2 download failed for $day; continuing with what was fetched"
           done
 
       - name: Download and convert Swiftly snapshots
@@ -53,7 +57,8 @@ jobs:
         run: |
           for day in "$(date -u +%F)" "$(date -u -d yesterday +%F)"; do
             aws s3 sync "s3://$R2_BUCKET/swiftly/vp/$day/" "run/swiftly/vp/$day/" --only-show-errors \
-              --endpoint-url "https://$CLOUDFLARE_ACCOUNT_ID.r2.cloudflarestorage.com"
+              --endpoint-url "https://$CLOUDFLARE_ACCOUNT_ID.r2.cloudflarestorage.com" \
+              || echo "::warning::R2 download failed for $day; continuing with what was fetched"
           done
           if [ -d run/swiftly/vp ]; then
             python pipeline/swiftly_to_pings.py --in run/swiftly/vp --out run/raw/swiftly
@@ -64,7 +69,8 @@ jobs:
         run: |
           for day in "$(date -u +%F)" "$(date -u -d yesterday +%F)"; do
             aws s3 sync "s3://$R2_BUCKET/traffic/tomtom/$day/" "run/traffic/tomtom/$day/" --only-show-errors \
-              --endpoint-url "https://$CLOUDFLARE_ACCOUNT_ID.r2.cloudflarestorage.com"
+              --endpoint-url "https://$CLOUDFLARE_ACCOUNT_ID.r2.cloudflarestorage.com" \
+              || echo "::warning::R2 download failed for $day; continuing with what was fetched"
           done
           if [ -d run/traffic/tomtom ]; then
             python pipeline/build_traffic.py --raw run/traffic/tomtom
@@ -72,7 +78,8 @@ jobs:
           # HERE flow (every 90 minutes, one file per street), a cross-check on TomTom
           for day in "$(date -u +%F)" "$(date -u -d yesterday +%F)"; do
             aws s3 sync "s3://$R2_BUCKET/traffic/here/$day/" "run/traffic/here/$day/" --only-show-errors \
-              --endpoint-url "https://$CLOUDFLARE_ACCOUNT_ID.r2.cloudflarestorage.com"
+              --endpoint-url "https://$CLOUDFLARE_ACCOUNT_ID.r2.cloudflarestorage.com" \
+              || echo "::warning::R2 download failed for $day; continuing with what was fetched"
           done
           if [ -d run/traffic/here ]; then
             python pipeline/build_traffic.py --provider here --raw run/traffic/here || echo "HERE roll-up failed"
@@ -80,7 +87,8 @@ jobs:
           # TomTom incidents (every 20 minutes, one box over all streets)
           for day in "$(date -u +%F)" "$(date -u -d yesterday +%F)"; do
             aws s3 sync "s3://$R2_BUCKET/traffic/incidents/$day/" "run/traffic/incidents/$day/" --only-show-errors \
-              --endpoint-url "https://$CLOUDFLARE_ACCOUNT_ID.r2.cloudflarestorage.com"
+              --endpoint-url "https://$CLOUDFLARE_ACCOUNT_ID.r2.cloudflarestorage.com" \
+              || echo "::warning::R2 download failed for $day; continuing with what was fetched"
           done
           if [ -d run/traffic/incidents ]; then
             python pipeline/build_incidents.py --raw run/traffic/incidents || echo "incident roll-up failed"

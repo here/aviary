@@ -34,12 +34,11 @@ h2 { font-size: 19px; }
 p { margin: 0; }
 a { color: var(--accent); }
 .eyebrow { font-size: 12px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
-.lede { color: var(--ink-2); max-width: 66ch; }
+.lede { color: var(--ink-2); max-width: 66ch; margin-inline: auto; text-align: center; }
 header { display: flex; flex-direction: column; gap: 10px; }
-.topbar { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
+.topbar { display: flex; flex-direction: column; align-items: center; gap: 12px; text-align: center; }
 .topbar h1 { min-width: 0; }
-@media (max-width: 600px) { .topbar { flex-direction: column-reverse; gap: 12px; } .social { margin-left: 0; } }
-.social { flex: none; margin-left: auto; }
+.social { flex: none; }
 .social { display: flex; gap: 6px; }
 .social a { display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 8px;
   color: var(--ink-2); border: 1px solid var(--ring); background: var(--surface); }

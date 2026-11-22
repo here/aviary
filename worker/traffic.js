@@ -26,6 +26,10 @@
 // 2,500. Stored gzipped under traffic/incidents/YYYY-MM-DD/HH/tomtom_incidents_YYYY-MM-DDTHHMM.json.gz and rolled
 // up by pipeline/build_incidents.py. /traffic/run?incidents=1 polls now (one request).
 //
+// GitHub trigger: at minute 17 of every hour, if GH_DISPATCH_TOKEN is set (a fine-grained token limited to here/aviary
+// with Actions: read and write), start the "Collect and roll up" workflow with workflow_dispatch. GitHub's own hourly
+// schedule skipped most runs (6 of about 31 ran on 2026-11-20/21); Cloudflare's cron is reliable.
+//
 // The cron fires every 5 minutes and each job checks the minute: flow tiles at :00/:15/:30/:45, incidents at
 // :00/:20/:40, HERE every 90 minutes from 00:00 UTC.
 
@@ -181,6 +185,29 @@ async function collectIncidents(env, when = new Date()) {
   return status;
 }
 
+async function dispatchCollect(env, when = new Date()) {
+  const status = { at: when.toISOString() };
+  if (!env.GH_DISPATCH_TOKEN) {
+    status.error = "GH_DISPATCH_TOKEN secret not set";
+  } else {
+    try {
+      const r = await fetch("https://api.github.com/repos/here/aviary/actions/workflows/collect.yml/dispatches", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${env.GH_DISPATCH_TOKEN}`, Accept: "application/vnd.github+json",
+                   "X-GitHub-Api-Version": "2022-11-28", "User-Agent": "aviary-traffic-collector", "Content-Type": "application/json" },
+        body: JSON.stringify({ ref: "main" }),
+        signal: AbortSignal.timeout(20000),
+      });
+      status.http = r.status;   // 204 = run queued
+      if (r.status !== 204) status.error = (await r.text()).slice(0, 200);
+    } catch (e) {
+      status.error = String(e.message || e);
+    }
+  }
+  await env.ARCHIVE.put("status/dispatch.json", JSON.stringify(status), { httpMetadata: { contentType: "application/json" } });
+  return status;
+}
+
 const json = (b, s = 200) => new Response(JSON.stringify(b, null, 2), { status: s, headers: { "content-type": "application/json; charset=utf-8", "cache-control": "no-store" } });
 
 export default {
@@ -188,14 +215,15 @@ export default {
     const when = new Date(controller.scheduledTime), m = when.getUTCMinutes();
     if (m % 15 === 0) ctx.waitUntil(collect(env, when));
     if (m % INCIDENT_EVERY_MIN === 0) ctx.waitUntil(collectIncidents(env, when));
+    if (m === 17) ctx.waitUntil(dispatchCollect(env, when));
   },
   async fetch(request, env) {
     const url = new URL(request.url);
     const path = url.pathname.replace(/^\/traffic/, "") || "/";
     if (path === "/status") {
-      const o = await env.ARCHIVE.get("status/traffic.json"), i = await env.ARCHIVE.get("status/incidents.json");
+      const o = await env.ARCHIVE.get("status/traffic.json"), i = await env.ARCHIVE.get("status/incidents.json"), g = await env.ARCHIVE.get("status/dispatch.json");
       const base = o ? await o.json() : { at: null, error: "not run yet", tomtom_key: !!env.TOMTOM_API_KEY, here_key: !!env.HERE_API_KEY, tiles: TT_TILES };
-      return json({ ...base, incidents: i ? await i.json() : "not run yet" });
+      return json({ ...base, incidents: i ? await i.json() : "not run yet", github_dispatch: g ? await g.json() : "not run yet" });
     }
     if (path === "/run") {
       if (url.searchParams.get("incidents") === "1") return json(await collectIncidents(env));

@@ -101,6 +101,16 @@ table.inc th, table.inc td { white-space: normal; }
 table.inc th { vertical-align: bottom; }
 table.inc th, table.inc td { padding: 4px 10px 4px 0; border-bottom: 1px solid var(--grid); text-align: left; }
 table.inc .num { text-align: right; font-variant-numeric: tabular-nums; }
+table.community-summary { width: 100%; border-collapse: collapse; table-layout: fixed; margin: 4px 0; }
+table.community-summary th, table.community-summary td { text-align: left; white-space: normal; padding: 7px 10px 7px 0; vertical-align: top; }
+table.community-summary th:first-child, table.community-summary td:first-child { padding-left: 0; }
+.community-count { margin: 0; font-size: 16px; text-align: center; color: var(--ink-2); }
+.community-detail { margin-top: 10px; }
+.community-detail summary { cursor: pointer; font-weight: 600; color: var(--accent); font-size: 16px; }
+.community-detail table { margin-top: 8px; }
+.muted { color: var(--ink-3); }
+.pro { color: var(--s3); font-weight: 600; }
+.con { color: var(--accent); font-weight: 600; }
 .vision-zero { margin-top: 10px; display: flex; flex-direction: column; gap: 6px; }
 .vz-links { margin: 0; padding-left: 18px; font-size: 16.5px; }
 .vz-links a { color: var(--accent); }
@@ -316,6 +326,15 @@ code { font: 15px ui-monospace, SFMono-Regular, Menlo, monospace; background: va
         <figcaption>Source: <a href="https://visionzeronetwork.org/applying-the-health-impact-pyramid-to-roadway-safety/" target="_blank" rel="noopener">Vision Zero Network</a>. The Safe System Pyramid was adapted from the Health Impact Pyramid to more fully address roadway safety needs: Ederer, Panik, Botchwey and Watkins, &ldquo;<a href="https://www.sciencedirect.com/science/article/pii/S2590198223001525" target="_blank" rel="noopener">The Safe Systems Pyramid: A new framework for traffic safety</a>,&rdquo; <i>Transportation Research Interdisciplinary Perspectives</i> 21 (2023).</figcaption>
       </figure>
     </div>
+  </section>
+
+  <section class="panel community" id="community" aria-label="Community comment" hidden>
+    <h2>Community Comment</h2>
+    <div id="community-summary"></div>
+    <details class="community-detail">
+      <summary id="community-toggle">References</summary>
+      <div class="table-wrap" id="community-table"></div>
+    </details>
   </section>
 
   <section class="panel" id="sources">
@@ -716,6 +735,26 @@ function renderFocus() {
   $("#focus-tbl").innerHTML = `<thead><tr><th>Segment</th><th>Direction</th><th>Miles</th><th>Bus passes</th><th>Middle pass, seconds</th><th>20th to 80th percentile</th><th>mph</th></tr></thead><tbody>` +
     C.focus.map(f => `<tr><td>${f.name}</td><td>${cap(f.direction)}</td><td>${f.length_mi.toFixed(2)}</td><td>${f.n}</td><td>${f.median_s.toFixed(0)}</td><td>${f.p20_s.toFixed(0)} to ${f.p80_s.toFixed(0)}</td><td>${(f.length_mi / f.median_s * 3600).toFixed(1)}</td></tr>`).join("") + "</tbody>";
 }
+// Community comment (streets with a "community" block): summary always visible, references in a collapsed table.
+function renderCommunity() {
+  const box = $("#community"), cm = C.community;
+  if (!cm) { box.hidden = true; return; }
+  box.hidden = false;
+  const esc = t => String(t ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  const refs = cm.references || [], con = cm.concerns || [], pro = cm.benefits || [];
+  let rows = "";
+  for (let i = 0; i < 5; i++) rows += `<tr><td>${con[i] ? esc(con[i]) : "<span class=\"muted\">–</span>"}</td><td>${pro[i] ? esc(pro[i]) : "<span class=\"muted\">–</span>"}</td></tr>`;
+  $("#community-summary").innerHTML = `<p class="community-count"><b>${refs.length}</b> reference${refs.length === 1 ? "" : "s"} collected</p>` +
+    `<table class="community-summary"><thead><tr><th>Top concerns</th><th>Top benefits</th></tr></thead><tbody>${rows}</tbody></table>` +
+    (con.length || pro.length ? "" : `<p class="deaths-note">Concerns and benefits will be summarised here from the references below.</p>`);
+  $("#community-toggle").textContent = `References (${refs.length})`;
+  const cell = v => v == null || v === "" ? `<span class="muted">–</span>` : esc(v);
+  const sent = v => v === "pro" ? `<span class="pro">Pro</span>` : v === "con" ? `<span class="con">Con</span>` : v === "mixed" ? "Mixed" : cell(v);
+  $("#community-table").innerHTML = `<table class="inc"><thead><tr><th>Date</th><th>Sentiment</th><th>Title</th><th>Source</th><th>Author</th><th class="num">Comments</th></tr></thead><tbody>` +
+    refs.map(r => `<tr><td>${cell(r.date)}</td><td>${sent(r.sentiment)}</td><td><a href="${esc(r.url)}" target="_blank" rel="noopener">${esc(r.title)}</a></td><td>${cell(r.source)}</td><td>${cell(r.author)}</td><td class="num">${cell(r.comments)}</td></tr>`).join("") +
+    `</tbody></table>`;
+}
+
 // Project link and map snapshots for the selected street (images live in site/maps/, credited).
 let projectShown = null;
 function renderProject() {
@@ -813,7 +852,7 @@ function renderDeaths() {
 
 function render() {
   useCorridor(); renderControls();
-  renderStats(); renderStreet(); renderObs(); renderHistory(); renderFocus(); renderIncidents(); renderProject();
+  renderStats(); renderStreet(); renderObs(); renderHistory(); renderFocus(); renderIncidents(); renderProject(); renderCommunity();
 }
 function set(k, v) { state[k] = v; if (k === "cor") state.sec = "corridor"; try { localStorage.setItem("aviary-filters-2", JSON.stringify(state)); } catch (e) {} render(); }
 $("#whole").onclick = () => set("sec", "corridor");

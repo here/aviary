@@ -217,6 +217,7 @@ if __name__ == "__main__":
             "incidents": incidents,
             "project": with_sizes(cfg.get("project"), a.template.parent),
             "community": cfg.get("community"),
+            "focus_title": cfg.get("focus_title"),
             "history": history_rows(root / "calitp" / f"{cfg['corridor_id']}_calitp_history.csv"),
             "focus": focus_rows(root, cfg["corridor_id"]),
         }

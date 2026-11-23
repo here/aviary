@@ -98,6 +98,7 @@ table.plain tr.group th { text-align: left; padding-top: 16px; font-family: var(
 .project-maps figcaption small { display: block; color: var(--ink-3); font-size: 14px; }
 table.inc { width: auto; min-width: min(100%, 420px); max-width: 100%; border-collapse: collapse; font-size: 15.5px; margin: 6px 0 4px; }
 table.inc th, table.inc td { white-space: normal; }
+#focus-tbl th, #focus-tbl td { white-space: normal; }
 table.inc th { vertical-align: bottom; }
 table.inc th, table.inc td { padding: 4px 10px 4px 0; border-bottom: 1px solid var(--grid); text-align: left; }
 table.inc .num { text-align: right; font-variant-numeric: tabular-nums; }
@@ -280,7 +281,7 @@ code { font: 15px ui-monospace, SFMono-Regular, Menlo, monospace; background: va
   </section>
 
   <section class="panel" id="next-site" hidden>
-    <h2>Measured through the next project site</h2>
+    <h2 id="focus-title">Measured through the next project site</h2>
     <p id="focus-sub"></p>
     <div class="tablewrap"><table id="focus-tbl"></table></div>
   </section>
@@ -730,10 +731,11 @@ function renderFocus() {
   const ready = C.focus.length > 0 && C.focus.reduce((s, f) => s + f.n, 0) >= FOCUS_MIN_PASSES;
   $("#next-site").hidden = !ready;
   if (!ready) return;
+  $("#focus-title").textContent = C.focus_title || "Measured through the next project site";
   const n = Math.max(...C.focus.map(f => f.n)), f0 = C.focus[0];
   $("#focus-sub").textContent = `Every line 2 bus is timed by GPS through the stretch LADOT plans to rebuild next, by the Vista Theatre. This is the record of conditions before the project. Collection began ${f0.first}; the most-sampled row has ${n} bus pass${n === 1 ? "" : "es"} so far, so treat early figures as a test of the method.`;
-  $("#focus-tbl").innerHTML = `<thead><tr><th>Segment</th><th>Direction</th><th>Miles</th><th>Bus passes</th><th>Middle pass, seconds</th><th>20th to 80th percentile</th><th>mph</th></tr></thead><tbody>` +
-    C.focus.map(f => `<tr><td>${f.name}</td><td>${cap(f.direction)}</td><td>${f.length_mi.toFixed(2)}</td><td>${f.n}</td><td>${f.median_s.toFixed(0)}</td><td>${f.p20_s.toFixed(0)} to ${f.p80_s.toFixed(0)}</td><td>${(f.length_mi / f.median_s * 3600).toFixed(1)}</td></tr>`).join("") + "</tbody>";
+  $("#focus-tbl").innerHTML = `<thead><tr><th>Segment</th><th>Direction</th><th>Miles</th><th>Bus passes</th><th>Median, sec</th><th>20th–80th, sec</th><th>mph</th></tr></thead><tbody>` +
+    C.focus.map(f => `<tr><td>${f.name.replace(/\s*\([^)]*\)/g, "")}</td><td>${cap(f.direction)}</td><td>${f.length_mi.toFixed(2)}</td><td>${f.n}</td><td>${f.median_s.toFixed(0)}</td><td>${f.p20_s.toFixed(0)} to ${f.p80_s.toFixed(0)}</td><td>${(f.length_mi / f.median_s * 3600).toFixed(1)}</td></tr>`).join("") + "</tbody>";
 }
 // Community comment (streets with a "community" block): summary always visible, references in a collapsed table.
 function renderCommunity() {

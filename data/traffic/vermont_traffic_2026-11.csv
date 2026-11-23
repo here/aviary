@@ -1833,3 +1833,17 @@ vermont,2026-11-23T14:00:00Z,2026-11-23T06:00:00-0800,southbound,S4,20.77,20.78,
 vermont,2026-11-23T14:00:00Z,2026-11-23T06:00:00-0800,southbound,S5,23.03,23.72,5.13,1.971,1.0,0.0,4,tomtom_traffic_flow
 vermont,2026-11-23T14:00:00Z,2026-11-23T06:00:00-0800,southbound,S6,25.34,27.61,5.21,2.199,1.0,0.0,4,tomtom_traffic_flow
 vermont,2026-11-23T14:00:00Z,2026-11-23T06:00:00-0800,southbound,corridor,20.87,21.96,33.59,11.682,1.0,0.0,4,tomtom_traffic_flow
+vermont,2026-11-23T15:00:00Z,2026-11-23T07:00:00-0800,northbound,S1,15.64,19.87,9.49,2.474,1.0,0.0,2,tomtom_traffic_flow
+vermont,2026-11-23T15:00:00Z,2026-11-23T07:00:00-0800,northbound,S2,13.95,21.09,6.44,1.496,1.0,0.0,2,tomtom_traffic_flow
+vermont,2026-11-23T15:00:00Z,2026-11-23T07:00:00-0800,northbound,S3,19.55,22.18,4.61,1.502,1.0,0.0,2,tomtom_traffic_flow
+vermont,2026-11-23T15:00:00Z,2026-11-23T07:00:00-0800,northbound,S4,17.95,21.15,6.82,2.04,1.0,0.0,2,tomtom_traffic_flow
+vermont,2026-11-23T15:00:00Z,2026-11-23T07:00:00-0800,northbound,S5,24.9,25.98,4.75,1.971,1.0,0.0,2,tomtom_traffic_flow
+vermont,2026-11-23T15:00:00Z,2026-11-23T07:00:00-0800,northbound,S6,22.24,26.51,5.93,2.199,1.0,0.0,2,tomtom_traffic_flow
+vermont,2026-11-23T15:00:00Z,2026-11-23T07:00:00-0800,northbound,corridor,18.43,22.53,38.04,11.682,1.0,0.0,2,tomtom_traffic_flow
+vermont,2026-11-23T15:00:00Z,2026-11-23T07:00:00-0800,southbound,S1,14.85,19.68,10.0,2.474,1.0,0.0,2,tomtom_traffic_flow
+vermont,2026-11-23T15:00:00Z,2026-11-23T07:00:00-0800,southbound,S2,17.19,21.09,5.22,1.496,1.0,0.0,2,tomtom_traffic_flow
+vermont,2026-11-23T15:00:00Z,2026-11-23T07:00:00-0800,southbound,S3,19.0,19.8,4.74,1.502,1.0,0.0,2,tomtom_traffic_flow
+vermont,2026-11-23T15:00:00Z,2026-11-23T07:00:00-0800,southbound,S4,18.93,20.99,6.47,2.04,1.0,0.0,2,tomtom_traffic_flow
+vermont,2026-11-23T15:00:00Z,2026-11-23T07:00:00-0800,southbound,S5,20.09,23.76,5.89,1.971,1.0,0.0,2,tomtom_traffic_flow
+vermont,2026-11-23T15:00:00Z,2026-11-23T07:00:00-0800,southbound,S6,26.52,27.58,4.97,2.199,1.0,0.0,2,tomtom_traffic_flow
+vermont,2026-11-23T15:00:00Z,2026-11-23T07:00:00-0800,southbound,corridor,18.8,21.94,37.29,11.682,1.0,0.0,2,tomtom_traffic_flow

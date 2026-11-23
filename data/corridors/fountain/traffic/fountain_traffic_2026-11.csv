@@ -1439,3 +1439,15 @@ fountain,2026-11-23T03:00:00Z,2026-11-22T19:00:00-0800,westbound,S3,17.59,23.42,
 fountain,2026-11-23T03:00:00Z,2026-11-22T19:00:00-0800,westbound,S4,14.01,16.77,1.37,0.32,1.0,0.0,4,tomtom_traffic_flow
 fountain,2026-11-23T03:00:00Z,2026-11-22T19:00:00-0800,westbound,S5,12.37,14.69,3.32,0.685,1.0,0.0,4,tomtom_traffic_flow
 fountain,2026-11-23T03:00:00Z,2026-11-22T19:00:00-0800,westbound,S6,15.25,17.09,4.0,1.016,0.669,0.0,4,tomtom_traffic_flow
+fountain,2026-11-23T04:00:00Z,2026-11-22T20:00:00-0800,eastbound,S1,,,,0.542,0.2,0.0,2,tomtom_traffic_flow
+fountain,2026-11-23T04:00:00Z,2026-11-22T20:00:00-0800,eastbound,S2,14.51,21.71,1.32,0.32,1.0,0.0,2,tomtom_traffic_flow
+fountain,2026-11-23T04:00:00Z,2026-11-22T20:00:00-0800,eastbound,S3,16.59,21.11,3.53,0.976,1.0,0.0,2,tomtom_traffic_flow
+fountain,2026-11-23T04:00:00Z,2026-11-22T20:00:00-0800,eastbound,S4,15.53,19.18,1.24,0.32,1.0,0.0,2,tomtom_traffic_flow
+fountain,2026-11-23T04:00:00Z,2026-11-22T20:00:00-0800,eastbound,S5,14.69,18.88,2.8,0.685,1.0,0.0,2,tomtom_traffic_flow
+fountain,2026-11-23T04:00:00Z,2026-11-22T20:00:00-0800,eastbound,S6,14.88,18.56,4.1,1.016,0.737,0.0,2,tomtom_traffic_flow
+fountain,2026-11-23T04:00:00Z,2026-11-22T20:00:00-0800,westbound,S1,,,,0.542,0.468,0.0,2,tomtom_traffic_flow
+fountain,2026-11-23T04:00:00Z,2026-11-22T20:00:00-0800,westbound,S2,18.72,22.66,1.03,0.32,1.0,0.0,2,tomtom_traffic_flow
+fountain,2026-11-23T04:00:00Z,2026-11-22T20:00:00-0800,westbound,S3,17.33,24.23,3.38,0.976,1.0,0.0,2,tomtom_traffic_flow
+fountain,2026-11-23T04:00:00Z,2026-11-22T20:00:00-0800,westbound,S4,14.03,18.06,1.37,0.32,1.0,0.0,2,tomtom_traffic_flow
+fountain,2026-11-23T04:00:00Z,2026-11-22T20:00:00-0800,westbound,S5,11.13,13.76,3.69,0.685,1.0,0.0,2,tomtom_traffic_flow
+fountain,2026-11-23T04:00:00Z,2026-11-22T20:00:00-0800,westbound,S6,15.45,19.56,3.95,1.016,0.674,0.0,2,tomtom_traffic_flow

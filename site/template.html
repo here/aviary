@@ -85,6 +85,8 @@ table.plain tr.group th { text-align: left; padding-top: 16px; font-family: var(
 .project { display: flex; flex-direction: column; gap: 8px; }
 .project-head { margin: 0; font-size: 16.5px; color: var(--ink-2); }
 .project-head a { color: var(--accent); font-weight: 600; }
+.see-also { margin: 6px 0 -4px; text-align: center; font-size: 15px; }
+.see-also a { color: var(--accent); }
 .street-title { margin: 6px 0 0; font-size: clamp(24px, 3.4vw, 32px); }
 .project-desc { margin: 0; max-width: 75ch; font-size: 16.5px; color: var(--ink-2); }
 /* maps: one per row, within the text column with a 2% margin each side (never wider than their image files) */
@@ -725,7 +727,8 @@ function renderProject() {
   // each figure is at most as wide as its image file (never enlarged) and centred in the column
   const fig = (mp, wide) => `<figure${wide || mp.wide ? ' class="wide"' : ""}${mp.w ? ` style="max-width:${mp.w}px"` : ""}><a href="${esc(mp.src)}" target="_blank" rel="noopener"><img src="${esc(mp.src)}" alt="${esc(mp.caption)}"${mp.w ? ` width="${mp.w}" height="${mp.h}"` : ""} loading="${wide ? "eager" : "lazy"}" decoding="async"></a><figcaption>${esc(mp.caption)}<small>Source: <a href="${esc(mp.source)}" target="_blank" rel="noopener">${esc(mp.credit)}</a></small></figcaption></figure>`;
   const maps = p.maps || [], best = maps[0], rest = maps.slice(1);
-  box.innerHTML = `<h2 class="street-title">${esc(C.street)}</h2>` +
+  box.innerHTML = (p.see_also || []).map(l => `<p class="see-also"><a href="${esc(l.url)}">${esc(l.label)}</a></p>`).join("") +
+    `<h2 class="street-title">${esc(C.street)}</h2>` +
     (best ? `<div class="project-maps">${fig(best, true)}</div>` : "") +
     (p.url ? `<p class="project-head"><a href="${esc(p.url)}" target="_blank" rel="noopener">${esc(p.title)}</a> · ${esc(p.owner)} · project page ↗</p>` : "") +
     (p.description || []).map(d => `<p class="project-desc">${esc(d)}</p>`).join("") +

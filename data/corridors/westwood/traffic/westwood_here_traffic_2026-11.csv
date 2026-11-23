@@ -500,3 +500,11 @@ westwood,2026-11-23T06:00:00Z,2026-11-22T22:00:00-0800,southbound,S1,,,,0.379,0.
 westwood,2026-11-23T06:00:00Z,2026-11-22T22:00:00-0800,southbound,S2,22.88,27.16,1.76,0.671,1.0,0.0,1,here_traffic_flow
 westwood,2026-11-23T06:00:00Z,2026-11-22T22:00:00-0800,southbound,S3,23.19,25.81,1.43,0.552,1.0,0.0,1,here_traffic_flow
 westwood,2026-11-23T06:00:00Z,2026-11-22T22:00:00-0800,southbound,S4,26.16,24.46,1.21,0.526,1.0,0.0,1,here_traffic_flow
+westwood,2026-11-23T07:00:00Z,2026-11-22T23:00:00-0800,northbound,S1,,,,0.379,0.246,0.0,1,here_traffic_flow
+westwood,2026-11-23T07:00:00Z,2026-11-22T23:00:00-0800,northbound,S2,22.99,26.1,1.75,0.671,1.0,0.0,1,here_traffic_flow
+westwood,2026-11-23T07:00:00Z,2026-11-22T23:00:00-0800,northbound,S3,26.92,25.52,1.23,0.552,1.0,0.0,1,here_traffic_flow
+westwood,2026-11-23T07:00:00Z,2026-11-22T23:00:00-0800,northbound,S4,24.74,25.99,1.28,0.526,1.0,0.0,1,here_traffic_flow
+westwood,2026-11-23T07:00:00Z,2026-11-22T23:00:00-0800,southbound,S1,,,,0.379,0.252,0.0,1,here_traffic_flow
+westwood,2026-11-23T07:00:00Z,2026-11-22T23:00:00-0800,southbound,S2,21.12,26.88,1.91,0.671,1.0,0.0,1,here_traffic_flow
+westwood,2026-11-23T07:00:00Z,2026-11-22T23:00:00-0800,southbound,S3,17.46,26.01,1.9,0.552,1.0,0.0,1,here_traffic_flow
+westwood,2026-11-23T07:00:00Z,2026-11-22T23:00:00-0800,southbound,S4,20.3,24.46,1.55,0.526,1.0,0.0,1,here_traffic_flow

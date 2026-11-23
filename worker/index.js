@@ -90,9 +90,13 @@ async function slnc(request, url) {
   const upstream = await fetch(SLNC_ORIGIN + url.pathname.slice("/slnc".length) + url.search, {
     method: request.method,
     headers: { accept: request.headers.get("accept") || "*/*" },
+    redirect: "manual", // GitHub Pages redirects /transit to /transit/: hand that back to the browser, do not follow it,
+                        // or the page is served at the wrong URL and its relative links break
     cf: { cacheEverything: true, cacheTtl: 300 },
   });
   const headers = new Headers(upstream.headers);
+  const loc = headers.get("location");
+  if (loc && loc.startsWith(SLNC_ORIGIN)) headers.set("location", url.origin + "/slnc" + loc.slice(SLNC_ORIGIN.length));
   headers.delete("content-encoding"); // the body is already decoded by fetch()
   headers.delete("content-length");
   headers.set("cache-control", "public, max-age=300");

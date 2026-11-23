@@ -8,7 +8,7 @@
   "assets": {
     "directory": "./_site",
     "binding": "ASSETS",
-    "run_worker_first": ["/api/*"]
+    "run_worker_first": ["/api/*", "/slnc", "/slnc/*"]
   },
   "triggers": { "crons": ["* * * * *"] },
   "r2_buckets": [{ "binding": "ARCHIVE", "bucket_name": "aviary-vermont-speeds-bucket" }],

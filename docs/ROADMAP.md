@@ -103,4 +103,5 @@ points and storage design are in [`docs/INCIDENTS.md`](INCIDENTS.md); the source
 | 2026-11-18 | Swiftly collected (from 01:28 UTC) and rolled into measured speeds (B1); TomTom flow tiles collected (from 04:55 UTC) with its own tile decoder and roll-up; Cal-ITP measured history from the public speed-map bucket, weekly refresh (B5); crowdsourced-data and safety-data surveys; workflow push race fixed; actions on Node 24; page redesign (menus, projects, data sources) |
 | 2026-11-19 | TomTom incidents collected every 20 minutes and rolled up per section (E2 started); traffic-deaths panel (E7); incident data points designed (`docs/INCIDENTS.md`) |
 | 2026-11-19 | Pico Bl (C6) with Olympic Bl as its control (C7); Westwood Bl (C10); free-tier record (`docs/FREE_TIERS.md`); HERE flow with the corridor filter, rolled up and shown dashed beside TomTom; HERE documentation MCP server; street-strip alignment fix; social links |
+| 2026-11-23 | Silver Lake NC dashboard served at `/slnc/` by proxying `here.github.io/lax-slnc-transpo` (Worker `fetch`, `wrangler.jsonc` `run_worker_first`) |
 | moved | C3 collisions → E1 |

@@ -80,6 +80,25 @@ const json = (body, status = 200) => new Response(JSON.stringify(body, null, 2),
   status, headers: { "content-type": "application/json; charset=utf-8", "access-control-allow-origin": "*", "cache-control": "no-store" },
 });
 
+// Silver Lake Neighborhood Council 311 and transit dashboard. /slnc/* is served from its GitHub Pages site
+// (here/lax-slnc-transpo), which refreshes its own data daily, so nothing is copied into this repository.
+// Pages are relative-linked, so they work under this prefix.
+const SLNC_ORIGIN = "https://here.github.io/lax-slnc-transpo";
+
+async function slnc(request, url) {
+  if (request.method !== "GET" && request.method !== "HEAD") return json({ error: "read-only" }, 405);
+  const upstream = await fetch(SLNC_ORIGIN + url.pathname.slice("/slnc".length) + url.search, {
+    method: request.method,
+    headers: { accept: request.headers.get("accept") || "*/*" },
+    cf: { cacheEverything: true, cacheTtl: 300 },
+  });
+  const headers = new Headers(upstream.headers);
+  headers.delete("content-encoding"); // the body is already decoded by fetch()
+  headers.delete("content-length");
+  headers.set("cache-control", "public, max-age=300");
+  return new Response(upstream.body, { status: upstream.status, headers });
+}
+
 export default {
   async scheduled(controller, env, ctx) {
     if (!env.ARCHIVE) return; // storage not attached yet
@@ -88,6 +107,8 @@ export default {
 
   async fetch(request, env) {
     const url = new URL(request.url);
+    if (url.pathname === "/slnc") return Response.redirect(url.origin + "/slnc/" + url.search, 301);
+    if (url.pathname.startsWith("/slnc/")) return slnc(request, url);
     if (!url.pathname.startsWith("/api/")) return env.ASSETS.fetch(request);
     if (request.method !== "GET" && request.method !== "HEAD") return json({ error: "read-only" }, 405);
     if (!env.ARCHIVE) return json({ at: null, messages: 0, error: "archive storage (R2) is not attached yet" }, url.pathname === "/api/status" ? 200 : 503);

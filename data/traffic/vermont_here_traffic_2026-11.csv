@@ -1225,3 +1225,17 @@ vermont,2026-11-24T21:00:00Z,2026-11-24T13:00:00-0800,southbound,S4,15.02,25.13,
 vermont,2026-11-24T21:00:00Z,2026-11-24T13:00:00-0800,southbound,S5,20.63,28.67,5.73,1.971,1.0,0.0,1,here_traffic_flow
 vermont,2026-11-24T21:00:00Z,2026-11-24T13:00:00-0800,southbound,S6,22.32,30.03,5.91,2.199,1.0,0.0,1,here_traffic_flow
 vermont,2026-11-24T21:00:00Z,2026-11-24T13:00:00-0800,southbound,corridor,16.13,25.75,43.47,11.682,0.974,0.009,1,here_traffic_flow
+vermont,2026-11-24T22:00:00Z,2026-11-24T14:00:00-0800,northbound,S1,11.93,21.64,12.44,2.474,1.0,0.0,1,here_traffic_flow
+vermont,2026-11-24T22:00:00Z,2026-11-24T14:00:00-0800,northbound,S2,10.28,23.28,8.73,1.496,1.0,0.0,1,here_traffic_flow
+vermont,2026-11-24T22:00:00Z,2026-11-24T14:00:00-0800,northbound,S3,12.68,23.33,7.11,1.502,1.0,0.0,1,here_traffic_flow
+vermont,2026-11-24T22:00:00Z,2026-11-24T14:00:00-0800,northbound,S4,14.86,23.74,8.24,2.04,1.0,0.0,1,here_traffic_flow
+vermont,2026-11-24T22:00:00Z,2026-11-24T14:00:00-0800,northbound,S5,17.12,28.8,6.91,1.971,1.0,0.0,1,here_traffic_flow
+vermont,2026-11-24T22:00:00Z,2026-11-24T14:00:00-0800,northbound,S6,22.21,29.91,5.94,2.199,1.0,0.0,1,here_traffic_flow
+vermont,2026-11-24T22:00:00Z,2026-11-24T14:00:00-0800,northbound,corridor,14.2,24.81,49.37,11.682,1.0,0.0,1,here_traffic_flow
+vermont,2026-11-24T22:00:00Z,2026-11-24T14:00:00-0800,southbound,S1,13.96,22.93,10.63,2.474,0.846,0.052,1,here_traffic_flow
+vermont,2026-11-24T22:00:00Z,2026-11-24T14:00:00-0800,southbound,S2,15.54,25.65,5.78,1.496,1.0,0.0,1,here_traffic_flow
+vermont,2026-11-24T22:00:00Z,2026-11-24T14:00:00-0800,southbound,S3,14.93,23.66,6.04,1.502,1.0,0.0,1,here_traffic_flow
+vermont,2026-11-24T22:00:00Z,2026-11-24T14:00:00-0800,southbound,S4,14.63,24.79,8.37,2.04,1.0,0.0,1,here_traffic_flow
+vermont,2026-11-24T22:00:00Z,2026-11-24T14:00:00-0800,southbound,S5,20.95,28.66,5.64,1.971,1.0,0.0,1,here_traffic_flow
+vermont,2026-11-24T22:00:00Z,2026-11-24T14:00:00-0800,southbound,S6,22.33,29.97,5.91,2.199,1.0,0.0,1,here_traffic_flow
+vermont,2026-11-24T22:00:00Z,2026-11-24T14:00:00-0800,southbound,corridor,16.54,25.72,42.37,11.682,0.974,0.009,1,here_traffic_flow

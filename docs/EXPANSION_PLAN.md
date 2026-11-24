@@ -87,7 +87,7 @@ well as 204 and 754 (`ROUTES` in `wrangler.jsonc`). Raw pings land in R2. Nothin
 
 | Question | Source | Covers before? | Access |
 |---|---|---|---|
-| Bus speed and reliability | Cal-ITP GTFS-RT archive (about 2022 on) | Yes, if the project is 2022 or later | By request (see `AGENTS.md`) |
+| Bus speed and reliability | Cal-ITP GTFS-RT archive (about 2022 on) | Yes, if the project is 2022 or later | By request (see [`AGENTS.md`](../AGENTS.md)) |
 | Bus speed going forward | Our Cloudflare collector | No, starts 2026-11-17 | Running |
 | Bus speed, long context | LA Metro GTFS history (scheduled) | Yes, weak signal | Open |
 | Bus speed, official | Swiftly API | Maybe, ask about history | Key requested |

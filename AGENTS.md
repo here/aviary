@@ -1,9 +1,9 @@
 # Handoff notes for agents
 
-Read `README.md` for what the project is and the published links. This file explains how the system works and
+Read [`README.md`](README.md) for what the project is and the published links. This file explains how the system works and
 what is easy to get wrong. **Open work and its status live in [`docs/ROADMAP.md`](docs/ROADMAP.md)**; update that
 file when you finish or start something, and update "Current state" below when the system itself changes. At the end
-of a session, add a short summary to `meta/status/` (see `meta/README.md`).
+of a session, add a short summary to `meta/status/` (see [`meta/README.md`](meta/README.md)).
 
 ## Project in one paragraph
 
@@ -13,19 +13,19 @@ archive in standard formats (Parquet, CSV, Frictionless data package, OMF MDS 2.
 *scheduled* speed rebuilt from LA Metro's GTFS git history (Vermont since 2016, the others since 2018). Measured
 speed comes from bus GPS collected every minute since November 2026 (LA Metro's public feed and Swiftly), so each
 upcoming project gets a measured "before". A top-level requirement since 2026-11-19: **traffic incidents on every
-stretch over time** (delays, collisions by severity and by who was involved), designed in `docs/INCIDENTS.md`.
+stretch over time** (delays, collisions by severity and by who was involved), designed in [`docs/INCIDENTS.md`](docs/INCIDENTS.md).
 
 ## Where things are
 
 | Path | What |
 |---|---|
-| `docs/ROADMAP.md` | Task tracker: up-next list, open items by area, done log |
+| [`docs/ROADMAP.md`](docs/ROADMAP.md) | Task tracker: up-next list, open items by area, done log |
 | `meta/status/` | One short status note per working session (newest last); read the latest first |
-| `docs/EXPANSION_PLAN.md` | Before/after method and project status notes |
-| `docs/INCIDENTS.md` | Incident requirement: the data points (delay, collisions by severity K/A/B/C/O, traveller type, age band, conditions, live incidents), sources and storage design |
-| `docs/FREE_TIERS.md` | Free allowances of every API and service, current usage and headroom; update when adding a street, tile box or collector |
-| `docs/mobile-object.md` | Mobile objects (people, buses, cars, bikes, robots, boats): GTFS, GBFS, GOFS, MDS against TomTom and HERE, open standards for one traveller's multimodal path (OGC Moving Features, MDS, OJP legs), a storage design and privacy rules |
-| `docs/CROWDSOURCED_DATA.md` | Community-collected data (Telraam first) and why it matters here |
+| [`docs/EXPANSION_PLAN.md`](docs/EXPANSION_PLAN.md) | Before/after method and project status notes |
+| [`docs/INCIDENTS.md`](docs/INCIDENTS.md) | Incident requirement: the data points (delay, collisions by severity K/A/B/C/O, traveller type, age band, conditions, live incidents), sources and storage design |
+| [`docs/FREE_TIERS.md`](docs/FREE_TIERS.md) | Free allowances of every API and service, current usage and headroom; update when adding a street, tile box or collector |
+| [`docs/mobile-object.md`](docs/mobile-object.md) | Mobile objects (people, buses, cars, bikes, robots, boats): GTFS, GBFS, GOFS, MDS against TomTom and HERE, open standards for one traveller's multimodal path (OGC Moving Features, MDS, OJP legs), a storage design and privacy rules |
+| [`docs/CROWDSOURCED_DATA.md`](docs/CROWDSOURCED_DATA.md) | Community-collected data (Telraam first) and why it matters here |
 | `docs/projects/` | Sourced research notes per project (Hollywood Bl, Fountain Av, Pico Bl, Westwood Bl) and per data source being explored (Telraam) |
 | `corridors/*.json` | Street definitions: path, sections, bus lines, project dates, focus segments |
 | `pipeline/` | Backfills, roll-ups, data package and site builders (see each file's docstring) |
@@ -50,7 +50,7 @@ stretch over time** (delays, collisions by severity and by who was involved), de
 | GBFS collector | Worker `aviary-gbfs-collector`, every 10 minutes into `gbfs/`. Bird and Metro Bike Share working; Lime missing. Status: `/gbfs/status` |
 | Traffic-speed collector | Worker `aviary-traffic-collector` (`worker/traffic.js`): TomTom Vector Flow Tiles every 15 minutes (30 zoom-14 tiles) into `traffic/tomtom/` since 2026-11-18 04:55 UTC; HERE flow every 90 minutes (one corridor request per street) into `traffic/here/` since 2026-11-19. Rolled up hourly by `pipeline/build_traffic.py`; on the page as the solid (TomTom) and dashed (HERE) yellow lines. Status `/traffic/status`; `/traffic/run` collects now (`?here=1` adds HERE, 7 requests). Details: "Traffic providers" below |
 | Incident collector | Same Worker: TomTom Incident Details every 20 minutes for one box over all streets (~2,160 of the free 2,500 a month), into `traffic/incidents/` since 2026-11-19 19:37 UTC (103 incidents in the first poll). Rolled up hourly by `pipeline/build_incidents.py` into `data/incidents/vermont_incidents_YYYY.csv` and `data/corridors/<id>/incidents/<id>_incidents_YYYY.csv` (one row per incident, section and direction, with first and last seen). The Worker cron is now every 5 minutes; each job checks the minute |
-| Traffic deaths | `data/reference/fatalities_ccrs.csv` (City of Los Angeles all agencies and LAPD only, and California, deaths and crashes per year since 2016, from CCRS), refreshed daily by `pipeline/fetch_fatalities.py` in the 15:00 UTC run; `data/reference/fatalities_national.csv` (NHTSA, by hand). Shown in the "Traffic incidents and deaths" section just above Data sources, with the per-street TomTom incident summary; incidents also appear as triangles on the hourly chart. Cautions in `docs/INCIDENTS.md` |
+| Traffic deaths | `data/reference/fatalities_ccrs.csv` (City of Los Angeles all agencies and LAPD only, and California, deaths and crashes per year since 2016, from CCRS), refreshed daily by `pipeline/fetch_fatalities.py` in the 15:00 UTC run; `data/reference/fatalities_national.csv` (NHTSA, by hand). Shown in the "Traffic incidents and deaths" section just above Data sources, with the per-street TomTom incident summary; incidents also appear as triangles on the hourly chart. Cautions in [`docs/INCIDENTS.md`](docs/INCIDENTS.md) |
 | Workflows (since 2026-11-19) | `collect.yml` hourly: downloads two days of pings, traffic and incidents from R2, rolls up every street, refreshes CCRS deaths at 15:00 UTC, writes daily raw and MDS files to R2, commits data. `site.yml` then builds and deploys (site Worker step is `continue-on-error`: check it). `workers.yml` deploys collectors only on code changes. GitHub dropped most scheduled runs, so the traffic Worker also starts collect.yml at minute 25 of every hour through the GitHub API (working since 2026-11-22 10:25 UTC; if runs stop, check the token has not expired) (status under `github_dispatch` in `/traffic/status`); the GitHub schedule stays as a backup |
 | Scheduled series | Vermont 2016-01-31 onward (`data/hourly/`); Hollywood, Sunset, Pico and Olympic 2018 onward, Westwood June 2021 onward (`data/corridors/<id>/hourly/`). Rebuild needs the GTFS clone; not run by the workflow |
 | Measured series | Monthly CSVs: `data/observed/` (Vermont), `data/corridors/<id>/observed/` (with bus-by-bus focus-segment timings for Sunset) |
@@ -67,9 +67,9 @@ All Cloudflare resource names are prefixed `aviary-`. Use `aviary.herebox.org` f
 Corridor caveats: Fountain Av's road diet is the City of West Hollywood's project (La Cienega Bl to La Brea Av),
 not LADOT's, and LADOT DASH runs on the Hollywood part of Fountain; `corridors/fountain.json` coordinates are
 approximate. The Hollywood corridor ends at Vermont Av, short of Hillhurst Av. The Pico corridor ends at Bonnie Brae St,
-where line 30 leaves Pico, 0.6 mi short of the project's east end at Figueroa St (`docs/projects/pico-bl.md`). `corridors/olympic.json` is a
+where line 30 leaves Pico, 0.6 mi short of the project's east end at Figueroa St ([`docs/projects/pico-bl.md`](docs/projects/pico-bl.md)). `corridors/olympic.json` is a
 control street, not a project (`control_for: pico`, line 28, same cross streets); `short_name` sets its picker label. `corridors/westwood.json` runs north to south (`ends`: North, South); Metro buses
-cover only Le Conte Av to Santa Monica Bl, and the rest is Big Blue Bus, not collected (`docs/projects/westwood-bl.md`). Research notes in `docs/projects/`
+cover only Le Conte Av to Santa Monica Bl, and the rest is Big Blue Bus, not collected ([`docs/projects/westwood-bl.md`](docs/projects/westwood-bl.md)). Research notes in `docs/projects/`
 come from search-result summaries; verify before quoting.
 
 ## Swiftly

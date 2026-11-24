@@ -6,6 +6,8 @@ feeds this project already reads (GTFS, GBFS, and the TomTom and HERE traffic da
 open standard exists for storing **one traveller's path** across several modes: positions at an interval, with mode,
 street or railway, measured speed, origin, destination and time of day.
 
+Project overview: [`README.md`](../README.md); related notes: [`INCIDENTS.md`](INCIDENTS.md), [`CROWDSOURCED_DATA.md`](CROWDSOURCED_DATA.md), [`FREE_TIERS.md`](FREE_TIERS.md), [`ROADMAP.md`](ROADMAP.md).
+
 Written 2026-11-24 from what the project collects and from memory of the specifications. Items marked "check" have
 not been confirmed against the specification text in this session; verify them before quoting.
 

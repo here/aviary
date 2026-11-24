@@ -73,7 +73,7 @@ For any future street, the TomTom tile count is the only number that grows direc
   elsewhere (50,000 tiles and 2,500 other requests a day) are an older scheme and no longer apply. **Owner: in the
   TomTom dashboard, check the usage counter and whether a payment method is attached** (without one, going over
   should fail rather than bill, but the page does not say).
-- Swiftly: the limit was given with the key (see `AGENTS.md`, Swiftly section).
+- Swiftly: the limit was given with the key (see [`AGENTS.md`](../AGENTS.md), Swiftly section).
 - Cloudflare: `developers.cloudflare.com/workers/platform/limits` (cron triggers, requests, CPU) and
   `developers.cloudflare.com/r2/pricing` (storage and operations).
 - Usage figures: tile counts from `/traffic/status`; object counts from the collectors' schedules and the

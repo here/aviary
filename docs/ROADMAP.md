@@ -1,6 +1,6 @@
 # Roadmap and task tracker
 
-The single list of open work. `AGENTS.md` describes how the system works; this file says what to do next;
+The single list of open work. [`AGENTS.md`](../AGENTS.md) describes how the system works; this file says what to do next;
 `meta/status/` holds short end-of-session summaries. Update the status here when something changes.
 
 Status values: **in progress**, **next** (ready to start), **waiting** (on the owner, a date or data), **later**,
@@ -11,7 +11,7 @@ Last updated: 2026-11-19.
 ## Up next (short list)
 
 1. **E1** Collisions from CCRS (top-level requirement: incidents on every stretch, over time; design in
-   `docs/INCIDENTS.md`). E2 live incidents started 2026-11-19.
+   [`docs/INCIDENTS.md`](INCIDENTS.md)). E2 live incidents started 2026-11-19.
 2. **C12** Review Olympic Bl against Pico Bl on **2026-11-26**, then decide on control streets for every project.
 3. **C2 / C13** Fix Fountain Av's path and improve HERE coverage on Fountain Av and Westwood Village.
 4. **E5** Delay columns in the traffic files.
@@ -31,7 +31,7 @@ Facts about programmes, prices and terms are from search summaries (2026-11-18);
 | A6 | CPUC robotaxi and ride-hail filings; DMV autonomous-vehicle collision reports | Context for the talk, not street-level | later |
 | A7 | INRIX / RITIS, StreetLight, Replica | Historical traffic speeds: a real "before" for Hollywood | later (ask LADOT or Metro what they license) |
 | A8 | Spectus, Advan | Anonymised movement, research programmes | later |
-| A10 | **Telraam** window counters | Cars, heavy vehicles, bikes, pedestrians and car speeds; fills Fountain Av | **in progress**: `docs/CROWDSOURCED_DATA.md`, `docs/projects/telraam.md`; `pipeline/fetch_telraam.py` untested until a key exists. Owner: check existing LA units, price, hosts, API key |
+| A10 | **Telraam** window counters | Cars, heavy vehicles, bikes, pedestrians and car speeds; fills Fountain Av | **in progress**: [`docs/CROWDSOURCED_DATA.md`](CROWDSOURCED_DATA.md), [`docs/projects/telraam.md`](projects/telraam.md); `pipeline/fetch_telraam.py` untested until a key exists. Owner: check existing LA units, price, hosts, API key |
 | A11 | Caltrans CCTV stills (District 7) | Anonymous counts by computer vision | later (cameras are almost all on freeways) |
 | A12 | OpenTrafficCam | Turning movements and speeds from short video studies | later (needs a video policy and a mounting site) |
 | - | Chicago / New York City open ride-hail trip data | What LA does not publish (talking point) | later |
@@ -63,14 +63,14 @@ Facts about programmes, prices and terms are from search summaries (2026-11-18);
 | C8 | Traffic-only section for Pico, Bonnie Brae St to Figueroa St (line 30 detours via Olympic), skipped by the bus roll-ups | next |
 | C9 | Pico against Olympic difference-in-differences on the page once construction starts | later |
 | C11 | Big Blue Bus feeds for Westwood south of Santa Monica Bl (needs its host on the allowlist and a collector change) | later |
-| C12 | Control streets for every project | waiting (until 2026-11-26). Review Olympic against Pico (bus GPS and TomTom per section, direction, hour): does it track Pico before construction, and is the data complete? If yes, add one parallel untreated street per project with the same cross streets. Candidates: Vermont → Normandie or Western; Hollywood → Franklin or Santa Monica Bl; Sunset / Cesar Chavez → Beverly Bl / 1st St; Westwood → Sepulveda or Overland; Fountain → Santa Monica Bl or Romaine St. Prefer Metro service; check the tile cost in `docs/FREE_TIERS.md`. If not, record why and choose differently (a matched stretch of the same street, or several averaged controls) |
+| C12 | Control streets for every project | waiting (until 2026-11-26). Review Olympic against Pico (bus GPS and TomTom per section, direction, hour): does it track Pico before construction, and is the data complete? If yes, add one parallel untreated street per project with the same cross streets. Candidates: Vermont → Normandie or Western; Hollywood → Franklin or Santa Monica Bl; Sunset / Cesar Chavez → Beverly Bl / 1st St; Westwood → Sepulveda or Overland; Fountain → Santa Monica Bl or Romaine St. Prefer Metro service; check the tile cost in [`docs/FREE_TIERS.md`](FREE_TIERS.md). If not, record why and choose differently (a matched stretch of the same street, or several averaged controls) |
 | C13 | Improve HERE coverage on Fountain Av (~8%) and Westwood Village (~25%) | next. Cheapest first: (1) fix Fountain's path (C2) and widen its HERE radius (40 m now); (2) keep links with confidence 0.7 or lower in a separate flagged column if that is where the gaps are; (3) request `functionalClasses` 4 and 5; (4) last resort: HERE `deepCoverage`, billed separately |
 
 ## D. Operations
 
 | # | Task | Status |
 |---|---|---|
-| D0 | Free-tier usage (`docs/FREE_TIERS.md`). Owner: check the TomTom dashboard usage counter and whether a payment method is attached (and the same for HERE) | ongoing |
+| D0 | Free-tier usage ([`docs/FREE_TIERS.md`](FREE_TIERS.md)). Owner: check the TomTom dashboard usage counter and whether a payment method is attached (and the same for HERE) | ongoing |
 | D1 | Scheduled runs are unreliable: from 2026-11-20 17:00 to 2026-11-22 00:30 UTC GitHub ran "Collect and roll up" only 6 times instead of about 31 (gaps of 4 to 8 hours). No data is lost while gaps stay under the two-day download window (R2 raw/ keeps 7 days), but the page goes stale | ongoing; see D6 |
 | D6 | Trigger "Collect and roll up" hourly from the traffic Worker's cron (minute 25, `workflow_dispatch` via the GitHub API) | **done (2026-11-22)**: first dispatch at 10:25 UTC returned 204 and started run 11; GitHub's own schedule stays as a backup. Token `GH_DISPATCH_TOKEN` expires on the date the owner chose: renew it then |
 | D2 | GBFS: expiry or compaction for `gbfs/` | later |
@@ -101,8 +101,8 @@ points and storage design are in [`docs/INCIDENTS.md`](INCIDENTS.md); the source
 |---|---|
 | 2026-11-17 | Vermont Av scheduled speeds from GTFS history (2016 on); Worker collector, R2, hourly workflow, site at aviary.herebox.org and GitHub Pages; Hollywood, Sunset and Fountain added; GBFS collector |
 | 2026-11-18 | Swiftly collected (from 01:28 UTC) and rolled into measured speeds (B1); TomTom flow tiles collected (from 04:55 UTC) with its own tile decoder and roll-up; Cal-ITP measured history from the public speed-map bucket, weekly refresh (B5); crowdsourced-data and safety-data surveys; workflow push race fixed; actions on Node 24; page redesign (menus, projects, data sources) |
-| 2026-11-19 | TomTom incidents collected every 20 minutes and rolled up per section (E2 started); traffic-deaths panel (E7); incident data points designed (`docs/INCIDENTS.md`) |
-| 2026-11-19 | Pico Bl (C6) with Olympic Bl as its control (C7); Westwood Bl (C10); free-tier record (`docs/FREE_TIERS.md`); HERE flow with the corridor filter, rolled up and shown dashed beside TomTom; HERE documentation MCP server; street-strip alignment fix; social links |
+| 2026-11-19 | TomTom incidents collected every 20 minutes and rolled up per section (E2 started); traffic-deaths panel (E7); incident data points designed ([`docs/INCIDENTS.md`](INCIDENTS.md)) |
+| 2026-11-19 | Pico Bl (C6) with Olympic Bl as its control (C7); Westwood Bl (C10); free-tier record ([`docs/FREE_TIERS.md`](FREE_TIERS.md)); HERE flow with the corridor filter, rolled up and shown dashed beside TomTom; HERE documentation MCP server; street-strip alignment fix; social links |
 | 2026-11-23 | Silver Lake NC dashboard served at `/slnc/` by proxying `here.github.io/lax-slnc-transpo` (Worker `fetch`, `wrangler.jsonc` `run_worker_first`) |
 | 2026-11-24 | Street links use the hash only (`/#sunset`); old `?street=<id>` links (the Silver Lake dashboard's Sunset Blvd East page) are rewritten to `#<id>` on load |
 | moved | C3 collisions → E1 |

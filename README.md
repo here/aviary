@@ -43,14 +43,14 @@ Formats: Parquet and CSV described by a Frictionless `datapackage.json` (generat
 
 Sourced status notes: [Hollywood Blvd](docs/projects/hollywood-blvd.md), [Fountain Av](docs/projects/fountain-av.md),
 [Pico Blvd](docs/projects/pico-bl.md), [Westwood Blvd](docs/projects/westwood-bl.md), and [the expansion plan](docs/EXPANSION_PLAN.md)
-for Sunset East and Vermont BRT. Open work: [`docs/ROADMAP.md`](docs/ROADMAP.md); session summaries: [`meta/status/`](meta/status/). Dates and figures there come from web search
+for Sunset East and Vermont BRT. Mobile objects (people, buses, cars, bikes, delivery robots, boats) and open standards for storing one traveller's multimodal path: [`docs/mobile-object.md`](docs/mobile-object.md). Open work: [`docs/ROADMAP.md`](docs/ROADMAP.md); session summaries: [`meta/status/`](meta/status/). Dates and figures there come from web search
 summaries and need re-checking before publication.
 
 ## Build it yourself
 
 - **Page:** `python pipeline/build_site.py` writes a self-contained `_site/index.html` plus the downloadable archive. The workflow publishes it to GitHub Pages and Cloudflare.
 - **Archive:** `data/`, described by `datapackage.json`.
-- **Handoff notes for agents:** `AGENTS.md`. **Open work and next data sources:** `docs/ROADMAP.md`. **Crowdsourced data:** `docs/CROWDSOURCED_DATA.md`.
+- **Handoff notes for agents:** [`AGENTS.md`](AGENTS.md). **Open work and next data sources:** [`docs/ROADMAP.md`](docs/ROADMAP.md). **Crowdsourced data:** [`docs/CROWDSOURCED_DATA.md`](docs/CROWDSOURCED_DATA.md).
 
 ## What is in the archive
 
@@ -79,13 +79,13 @@ pm = h[(h.section_id == "corridor") & (h.route == "204")]
 |---|---|
 | `corridors/sunset.json` | Sunset Bl / Cesar Chavez Av, Western Av to New High St: path, six sections, project events |
 | `data/corridors/sunset/hourly/year=YYYY/sunset_speeds.parquet` | Scheduled hourly speeds for lines 2, 4 and the former 704 since 2018; same columns plus `corridor_id` |
-| `corridors/pico.json` | Pico Bl, Crenshaw Bl to Bonnie Brae St: path, three sections, project events (notes in `docs/projects/pico-bl.md`) |
+| `corridors/pico.json` | Pico Bl, Crenshaw Bl to Bonnie Brae St: path, three sections, project events (notes in [`docs/projects/pico-bl.md`](docs/projects/pico-bl.md)) |
 | `data/corridors/pico/hourly/year=YYYY/pico_speeds.parquet` | Scheduled hourly speeds for line 30 since 2018 |
 | `corridors/olympic.json`, `data/corridors/olympic/` | Olympic Bl, Crenshaw Bl to Figueroa St: untreated control for Pico Bl (line 28, same cross-street sections) |
 | `corridors/westwood.json`, `data/corridors/westwood/` | Westwood Bl, Le Conte Av to the E Line: lines 761 and 233 north of Santa Monica Bl, traffic for the whole stretch |
 | R2 `gbfs/` | Shared bike and scooter availability snapshots every 10 minutes (Bird, Metro Bike Share), from `worker/gbfs.js` |
 
-See `docs/EXPANSION_PLAN.md` for the before/after plan these support.
+See [`docs/EXPANSION_PLAN.md`](docs/EXPANSION_PLAN.md) for the before/after plan these support.
 
 ## Where the numbers come from
 

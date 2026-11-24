@@ -399,11 +399,14 @@ const BANDS = [
 const state = { cor: "vermont", route: "204", dir: "both", day: "weekday", sec: "corridor" };
 try { Object.assign(state, JSON.parse(localStorage.getItem("aviary-filters-2") || "{}")); } catch (e) {}
 state.sec = "corridor";   // every visit starts on the whole corridor
-// Links can choose the street, over the saved choice:
-//   ?street=<corridor id>  (used by the Silver Lake dashboard's Sunset Blvd East page, ?street=sunset)
-//   #<corridor id>         (aviary.herebox.org/#sunset; wins over ?street; picking a street rewrites it, so the
-//                           address bar is always a shareable link)
-try { const st = new URLSearchParams(location.search).get("street"); if (st) state.cor = st.toLowerCase(); } catch (e) {}
+// Direct links to a street use the hash: aviary.herebox.org/#sunset (ids from corridors/). The hash wins over the
+// saved choice and follows later changes; picking a street rewrites it, so the address bar is a shareable link.
+// An old ?street=<id> link (the Silver Lake dashboard used one) is turned into #<id> and the query string dropped.
+try {
+  const legacy = new URLSearchParams(location.search).get("street");
+  if (legacy && !location.hash) history.replaceState(null, "", location.pathname + "#" + legacy.toLowerCase());
+  else if (legacy) history.replaceState(null, "", location.pathname + location.hash);
+} catch (e) {}
 const hashStreet = () => { const h = decodeURIComponent(location.hash.slice(1)).toLowerCase(); return D.corridors[h] ? h : null; };
 if (hashStreet()) state.cor = hashStreet();
 let C, M, YEARS;  // the corridor on screen, its month count and its years
@@ -883,6 +886,6 @@ document.querySelectorAll("nav.toc a[href^='#']").forEach(a => a.addEventListene
   t.scrollIntoView({ behavior: "smooth", block: "start" });
 }));
 addEventListener("hashchange", () => { const h = hashStreet(); if (h && h !== state.cor) { state.cor = h; state.sec = "corridor"; render(); } });
-if (!hashStreet()) try { history.replaceState(null, "", location.pathname + location.search + "#" + state.cor); } catch (e) {}
+if (!hashStreet()) try { history.replaceState(null, "", location.pathname + "#" + state.cor); } catch (e) {}
 render();
 </script>

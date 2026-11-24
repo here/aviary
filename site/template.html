@@ -399,6 +399,8 @@ const BANDS = [
 const state = { cor: "vermont", route: "204", dir: "both", day: "weekday", sec: "corridor" };
 try { Object.assign(state, JSON.parse(localStorage.getItem("aviary-filters-2") || "{}")); } catch (e) {}
 state.sec = "corridor";   // every visit starts on the whole corridor
+// A link can choose the street: ?street=<corridor id> (e.g. ?street=sunset, the ids in corridors/), over the saved choice.
+try { const st = new URLSearchParams(location.search).get("street"); if (st) state.cor = st.toLowerCase(); } catch (e) {}
 let C, M, YEARS;  // the corridor on screen, its month count and its years
 const secOf = id => C.sections.find(s => s.section_id === id);
 const hourName = h => (h % 12 || 12) + (h % 24 < 12 ? "am" : "pm");

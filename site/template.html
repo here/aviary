@@ -399,8 +399,11 @@ const BANDS = [
 const state = { cor: "vermont", route: "204", dir: "both", day: "weekday", sec: "corridor" };
 try { Object.assign(state, JSON.parse(localStorage.getItem("aviary-filters-2") || "{}")); } catch (e) {}
 state.sec = "corridor";   // every visit starts on the whole corridor
-// Direct links to a project: aviary.herebox.org/#sunset (any street id in the picker). The hash wins over the
-// remembered street; picking a street rewrites the hash, so the address bar is always a shareable link.
+// Links can choose the street, over the saved choice:
+//   ?street=<corridor id>  (used by the Silver Lake dashboard's Sunset Blvd East page, ?street=sunset)
+//   #<corridor id>         (aviary.herebox.org/#sunset; wins over ?street; picking a street rewrites it, so the
+//                           address bar is always a shareable link)
+try { const st = new URLSearchParams(location.search).get("street"); if (st) state.cor = st.toLowerCase(); } catch (e) {}
 const hashStreet = () => { const h = decodeURIComponent(location.hash.slice(1)).toLowerCase(); return D.corridors[h] ? h : null; };
 if (hashStreet()) state.cor = hashStreet();
 let C, M, YEARS;  // the corridor on screen, its month count and its years

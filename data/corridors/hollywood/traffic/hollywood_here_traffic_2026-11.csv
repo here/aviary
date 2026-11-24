@@ -800,3 +800,11 @@ hollywood,2026-11-24T10:00:00Z,2026-11-24T02:00:00-0800,eastbound,S4,,,,1.004,0.
 hollywood,2026-11-24T10:00:00Z,2026-11-24T02:00:00-0800,westbound,S1,22.37,18.02,1.83,0.684,0.998,0.0,1,here_traffic_flow
 hollywood,2026-11-24T10:00:00Z,2026-11-24T02:00:00-0800,westbound,S3,,,,0.759,0.402,0.0,1,here_traffic_flow
 hollywood,2026-11-24T10:00:00Z,2026-11-24T02:00:00-0800,westbound,S4,23.28,23.9,2.59,1.004,1.0,0.0,1,here_traffic_flow
+hollywood,2026-11-24T12:00:00Z,2026-11-24T04:00:00-0800,eastbound,S1,18.64,17.4,2.2,0.684,0.998,0.0,1,here_traffic_flow
+hollywood,2026-11-24T12:00:00Z,2026-11-24T04:00:00-0800,eastbound,S3,26.33,24.29,1.73,0.759,0.992,0.0,1,here_traffic_flow
+hollywood,2026-11-24T12:00:00Z,2026-11-24T04:00:00-0800,eastbound,S4,,,,1.004,0.491,0.0,1,here_traffic_flow
+hollywood,2026-11-24T12:00:00Z,2026-11-24T04:00:00-0800,westbound,S1,19.88,18.01,2.06,0.684,1.0,0.0,1,here_traffic_flow
+hollywood,2026-11-24T12:00:00Z,2026-11-24T04:00:00-0800,westbound,S2,18.64,15.53,0.77,0.24,1.0,0.0,1,here_traffic_flow
+hollywood,2026-11-24T12:00:00Z,2026-11-24T04:00:00-0800,westbound,S3,26.97,23.0,1.69,0.759,0.994,0.0,1,here_traffic_flow
+hollywood,2026-11-24T12:00:00Z,2026-11-24T04:00:00-0800,westbound,S4,22.37,24.85,2.69,1.004,0.509,0.0,1,here_traffic_flow
+hollywood,2026-11-24T12:00:00Z,2026-11-24T04:00:00-0800,westbound,corridor,22.33,21.19,7.22,2.687,0.876,0.0,1,here_traffic_flow

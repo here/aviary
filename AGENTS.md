@@ -24,6 +24,7 @@ stretch over time** (delays, collisions by severity and by who was involved), de
 | `docs/EXPANSION_PLAN.md` | Before/after method and project status notes |
 | `docs/INCIDENTS.md` | Incident requirement: the data points (delay, collisions by severity K/A/B/C/O, traveller type, age band, conditions, live incidents), sources and storage design |
 | `docs/FREE_TIERS.md` | Free allowances of every API and service, current usage and headroom; update when adding a street, tile box or collector |
+| `docs/mobile-object.md` | Mobile objects (people, buses, cars, bikes, robots, boats): GTFS, GBFS, GOFS, MDS against TomTom and HERE, open standards for one traveller's multimodal path (OGC Moving Features, MDS, OJP legs), a storage design and privacy rules |
 | `docs/CROWDSOURCED_DATA.md` | Community-collected data (Telraam first) and why it matters here |
 | `docs/projects/` | Sourced research notes per project (Hollywood Bl, Fountain Av, Pico Bl, Westwood Bl) and per data source being explored (Telraam) |
 | `corridors/*.json` | Street definitions: path, sections, bus lines, project dates, focus segments |

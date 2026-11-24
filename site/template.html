@@ -399,6 +399,10 @@ const BANDS = [
 const state = { cor: "vermont", route: "204", dir: "both", day: "weekday", sec: "corridor" };
 try { Object.assign(state, JSON.parse(localStorage.getItem("aviary-filters-2") || "{}")); } catch (e) {}
 state.sec = "corridor";   // every visit starts on the whole corridor
+// Direct links to a project: aviary.herebox.org/#sunset (any street id in the picker). The hash wins over the
+// remembered street; picking a street rewrites the hash, so the address bar is always a shareable link.
+const hashStreet = () => { const h = decodeURIComponent(location.hash.slice(1)).toLowerCase(); return D.corridors[h] ? h : null; };
+if (hashStreet()) state.cor = hashStreet();
 let C, M, YEARS;  // the corridor on screen, its month count and its years
 const secOf = id => C.sections.find(s => s.section_id === id);
 const hourName = h => (h % 12 || 12) + (h % 24 < 12 ? "am" : "pm");
@@ -856,7 +860,9 @@ function render() {
   useCorridor(); renderControls();
   renderStats(); renderStreet(); renderObs(); renderHistory(); renderFocus(); renderIncidents(); renderProject(); renderCommunity();
 }
-function set(k, v) { state[k] = v; if (k === "cor") state.sec = "corridor"; try { localStorage.setItem("aviary-filters-2", JSON.stringify(state)); } catch (e) {} render(); }
+function set(k, v) {
+  state[k] = v;
+  if (k === "cor") { state.sec = "corridor"; try { history.replaceState(null, "", "#" + v); } catch (e) {} } try { localStorage.setItem("aviary-filters-2", JSON.stringify(state)); } catch (e) {} render(); }
 $("#whole").onclick = () => set("sec", "corridor");
 renderDeaths();
 let rz, lastW = innerWidth;
@@ -866,5 +872,14 @@ addEventListener("resize", () => {
   clearTimeout(rz); rz = setTimeout(() => { render(); renderDeaths(); }, 150);
 });
 addEventListener("scroll", hideTip, { passive: true });
+// Menu links scroll without replacing the street in the address bar, so a copied link keeps the project.
+document.querySelectorAll("nav.toc a[href^='#']").forEach(a => a.addEventListener("click", ev => {
+  const t = document.getElementById(a.getAttribute("href").slice(1));
+  if (!t) return;
+  ev.preventDefault();
+  t.scrollIntoView({ behavior: "smooth", block: "start" });
+}));
+addEventListener("hashchange", () => { const h = hashStreet(); if (h && h !== state.cor) { state.cor = h; state.sec = "corridor"; render(); } });
+if (!hashStreet()) try { history.replaceState(null, "", location.pathname + location.search + "#" + state.cor); } catch (e) {}
 render();
 </script>

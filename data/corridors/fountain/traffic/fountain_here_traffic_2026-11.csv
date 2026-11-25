@@ -306,3 +306,6 @@ fountain,2026-11-25T13:00:00Z,2026-11-25T05:00:00-0800,westbound,S1,,,,0.542,0.1
 fountain,2026-11-25T15:00:00Z,2026-11-25T07:00:00-0800,eastbound,S1,,,,0.542,0.118,0.0,1,here_traffic_flow
 fountain,2026-11-25T15:00:00Z,2026-11-25T07:00:00-0800,westbound,S1,,,,0.542,0.118,0.0,1,here_traffic_flow
 fountain,2026-11-25T15:00:00Z,2026-11-25T07:00:00-0800,westbound,S6,,,,1.016,0.05,0.0,1,here_traffic_flow
+fountain,2026-11-25T16:00:00Z,2026-11-25T08:00:00-0800,eastbound,S1,,,,0.542,0.118,0.0,1,here_traffic_flow
+fountain,2026-11-25T16:00:00Z,2026-11-25T08:00:00-0800,westbound,S1,,,,0.542,0.118,0.0,1,here_traffic_flow
+fountain,2026-11-25T16:00:00Z,2026-11-25T08:00:00-0800,westbound,S6,,,,1.016,0.05,0.0,1,here_traffic_flow

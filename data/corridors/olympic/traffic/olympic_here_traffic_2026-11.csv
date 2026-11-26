@@ -1150,3 +1150,13 @@ olympic,2026-11-26T19:00:00Z,2026-11-26T11:00:00-0800,westbound,S2,18.46,26.97,3
 olympic,2026-11-26T19:00:00Z,2026-11-26T11:00:00-0800,westbound,S3,21.85,25.06,2.08,0.758,0.999,0.0,1,here_traffic_flow
 olympic,2026-11-26T19:00:00Z,2026-11-26T11:00:00-0800,westbound,S4,23.13,23.68,2.45,0.944,1.0,0.0,1,here_traffic_flow
 olympic,2026-11-26T19:00:00Z,2026-11-26T11:00:00-0800,westbound,corridor,22.19,26.44,9.48,3.507,1.0,0.0,1,here_traffic_flow
+olympic,2026-11-26T21:00:00Z,2026-11-26T13:00:00-0800,eastbound,S1,21.0,29.17,2.31,0.808,1.0,0.0,1,here_traffic_flow
+olympic,2026-11-26T21:00:00Z,2026-11-26T13:00:00-0800,eastbound,S2,16.2,28.18,3.69,0.997,1.0,0.0,1,here_traffic_flow
+olympic,2026-11-26T21:00:00Z,2026-11-26T13:00:00-0800,eastbound,S3,17.78,25.11,2.56,0.758,0.999,0.0,1,here_traffic_flow
+olympic,2026-11-26T21:00:00Z,2026-11-26T13:00:00-0800,eastbound,S4,17.74,24.51,3.19,0.944,1.0,0.0,1,here_traffic_flow
+olympic,2026-11-26T21:00:00Z,2026-11-26T13:00:00-0800,eastbound,corridor,17.91,26.61,11.75,3.507,1.0,0.0,1,here_traffic_flow
+olympic,2026-11-26T21:00:00Z,2026-11-26T13:00:00-0800,westbound,S1,27.66,31.58,1.75,0.808,1.0,0.0,1,here_traffic_flow
+olympic,2026-11-26T21:00:00Z,2026-11-26T13:00:00-0800,westbound,S2,19.19,26.98,3.12,0.997,1.0,0.0,1,here_traffic_flow
+olympic,2026-11-26T21:00:00Z,2026-11-26T13:00:00-0800,westbound,S3,21.72,25.06,2.09,0.758,0.999,0.0,1,here_traffic_flow
+olympic,2026-11-26T21:00:00Z,2026-11-26T13:00:00-0800,westbound,S4,25.93,23.68,2.18,0.944,1.0,0.0,1,here_traffic_flow
+olympic,2026-11-26T21:00:00Z,2026-11-26T13:00:00-0800,westbound,corridor,23.0,26.44,9.15,3.507,1.0,0.0,1,here_traffic_flow

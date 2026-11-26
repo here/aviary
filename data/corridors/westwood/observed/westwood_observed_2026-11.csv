@@ -1168,3 +1168,8 @@ westwood,2026-11-26T11:00:00Z,2026-11-26T03:00:00-0800,233,northbound,S3,13.1,2.
 westwood,2026-11-26T11:00:00Z,2026-11-26T03:00:00-0800,233,southbound,S1,6.91,3.29,0.379,1,gtfs_realtime_observed,
 westwood,2026-11-26T11:00:00Z,2026-11-26T03:00:00-0800,233,southbound,S2,20.82,1.93,0.671,1,gtfs_realtime_observed,
 westwood,2026-11-26T11:00:00Z,2026-11-26T03:00:00-0800,233,southbound,S3,28.3,1.17,0.552,1,gtfs_realtime_observed,
+westwood,2026-11-26T12:00:00Z,2026-11-26T04:00:00-0800,233,northbound,S2,13.41,3.0,0.671,1,gtfs_realtime_observed,
+westwood,2026-11-26T12:00:00Z,2026-11-26T04:00:00-0800,233,northbound,S3,16.06,2.06,0.552,1,gtfs_realtime_observed,
+westwood,2026-11-26T13:00:00Z,2026-11-26T05:00:00-0800,233,northbound,S1,11.06,2.06,0.379,1,gtfs_realtime_observed,
+westwood,2026-11-26T13:00:00Z,2026-11-26T05:00:00-0800,233,northbound,S2,17.01,2.37,0.671,2,gtfs_realtime_observed,
+westwood,2026-11-26T13:00:00Z,2026-11-26T05:00:00-0800,233,northbound,S3,6.0,5.52,0.552,2,gtfs_realtime_observed,

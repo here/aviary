@@ -6,16 +6,16 @@ The single list of open work. [`AGENTS.md`](../AGENTS.md) describes how the syst
 Status values: **in progress**, **next** (ready to start), **waiting** (on the owner, a date or data), **later**,
 **dropped**. Finished items move to "Done" at the bottom with their date.
 
-Last updated: 2026-11-19.
+Last updated: 2026-11-26.
 
 ## Up next (short list)
 
 1. **E1** Collisions from CCRS (top-level requirement: incidents on every stretch, over time; design in
    [`docs/INCIDENTS.md`](INCIDENTS.md)). E2 live incidents started 2026-11-19.
-2. **C12** Review Olympic Bl against Pico Bl on **2026-11-26**, then decide on control streets for every project.
-3. **C2 / C13** Fix Fountain Av's path and improve HERE coverage on Fountain Av and Westwood Village.
-4. **E5** Delay columns in the traffic files.
-5. **B2** Swiftly storage plan, due before February 2027 (R2's 10 GB free tier).
+2. **A13** December provider rights and retention review, including decisions on road delay and actual bus stop events.
+3. **C2 / C13** Verify Fountain field dates and validate fresh HERE coverage on the revised alignment.
+4. **E2 / C8** Gather recurring incident and closure examples before changing the Pico geometry or incident pipeline.
+5. **C12** Validate controls before estimating construction effects.
 
 ## A. Traffic data for other vehicles
 
@@ -23,7 +23,7 @@ Facts about programmes, prices and terms are from search summaries (2026-11-18);
 
 | # | Source | What it adds | Status |
 |---|---|---|---|
-| A1 | Live traffic speed (TomTom, HERE) | General-traffic speed per section | **in progress**: both collecting and on the page (see Done). Open: compare TomTom with HERE after a week; read both providers' storage and redistribution terms (owner) |
+| A1 | Live traffic speed (TomTom, HERE) | General-traffic speed per section | **in progress**: both collecting and on the page. Compare coverage on common support. Storage and redistribution review is tracked in A13 |
 | A2 | Strava Metro | Bike and run counts by street segment, with history | waiting (owner applies; free for agencies and researchers) |
 | A3 | LADOT data request: Waze for Cities, MDS scooter trips, speed surveys | Waze history, scooter trips, measured car speeds | waiting (owner sends) |
 | A4 | Metro Bike Share trip history | Station-to-station trips near the streets since 2016 (open CSV) | later |
@@ -39,13 +39,22 @@ Facts about programmes, prices and terms are from search summaries (2026-11-18);
 | - | Licence-plate tracking from public cameras | | dropped (California Civil Code 1798.90.5 onward, privacy, low resolution) |
 | - | Uber Movement; Apple and Google mobility reports | | dropped (discontinued) |
 
+### December provider rights and retention review
+
+**A13 · Waiting until December 2026.** Independently verify Swiftly lifecycle and provider terms for
+retention, redistribution and historical exports, and establish coverage by route and local hour. Confirm
+a source for verified actual bus arrival/departure events, its contemporaneous GTFS mapping, and the
+allowed collection, retention and outputs. Verify TomTom and HERE terms for paired road measurement,
+retention and reporting, then decide whether a private same-link, same-poll pilot may proceed. The
+[November audit](audits/2026-11-26-transportation-evidence.md) records the evidence available for those decisions.
+
 ## B. Bus speed work
 
 | # | Task | Status |
 |---|---|---|
-| B2 | Swiftly storage: roll-up plus expiry rule for `swiftly/`, or accept charges (~3.5 GB a month; 10 GB free) | next (before February 2027) |
-| B3 | Lateness and bunching from Swiftly trip updates and vehicle positions | later (owner: secondary to travel time) |
-| B4 | Ask Swiftly whether historical exports come with the key | waiting (owner) |
+| B2 | Swiftly storage size and policy | waiting on A13. The owner kept the existing anonymous access policy. Resolve retention and costs before February 2027 |
+| B3 | Bus timetable deviation and bunching | [Synthetic trip/stop validation](validation/TRIP_STOP_MATCHING.md) complete. Measured deviation awaits A13 and verified actual events. Bunching remains later |
+| B4 | Verify Swiftly historical export availability | waiting on December review A13 |
 | B6 | Check line 217's implausible 19.2 mph (Gower St to Western Av, 2021) | next |
 | B7 | Extend the Hollywood corridor east to Hillhurst Av (Phase 1 east end) | next |
 | B8 | Review a full day of focus-segment traversals for bad passes (GPS jumps, layovers) | next |
@@ -55,16 +64,16 @@ Facts about programmes, prices and terms are from search summaries (2026-11-18);
 | # | Task | Status |
 |---|---|---|
 | C1 | Verify project facts (extents, dates) against LADOT, West Hollywood and Metro pages; their pages are JavaScript-rendered and LADOT is blocked from the session, so the owner may need to paste text | next |
-| C2 | Correct `corridors/fountain.json` (a flat line at 34.0943; Fountain Av runs at about 34.094 to 34.096). TomTom's road geometry can supply the path | next |
+| C2 | Correct Fountain path and represent the break between Bronson and Van Ness | Diagnostic centerline replay complete. Validate project and study geometry before adoption. [Evidence](audits/2026-11-26-transportation-evidence.md#fountain-project-and-traffic-coverage) |
 | C14 | Project map snapshots under the street picker, with a link to each project page | **in progress**: link for every street; maps for Vermont (Metro), Fountain (West Hollywood), Pico/Olympic (drawn by this project over OpenStreetMap, 2026-11-19) and Hollywood (LADOT Phase 2 intersection design and phase map, with a project description, from owner-supplied graphics, 2026-11-20). Projects can carry a `description` (paragraphs) in `corridors/<id>.json`. LADOT's own map for Pico (Sunset East and Westwood added 2026-11-20 from owner-supplied graphics; Westwood's shows the project ends near Pico Bl, so its S4 is outside it) are live ArcGIS maps: snapshot them once `js.arcgis.com`, the Esri basemap hosts and `salivablestreetstrapi.blob.core.windows.net` are allowed, or from owner screenshots |
 | C15 | Higher-resolution project graphics: maps are shown no larger than their files, so small ones stay small. Find larger versions (owner): Hollywood phase map 548 px and intersection design 846 px, Sunset timeline map 780 px and proposed design 788 px, Vermont BRT map 1,100 px, Westwood features map 1,258 px. Aim for 1,400 to 2,000 px wide | next (owner) |
 | C4 | Before/after panel on the page (treated against control) | later |
 | C5 | Work-zone flags from BOE / LADOT permits (WZDx-style) | later |
-| C8 | Traffic-only section for Pico, Bonnie Brae St to Figueroa St (line 30 detours via Olympic), skipped by the bus roll-ups | next |
-| C9 | Pico against Olympic difference-in-differences on the page once construction starts | later |
+| C8 | Pico traffic-only gap from Bonnie Brae to Figueroa | Deferred by owner until recurring incident types and an ongoing data strategy are documented. [Partial closure worked example](VERMONT_COLLISION_EVIDENCE.md#pico-s4-worked-example) |
+| C9 | Pico against Olympic before/after | Olympic is suitable for descriptive comparison. Effect estimation awaits confirmed project/service dates, matched post-period data and a validated control |
 | C11 | Big Blue Bus feeds for Westwood south of Santa Monica Bl (needs its host on the allowlist and a collector change) | later |
-| C12 | Control streets for every project | waiting (until 2026-11-26). Review Olympic against Pico (bus GPS and TomTom per section, direction, hour): does it track Pico before construction, and is the data complete? If yes, add one parallel untreated street per project with the same cross streets. Candidates: Vermont → Normandie or Western; Hollywood → Franklin or Santa Monica Bl; Sunset / Cesar Chavez → Beverly Bl / 1st St; Westwood → Sepulveda or Overland; Fountain → Santa Monica Bl or Romaine St. Prefer Metro service; check the tile cost in [`docs/FREE_TIERS.md`](FREE_TIERS.md). If not, record why and choose differently (a matched stretch of the same street, or several averaged controls) |
-| C13 | Improve HERE coverage on Fountain Av (~8%) and Westwood Village (~25%) | next. Cheapest first: (1) fix Fountain's path (C2) and widen its HERE radius (40 m now); (2) keep links with confidence 0.7 or lower in a separate flagged column if that is where the gaps are; (3) request `functionalClasses` 4 and 5; (4) last resort: HERE `deepCoverage`, billed separately |
+| C12 | Validate control streets for each project | [Pico–Olympic review](audits/2026-11-26-transportation-evidence.md#picoolympic-descriptive-comparison) complete. Test independent or composite controls over a longer baseline. Candidates: Vermont → Normandie or Western; Hollywood → Franklin or Santa Monica; Sunset → Beverly or 1st; Westwood → Sepulveda or Overland; Fountain → Santa Monica or Romaine. Check [request cost](FREE_TIERS.md) before adding collection |
+| C13 | Improve HERE coverage on Fountain and Westwood Village | Fountain archive replay complete. Fresh authorized request on the revised path is pending. Review Westwood separately |
 
 ## D. Operations
 
@@ -88,9 +97,9 @@ points and storage design are in [`docs/INCIDENTS.md`](INCIDENTS.md); the source
 | # | Item | Source | Status |
 |---|---|---|---|
 | E1 | Collisions per section: severity (K, A, B, C, O), traveller type, age band, conditions; weekly refresh re-fetching the last 90 days | CCRS on data.ca.gov (open, 2016 to present, includes LAPD). First check why LAPD counts drop from 2016 to 2024 | next |
-| E2 | Live incidents per section (type, size, delay, first and last seen) | TomTom Incident Details: one box over all streets every 20 minutes (~2,160 of the free 2,500 a month) | **in progress**: collecting since 2026-11-19 19:37 UTC, rolled up hourly (`pipeline/build_incidents.py`). Next: show on the page (E6); review matching after a week |
+| E2 | Live incidents per section (type, size, delay, first and last seen) | TomTom Incident Details every 20 minutes | **in progress**: review more recurring event types and filtering gaps with the [worked examples](VERMONT_COLLISION_EVIDENCE.md) before choosing an ongoing representation |
 | E7 | Headline fatality numbers (United States, City of Los Angeles by year and year to date) | **done (2026-11-19)**: "Traffic deaths" panel at the top of the page, refreshed daily from CCRS; national from NHTSA by hand. Next: update the national CSV when NHTSA publishes 2025 final figures |
-| E5 | Delay columns: `delay_min` (travel time minus free-flow time) in the traffic CSVs, and bus minutes against the timetable | Existing TomTom, HERE and bus data | next |
+| E5 | Road free-flow, bus timetable and incident delay | [Three-measure audit](audits/2026-11-26-transportation-evidence.md#three-delay-measures) | Road and bus pilots await A13. Incident maxima need zero handling and poll provenance checks before display changes |
 | E6 | Incidents on the page | **in progress**: TomTom incidents shown as triangles on the hourly chart (with tooltip counts by type) and summarised per street and section in "Traffic incidents and deaths", just above Data sources (2026-11-19). Next: collisions and injuries per street once E1 exists (by severity and traveller type, on the same section) |
 | E3 | Hourly weather and daylight | NOAA ASOS (downtown USC, LAX); host to be allowed | later |
 | E4 | Emergency-response travel time near each street | LAFD Station Response Metrics (monthly per station); LA County Fire for Fountain needs a request | later |
@@ -99,6 +108,7 @@ points and storage design are in [`docs/INCIDENTS.md`](INCIDENTS.md); the source
 
 | When | What |
 |---|---|
+| 2026-11-26 | [Transportation evidence review](audits/2026-11-26-transportation-evidence.md), including aggregate coverage, incident worked examples and offline road/bus validation |
 | 2026-11-17 | Vermont Av scheduled speeds from GTFS history (2016 on); Worker collector, R2, hourly workflow, site at aviary.herebox.org and GitHub Pages; Hollywood, Sunset and Fountain added; GBFS collector |
 | 2026-11-18 | Swiftly collected (from 01:28 UTC) and rolled into measured speeds (B1); TomTom flow tiles collected (from 04:55 UTC) with its own tile decoder and roll-up; Cal-ITP measured history from the public speed-map bucket, weekly refresh (B5); crowdsourced-data and safety-data surveys; workflow push race fixed; actions on Node 24; page redesign (menus, projects, data sources) |
 | 2026-11-19 | TomTom incidents collected every 20 minutes and rolled up per section (E2 started); traffic-deaths panel (E7); incident data points designed ([`docs/INCIDENTS.md`](INCIDENTS.md)) |

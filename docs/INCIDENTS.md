@@ -1,5 +1,8 @@
 # Traffic incidents on each stretch: what to record
 
+The [incident review guide](VERMONT_COLLISION_EVIDENCE.md) provides Vermont collision examples and a Pico partial-closure example for checking source linkage, reporting coverage and section attribution.
+
+
 **Top-level requirement (owner, 2026-11-19)**: for every street and section, keep a record of traffic incidents
 over time, and keep it going, next to the bus and traffic speeds.
 

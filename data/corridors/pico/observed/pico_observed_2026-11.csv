@@ -1145,4 +1145,8 @@ pico,2026-11-26T06:00:00Z,2026-11-25T22:00:00-0800,30,eastbound,S2,10.57,5.64,0.
 pico,2026-11-26T06:00:00Z,2026-11-25T22:00:00-0800,30,westbound,S1,14.8,4.01,0.989,1,gtfs_realtime_observed,
 pico,2026-11-26T06:00:00Z,2026-11-25T22:00:00-0800,30,westbound,S2,10.04,5.94,0.994,1,gtfs_realtime_observed,
 pico,2026-11-26T06:00:00Z,2026-11-25T22:00:00-0800,30,westbound,S3,8.95,4.45,0.664,1,gtfs_realtime_observed,
+pico,2026-11-26T07:00:00Z,2026-11-25T23:00:00-0800,30,eastbound,S1,19.82,2.99,0.989,1,gtfs_realtime_observed,
+pico,2026-11-26T07:00:00Z,2026-11-25T23:00:00-0800,30,eastbound,S2,9.22,6.47,0.994,2,gtfs_realtime_observed,
 pico,2026-11-26T07:00:00Z,2026-11-25T23:00:00-0800,30,eastbound,S3,10.71,3.72,0.664,1,gtfs_realtime_observed,
+pico,2026-11-26T07:00:00Z,2026-11-25T23:00:00-0800,30,westbound,S2,8.97,6.65,0.994,1,gtfs_realtime_observed,
+pico,2026-11-26T08:00:00Z,2026-11-26T00:00:00-0800,30,eastbound,S2,12.39,4.81,0.994,1,gtfs_realtime_observed,

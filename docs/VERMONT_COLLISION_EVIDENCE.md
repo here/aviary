@@ -1,0 +1,31 @@
+# Reviewing traffic incidents and collisions
+
+Record the claim first. Collision occurrence, injury severity, source linkage and traffic impact can each have a different level of evidence. The November 2026 review supplied no target collision. These worked examples use the [November 25 Aviary pin](https://github.com/here/aviary/commit/6636c6c76ec2aba9797838a69bf7546cae6bc4ba).
+
+## Review protocol
+
+1. Record the occurrence interval, time zone and precision. Preserve report, publication, provider start/end and first/last poll times separately. Compare in UTC, retaining the plausible interval around ambiguous local times.
+2. Normalize road names and cross streets, then compare section, jurisdiction, direction and roadway level where known. Use a nearby geographic search as a second pass. A traffic line may represent a queue extending away from a crash point.
+3. For a minute-level occurrence, start with the named intersection and ±15 minutes, with at least one scheduled poll on either side. For a date-only report, check the full local day. Log search bounds, cadence, gaps, classifier and geometry filters, and why alternatives were kept or excluded.
+4. Compare agency notices, administrative reports and provider features. Record common provenance, such as an LAPD release and a CCRS row derived from the same police report. Keep coverage and late or revised reporting explicit. An unmatched archive search establishes the scope searched.
+5. Record the disposition (corroborated, unmatched administrative case, uncorroborated provider lead, traffic disruption, or unresolved conflict), confidence, evidence and next review trigger. Use public primary references and omit personal details. Seek agency confirmation before attributing injury severity or claiming a crash caused a traffic delay.
+
+TomTom describes detected road impacts. Aviary filters and splits matched lines by section and direction, and delay refers to disruption. CHP's CCRS provides administrative crash reports, which may arrive late or be revised. LAPD newsroom releases cover selected cases, and its historical collision portal has a reporting break after a records-system migration. Compare like geographies, occurrence dates, agency coverage and units (feature, crash or person). [Incident matcher](https://github.com/here/aviary/blob/6636c6c/pipeline/build_incidents.py) · [CHP CCRS](https://publish.data.ca.gov/dataset/ccrs) · [LAPD collision data and migration notice](https://data.lacity.org/Public-Safety/Traffic-Collision-Data-from-2010-to-Present/d5tf-ez2w/about_data)
+
+## Vermont worked examples
+
+| Case | Disposition |
+| --- | --- |
+| Vermont and West 108th, November 21 evening PST | An uncorroborated TomTom accident lead overlapped a secondary dispatch account in time and location. The feature was within the matcher's 40 m offset tolerance, but its projected span was about 28 m, below the 0.02 mi minimum. The pinned Vermont rollup had zero accident-category rows. Independent collision confirmation and injury severity remain open. [Pinned rollup](https://github.com/here/aviary/blob/6636c6c/data/incidents/vermont_incidents_2026.csv) |
+| Vermont and Olympic, November 15 around 05:50 PST | LAPD and a matching CCRS record corroborate a fatal collision by time, intersection and outcome. A second CCRS record at that intersection earlier that morning was a separate case. The corroborated crash predates Aviary's November 19 TomTom incident collection. [LAPD release](https://www.lapdonline.org/newsroom/fatal-traffic-collision-nr26309al/) · [CHP CCRS](https://publish.data.ca.gov/dataset/ccrs) |
+| Vermont and Wilshire, November 22 around 03:20 PST | A standalone CCRS injury crash. The reviewed provider polls from 10:00–13:00 UTC did not yield a matching accident feature. Keep the administrative crash and the poll result as separate records. [CHP CCRS](https://publish.data.ca.gov/dataset/ccrs) |
+
+A review record can be as short as **Vermont at West 108th · November 21 evening PST · uncorroborated provider lead**. Record the location and time agreement, the minimum-span exclusion, the lack of a matched official record in the examined window and a follow-up trigger of new primary evidence. Keep collision occurrence and injury severity unresolved in the record.
+
+## Pico S4 worked example
+
+The Bonnie Brae–Figueroa study gap is about 0.787 mi. A planned 24/7 closure in both directions covers about 0.244 mi from LA Live Way to Figueroa, December 4, 2025 through March 31, 2028 local time on the published schedule. Actual reopening, extensions and exact barricade positions remain unverified. The Line 30 detour uses Union, Olympic and Figueroa, a different extent from the closure. The checked-in Pico corridor ends at Bonnie Brae. [LADOT closure update](https://ladot.lacity.gov/dotnews/weekly-update-december-04-2025) · [Convention Center closure notice](https://www.laconventioncenter.com/parking/pico-blvd-closure/) · [Metro service changes](https://www.metro.net/about/media-relations/december-service-changes-effective-dec-14/) · [Pinned Pico definition](https://github.com/here/aviary/blob/6636c6c/corridors/pico.json)
+
+In the November 25 UTC replay, TomTom Incident Details detected the closure in 72/72 polls per direction. The unsplit candidate returned positive flow in 96/96 captures per direction from matched western links. The closed block yielded zero matched flow rows when evaluated separately. The incident and flow results coexist because they describe different parts of the study gap. Keep the agency closure, observed flow coverage, provider incident times and bus diversion as distinct evidence. [Pinned flow matcher](https://github.com/here/aviary/blob/6636c6c/pipeline/build_traffic.py) · [Pinned incident matcher](https://github.com/here/aviary/blob/6636c6c/pipeline/build_incidents.py)
+
+The owner retained this as a worked example and deferred geometry and pipeline changes. Build a review set of recurring collisions, jams, work zones and lane or road closures, including conflicting evidence and unmatched examples. Record affected movements, extent, planned and observed dates, confirmation, revisions, and reopening. Use those cases to decide what can be documented consistently in ongoing data and which sources provide the coverage, update cadence and reuse rights needed.

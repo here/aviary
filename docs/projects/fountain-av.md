@@ -9,9 +9,9 @@ linked source before publication.
 The Fountain Avenue "road diet" that appears in the press is **not an LADOT project**.
 It is the **City of West Hollywood's Fountain Avenue Streetscape Project**, on the part
 of Fountain west of La Brea Av. Phase 1 (four lanes to two, protected bike lanes) was
-approved by the West Hollywood City Council on 2025-09-15 [BP-2025-09] and, as of the
-latest reporting found, construction was anticipated to start in fall 2026 but was
-**not confirmed as started** [BP-2026-09][LAist-vote]. In the City of Los Angeles
+approved by the West Hollywood City Council on 2025-09-15 [BP-2025-09]. As of the November 26 evidence review,
+the city anticipated Phase 1 construction in Q1 2027 and actual field dates remained unverified.
+[City project overview](https://engage.weho.org/fountain) · [Coverage audit](../audits/2026-11-26-transportation-evidence.md#fountain-project-and-traffic-coverage). In the City of Los Angeles
 (La Brea Av east to Sunset Bl), no LADOT lane-reduction project on Fountain was found.
 The only LADOT work found on Fountain itself is a 2023 westbound bike lane in East
 Hollywood (Vermont Av to Kingsley Dr) [SBLA-2023]. Other LADOT projects only touch
@@ -22,7 +22,7 @@ Fountain as an end point (Hobart Bl lanes, Hollywood Bl phase 2, Sunset/Cesar Ch
 | Project | Agency | Extent on Fountain | Length | Status |
 |---|---|---|---|---|
 | Fountain Avenue Streetscape Project, Phase 1 | City of West Hollywood | La Cienega Bl to La Brea Av [CEQA][BP-2025-09] | 1.8 mi [LAist] | Approved 2025-09-15; construction start not confirmed |
-| Fountain Avenue Streetscape Project, Phase 2 (full rebuild) | City of West Hollywood | Same corridor [CEQA] | 1.8 mi | Planning to begin second half of 2026 [BP-2026-09] |
+| Fountain Avenue Streetscape Project, Phase 2 (full rebuild) | City of West Hollywood | Same corridor [CEQA] | 1.8 mi | City anticipates planning in Q1 2027 [City project overview](https://engage.weho.org/fountain) |
 | Westbound bike lane | LADOT (Council District 13) | Vermont Av to Kingsley Dr (south) [SBLA-2023] | 0.6 mi [SBLA-2023] | Installed; reported 2023-03-17 |
 | LADOT road diet on Fountain, La Brea Av to Vermont Av | LADOT | not found | not found | not found |
 
@@ -56,8 +56,8 @@ remains sharrows. No lane removal was reported in the summary found.
 | 2025-11-05 | CEQA Notice of Exemption posted for Phase 1 (statutory bikeway exemption) | [CEQA] |
 | date not found (a Monday, 2026) | Motion to study a parking-preserving alternative fails 3-2 | [LAist-vote] |
 | 2026-08-31 | Residents speak on the project at WeHo council meeting | [BP-2026-09] |
-| fall 2026 / "before the end of 2026" | Phase 1 construction anticipated to begin | [BP-2026-09][LAist][PfB] |
-| second half of 2026 | Phase 2 planning to begin | [BP-2026-09] |
+| Earlier estimate, fall 2026 | Previous Phase 1 estimate | [BP-2026-09][LAist][PfB] |
+| Q1 2027 | City anticipates Phase 1 construction and start of Phase 2 planning | [City project overview](https://engage.weho.org/fountain) |
 | winter or spring 2027 | Phase 1 completion (two different estimates, see below) | [BP-2025-09][BP-2025-08] |
 | actual construction start | not found | |
 | actual completion | not built as far as could be confirmed | |

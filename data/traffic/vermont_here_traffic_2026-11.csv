@@ -1777,3 +1777,16 @@ vermont,2026-11-28T00:00:00Z,2026-11-27T16:00:00-0800,southbound,S3,15.97,24.12,
 vermont,2026-11-28T00:00:00Z,2026-11-27T16:00:00-0800,southbound,S4,,,,2.04,0.266,0.0,1,here_traffic_flow
 vermont,2026-11-28T00:00:00Z,2026-11-27T16:00:00-0800,southbound,S5,23.33,28.62,5.07,1.971,1.0,0.0,1,here_traffic_flow
 vermont,2026-11-28T00:00:00Z,2026-11-27T16:00:00-0800,southbound,S6,27.37,29.97,4.82,2.199,1.0,0.0,1,here_traffic_flow
+vermont,2026-11-28T01:00:00Z,2026-11-27T17:00:00-0800,northbound,S1,15.07,21.68,9.85,2.474,1.0,0.0,1,here_traffic_flow
+vermont,2026-11-28T01:00:00Z,2026-11-27T17:00:00-0800,northbound,S2,10.39,23.19,8.64,1.496,1.0,0.0,1,here_traffic_flow
+vermont,2026-11-28T01:00:00Z,2026-11-27T17:00:00-0800,northbound,S3,16.25,23.57,5.55,1.502,1.0,0.0,1,here_traffic_flow
+vermont,2026-11-28T01:00:00Z,2026-11-27T17:00:00-0800,northbound,S4,,,,2.04,0.261,0.0,1,here_traffic_flow
+vermont,2026-11-28T01:00:00Z,2026-11-27T17:00:00-0800,northbound,S5,20.05,29.77,5.9,1.971,0.763,0.0,1,here_traffic_flow
+vermont,2026-11-28T01:00:00Z,2026-11-27T17:00:00-0800,northbound,S6,24.8,29.87,5.32,2.199,0.545,0.0,1,here_traffic_flow
+vermont,2026-11-28T01:00:00Z,2026-11-27T17:00:00-0800,southbound,S1,14.91,23.51,9.96,2.474,1.0,0.0,1,here_traffic_flow
+vermont,2026-11-28T01:00:00Z,2026-11-27T17:00:00-0800,southbound,S2,15.77,25.61,5.69,1.496,1.0,0.0,1,here_traffic_flow
+vermont,2026-11-28T01:00:00Z,2026-11-27T17:00:00-0800,southbound,S3,17.15,23.49,5.25,1.502,1.0,0.0,1,here_traffic_flow
+vermont,2026-11-28T01:00:00Z,2026-11-27T17:00:00-0800,southbound,S4,16.5,25.22,7.42,2.04,1.0,0.0,1,here_traffic_flow
+vermont,2026-11-28T01:00:00Z,2026-11-27T17:00:00-0800,southbound,S5,20.09,27.01,5.89,1.971,0.502,0.0,1,here_traffic_flow
+vermont,2026-11-28T01:00:00Z,2026-11-27T17:00:00-0800,southbound,S6,27.28,29.97,4.84,2.199,0.988,0.0,1,here_traffic_flow
+vermont,2026-11-28T01:00:00Z,2026-11-27T17:00:00-0800,southbound,corridor,17.95,25.68,39.04,11.682,0.915,0.0,1,here_traffic_flow
